@@ -342,6 +342,202 @@ MIT — see [LICENSE](./LICENSE).
 
 ---
 
+
+## 使用指南 · Usage Guide
+
+> 这一节把"装上后怎么用"讲透。先看 4 个最高频的指令,再看心法,最后看进阶与反模式。
+>
+> This section makes "how to actually use it" concrete. Read the 4 high-frequency invocations first, then principles, then advanced usage and anti-patterns.
+
+### 4 个最高频指令 · Top 4 invocations
+
+#### ① 从 PRD 启动新项目 · Bootstrap a new project from a PRD
+
+```
+Use $ai-engineering-harness to bootstrap this repo from PRD.md.
+```
+
+Coordinator 会按 `workflows/00-project-bootstrap.md` 一次创建 `docs/{product,architecture,design,decisions}`、`memory/`、`PROJECT_STATUS.md`、`AGENTS.md` / `CLAUDE.md`、`DESIGN.md`、`ENGINEERING.md`、`TESTING.md`、`CONTRIBUTING.md`、`.github/ISSUE_TEMPLATE/`、`.github/PULL_REQUEST_TEMPLATE.md`、Phase 总结模板与首批 Issue。
+
+The Coordinator runs `workflows/00-project-bootstrap.md`, creating the full doc tree, memory, status, project meta-docs, GitHub Issue / PR templates, and the first round of Issues.
+
+#### ② 接续已存在的工作 · Resume interrupted work
+
+```
+Use $ai-engineering-harness. Read PROJECT_STATUS.md and continue the next Todo.
+```
+
+它会读 `memory/` + 上一次 Session 的 `summary.md`,从中断处继续。
+
+Reads `memory/` + the last Session's `summary.md` and picks up where you left off.
+
+#### ③ 把单个 Issue 推到合并 · Take one Issue to merged
+
+```
+Use $ai-engineering-harness to take Issue #17 from Planning to Done.
+```
+
+走完整闭环:写 Plan → 在 Worktree 里分派 Frontend/Backend/Database Agent → 实现 → 自测 → Draft PR → CI → 冷启动对抗式审查(Bug Hunter + Behavior Reviewer + 必要时 Architecture/Security/UI Reviewer)→ 修循环 → Evidence Gate → 合入 → 阶段总结 → 记忆沉淀。
+
+Walks the full closed loop: Plan → spawn Frontend/Backend/Database on isolated Worktrees → Implement → Self-test → Draft PR → CI → cold-start adversarial review (Bug Hunter + Behavior Reviewer, plus Architecture/Security/UI when warranted) → Fix loop → Evidence Gate → Merge → Phase summary → Memory write.
+
+#### ④ 复盘 / 救火 · Audit or rescue
+
+```
+Use $ai-engineering-harness to audit this repo: list open PRs older than 7 days,
+flag missing Evidence, and produce a recovery plan.
+```
+
+它盘点"现状 → 期望"的 Gap,转成一批自动归列的 Issue,并给出先做的 3 件事与执行顺序。
+
+The Coordinator inventories the gap from "current" to "expected", files a batch of Issues on the kanban, and surfaces the first three actions with sequencing.
+
+### 使用心法 · Operating principles
+
+| # | 原则 · Principle | 为什么 · Why |
+|---|---|---|
+| 1 | **信任证据,不信任"看起来好了" · Trust evidence, not vibes** | Coordinator 不会因为"本地测试过了"就合并。它要看到 `docs/evidence/<id>/` 里所有 `verification.md` 的 AC 行 PASS,且 CI 绿、≥ 2 名审查员 ✅、Aggregator ✅。Missing one → not Done. |
+| 2 | **冷启动审查 · Cold-start reviews** | Reviewer 只读 Issue + Plan + PR diff + Evidence,**不读实现者的聊天或解释**。这避免了"自己说服自己"。 |
+| 3 | **Issue 是工作单元 · Issues are the unit of work** | 没有 Issue 不开工。Issue 必须有 Context / Goal / Scope / Non-Goal / Related Docs / Plan / AC / Evidence Reqs / Reviewer Reqs / Owner / Estimate。 |
+| 4 | **Worktree 隔离 · Worktree isolation** | 一个 Issue = 一个 Owner = 一个 Worktree = 一个分支。多个并行 Owner 互不干扰,只在冲突时进 Conflict Resolver。 |
+| 5 | **上下文按 L0–L3 加载 · L0–L3 context control** | 默认不加载 `docs/` 全文。让 `agents/context-assembly.md` 按任务产出 `context-manifest.md`,只给 Agent 当前必需的最小可信上下文。 |
+| 6 | **人工审批闸门 · Human Approval Gate** | 涉及 鉴权 / 数据库 schema / 生产密钥 / 付费 API / 发布版本 时,Coordinator 会主动 `request_user_input` 并暂停。它不会代你做这些判断。 |
+| 7 | **记忆是项目状态,不是聊天 · Memory is project state, not chat** | 稳定结论写到 `docs/` 与 `memory/`;对话历史不留。每个 Phase 结束后 Coordinator 跑 `workflows/06-phase-summary.md` 沉淀。 |
+
+### 典型指令清单 · Canonical invocations
+
+```text
+# 启动
+Use $ai-engineering-harness to bootstrap this repo from PRD.md.
+
+# 接续
+Use $ai-engineering-harness. Read PROJECT_STATUS.md and continue the next Todo.
+
+# 单 Issue 推动
+Use $ai-engineering-harness to take Issue #17 from Planning to Done.
+
+# 复盘 / 救火
+Use $ai-engineering-harness to audit this repo and produce a recovery plan.
+
+# 跨 CLI 接力(从 Claude 切到 Grok,聊天历史没用,落盘状态才行)
+Use $ai-engineering-harness. I'm continuing from another agent. Read
+memory/project-memory.md and sessions/<last-id>/summary.md, then continue.
+
+# 只取一个 Phase 总结,而不打开所有 docs/
+Use $ai-engineering-harness. Summarize the latest phase.
+
+# 把多个 Issue 并行分派给前端 / 后端 / 数据库 Agent
+Use $ai-engineering-harness to spawn parallel Owners for Issue #20, #21, #22.
+```
+
+### 进阶用法 · Advanced usage
+
+#### 30 秒拉起一个新项目
+
+```bash
+mkdir my-saas && cd my-saas
+git init
+echo "# My SaaS" > README.md
+git add . && git commit -m "feat: init"
+
+# 进入任意 CLI(Codex / Claude / Grok / Cursor / Gemini ...)
+# Use $ai-engineering-harness to bootstrap this repo from PRD.md
+```
+
+Coordinator 会生成目录骨架、首轮 Issue、ADR 模板、CI 工作流占位,然后在 `PROJECT_STATUS.md` 上写 "Phase 0 / Bootstrap — Done"。
+
+#### 接手老项目,补齐工程基础设施
+
+```
+Use $ai-engineering-harness to take over this repo. Inventory the gap
+between current state and harness layout; file Issues for the missing
+pieces; do not edit code yet.
+```
+
+它先盘点 → 把差距落 Issue,再按 Issue 推进;**不会先去动业务代码**。
+
+#### 跨 CLI 接力
+
+Harness 的所有状态都落盘,**聊天历史不会丢**。从 Claude 切到 Grok 时:
+
+```
+Use $ai-engineering-harness. I'm continuing from another agent. Read
+memory/project-memory.md and the latest sessions/<id>/summary.md.
+```
+
+#### 让 Agent 并行做多件事
+
+```
+Use $ai-engineering-harness to plan and dispatch Issue #18 (frontend),
+#19 (backend), #20 (database) in parallel Worktrees.
+```
+
+Coordinator 会分别拉 `feature/18-...`、`feature/19-...`、`feature/20-...` 三个 Worktree,每个 Owner 独立推到 PR。冲突时由 Conflict Resolver 处理,**不会自动覆盖**。
+
+#### 在 CI 出错时让它自愈
+
+```
+CI is red on PR #N. Use $ai-engineering-harness to recover.
+```
+
+走 `workflows/04-ci-recovery.md`:60 秒分类(flaky / 真缺陷 / lint / 集成 / infra)→ 派 Owner Agent 修复 → 重新跑 CI → 重新走 Reviewer。
+
+### 不要这样用 · Anti-patterns
+
+| 反模式 · Anti-pattern | 为什么不行 · Why it fails | 应该做 · Do this instead |
+|---|---|---|
+| 缺字段的 Issue 上让它"先做着" | Coordinator 不会启动。 | 补齐字段(模板就在 `.github/ISSUE_TEMPLATE/`)。 |
+| 直接改 `main` / `master` | 拒绝。Worktree 是硬要求。 | `git worktree add ../proj-issue-<id> -b feature/<id>-<slug> main` |
+| 让实现者同时"自审" | 审查员**必须冷启动**。 | 让它 spawn 一个独立 Reviewer Agent,只喂 Issue + Diff + Evidence。 |
+| 把 100 页 PDF 当成整个 Spec 直接喂 | 上下文会被垃圾塞满。 | 用 `agents/context-assembly.md` 抽出相关章节再喂。 |
+| "我觉得可以合并" | 不会合并。要 Evidence Gate 全绿 + Aggregator ✅。 | 等 Coordinator 自己报 Ready。 |
+| 在它做事的中间打断催 | 打断 = 状态不一致。 | 看 PROJECT_STATUS.md / TaskList,不要直接抢方向盘。 |
+| 把它当一次性 coding prompt | 它不是 Prompt,是 Harness。 | 用它管产品,不是写一行代码。 |
+
+### 适用 / 不适用 速查 · When (not) to use
+
+| 场景 · Scenario | 用 Harness? · Use it? |
+|---|:---:|
+| 把一个 PRD 落地成 MVP | ✅ 必须 · Mandatory |
+| 多 Issue 并行开发 | ✅ 必须 · Mandatory |
+| 接手老项目、清理技术债 | ✅ 强烈推荐 · Strongly recommended |
+| 复盘一个失序的 repo | ✅ 强烈推荐 · Strongly recommended |
+| 跨团队 / 跨 CLI 协作 | ✅ 推荐 · Recommended |
+| 改一行 typo / 文案 / 配置 | ❌ 不要 · Skip |
+| 一次性脚本 / 一次性原型 | ❌ 不要 · Skip |
+| 只是想聊架构想法 / 解释概念 | ❌ 不要 · Skip |
+
+### 维护 · Maintenance
+
+```bash
+# 升级到最新版本
+npx -y skills update lora-sys/ai-engineering-harness -g
+
+# 查看当前装的版本
+npx skills list -g
+
+# 在项目仓库里加 git commit hook,自动维护 docs/ 的索引
+cat > .githooks/post-commit <<'HOOK'
+#!/usr/bin/env bash
+bash <(curl -fsSL https://raw.githubusercontent.com/lora-sys/ai-engineering-harness/main/scripts/refresh-index.sh)
+HOOK
+chmod +x .githooks/post-commit
+git config core.hooksPath .githooks
+```
+
+每个 Phase 完成后,Coordinator 会自动跑 `workflows/06-phase-summary.md` + `workflows/08-memory-evolution.md`,把"什么是真的学到的"沉淀进 `memory/<role>-memory.md`。下次有新 Session 启动,新 Agent 会先读这些再开工。
+
+After each Phase, the Coordinator automatically runs `workflows/06-phase-summary.md` and `workflows/08-memory-evolution.md`, promoting stable lessons into `memory/<role>-memory.md`. Next Session, new Agents read these before starting work.
+
+### 进阶阅读 · Further reading
+
+- [`SKILL.md`](./SKILL.md) — Agent 加载的入口全文 · Entry document loaded by every agent
+- [`agents/`](./agents/) — 18 类 Agent 角色 · 18 agent personas
+- [`workflows/`](./workflows/) — 9 个工作流 · 9 closed-loop workflows
+- [`templates/`](./templates/) — 16 套模板 · 16 templates (Issue / Plan / PR / Review / Evidence / Phase / ADR / ...)
+- [`checklists/`](./checklists/) — 6 份验收清单 · 6 acceptance checklists
+- [`examples/`](./examples/) — 6 份已填写示例 · 6 filled samples
+
 ## Tables / 表格
 
 | Compatibility / 兼容性 | Install path / 安装路径 | Status after one-liner / 一行安装后状态 |
