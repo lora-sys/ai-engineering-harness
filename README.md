@@ -59,6 +59,32 @@ npx -y skills add lora-sys/ai-engineering-harness -g --all
 
 完成后,这套 Skill 会被放到 `~/.claude/skills/ai-engineering-harness/`、`~/.cursor/skills/ai-engineering-harness/`、`~/.gemini/skills/ai-engineering-harness/`、`~/.qwen/skills/ai-engineering-harness/`、`~/.grok/skills/ai-engineering-harness/`、`~/.codex/skills/ai-engineering-harness/`(待 Codex 目录可写后自动填充)等 38 个 CLI Agent 的全局 Skill 目录。
 
+
+
+> ⚠️ **`--all` 到底装什么**
+>
+> `npx skills add lora-sys/ai-engineering-harness -g --all` 会把**本仓库所有 Skill** 一次性装到 **所有受支持的 Agent** — 全局生效。
+>
+> 当前仓库里只有 **1 个 Skill**(`ai-engineering-harness`),所以 `--all` 等价于只装它,**安全**。
+>
+> 以后如果在这个仓库里加入姊妹 Skill,`--all` 会一并装,不再二次确认。这是 Vercel `skills` CLI 的设计意图(一行命令拿整套工具集),但也意味着:装第三方 fork 出来的多 skill 仓库时,**应该先预览再装**。下面三条命令用来限制范围:
+>
+> ```bash
+> # 装之前先看看里面有什么
+> npx -y skills add lora-sys/ai-engineering-harness --list
+>
+> # 只装这一个 skill
+> npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness
+>
+> # 只装到指定 agent
+> npx -y skills add lora-sys/ai-engineering-harness -g -a claude-code codex grok
+>
+> # 同时限定:一个 skill 一个 agent
+> npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness -a claude-code
+> ```
+>
+> 索引器使用的完整元数据见仓库根目录的 [`meta.json`](./meta.json)。
+
 兼容性矩阵覆盖:Claude Code、Codex、Grok、Cursor、Gemini、Qwen、Cline、Hermes-Agent、Aider Desk、Amp、Antigravity、Continue、Cortex、Crush、Devin、Droid、Forgecode、Goose、Junie、Kilo、Kiro、Kode、Mar'sCode、Mistral Vibe、Mux、OpenCode、OpenHands、Pi、Qoder、Rovodev、Roo、Tabnine、Tinycloud、Trae、Warp、Windsurf、Zed、Zencoder、Zenflow、Neovate、Pochi、Adal 等全部 60+ CLI 编码 Agent。
 
 ### 手动安装(若你想要更多控制)
@@ -219,6 +245,32 @@ npx -y skills add lora-sys/ai-engineering-harness -g --all
 
 - `-g` → user-level / global install (instead of project-level)
 - `--all` → install every skill in the repo into every supported CLI agent
+
+
+> ⚠️ **What `--all` actually does**
+>
+> `npx skills add lora-sys/ai-engineering-harness -g --all` installs **every skill in this repo** into **every supported agent** — globally.
+>
+> Today, the repo contains **one skill** (`ai-engineering-harness`), so `--all` is equivalent to installing that one skill. Safe.
+>
+> If a sister skill is added to the repo later, `--all` will install it too — without an extra prompt. That's the design intent (one command gets the whole toolkit), but it does mean **you should preview before installing sister repos** you don't fully trust. Use these to limit scope:
+>
+> ```bash
+> # Preview what's inside before installing
+> npx -y skills add lora-sys/ai-engineering-harness --list
+>
+> # Limit to one skill
+> npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness
+>
+> # Limit to specific agents
+> npx -y skills add lora-sys/ai-engineering-harness -g -a claude-code codex grok
+>
+> # Both: one skill, one agent
+> npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness -a claude-code
+> ```
+>
+> For full metadata about this skill (used by indexes), see [`meta.json`](./meta.json) at the repo root.
+
 
 After this runs, the skill lands in the global skill directory of every supported CLI agent:
 

@@ -1,0 +1,26 @@
+{
+  "id": "ai-engineering-harness",
+  "name": "AI Engineering Harness",
+  "description": "Multi-agent engineering organization harness. Issue → Worktree → Plan → Implement → Adversarial Review → Evidence → Merge → Memory loop. 18 agent personas, 9 workflows, evidence-gated, cold-start review, dynamic L0–L3 context control. Use prompts: bootstrap / resume / drive / audit.",
+  "category": "engineering-orchestration",
+  "priority": 20,
+  "tags": [
+    "multi-agent",
+    "engineering",
+    "evidence-gated",
+    "adversarial-review",
+    "context-control",
+    "issue-driven",
+    "worktree-isolated",
+    "memory-evolving"
+  ],
+  "install": {
+    "global": "npx -y skills add lora-sys/ai-engineering-harness -g --all",
+    "specific-skill": "npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness",
+    "specific-agent": "npx -y skills add lora-sys/ai-engineering-harness -g -a claude-code codex grok"
+  },
+  "agents_supported": 60,
+  "license": "MIT",
+  "repository": "https://github.com/lora-sys/ai-engineering-harness",
+  "entry": "SKILL.md"
+}
