@@ -1,0 +1,26 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build outputs (if any tooling sneaks in)
+dist/
+node_modules/
+*.log
+
+# Local env / secrets (never commit)
+.env
+.env.*
+!.env.example
+
+# Worktree meta (per project, not this repo)
+.git/worktrees/
+
+# Codex scratch
+.codex/tmp/
+
+# Evidence packs in target projects (when this skill lands inside another repo)
+# docs/evidence/*/test-results/*.json.bak

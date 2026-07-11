@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI Engineering Harness"
+  short_description: "Multi-agent engineering org with Issue→PR→Evidence loop"
+  default_prompt: "Use $ai-engineering-harness to bootstrap this repo from a PRD, drive an Issue to merged PR with adversarial review and Evidence, or audit a stalled project."
