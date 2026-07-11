@@ -10,6 +10,12 @@
   <a href="https://github.com/lora-sys/ai-engineering-harness"><img alt="stars" src="https://img.shields.io/badge/stars-%E2%AD%90%EF%B8%8F-yellow"></a>
 </p>
 
+![Architecture · AI Engineering Harness](./assets/architecture.svg)
+
+*Coordinator reads docs, owns the kanban, and spawns 18 Agent personas across 9 closed-loop workflows. Every cycle is evidence-gated: code reaches `main` only when CI is green, ≥2 cold-start reviewers approve, and the Evidence pack is complete. Memory is promoted every cycle so the project gets smarter without losing it to chat history.*
+
+---
+
 ---
 
 ## 中文
@@ -583,3 +589,28 @@ After each Phase, the Coordinator automatically runs `workflows/06-phase-summary
 | Adal | `~/.adal/skills/` | ✅ |
 | `.agents/` (unified) | `~/.agents/skills/` | ⏳ pending OS-level mount-RW on this system |
 
+
+---
+
+## Discoverability · 收录与发现
+
+This skill is automatically aggregated by [Vercel's `skills.sh`](https://skills.sh/) index — a public registry for AI agent skills. Once GitHub's crawler picks up the topics + SKILL.md metadata here, the install command shows up in skill search results.
+
+To help the crawler (or anyone running the `npx skills find` CLI on the user machine):
+
+```bash
+# Tag-related search (works locally)
+npx -y skills find ai-engineering-harness --owner lora-sys
+
+# Browse by topic (when on the skills.sh web UI)
+# Search: multi-agent, code-review, evidence, skills
+```
+
+If you fork or extend this skill, keep these GitHub fields intact:
+
+| Field         | Why                                                              |
+| ------------- | ---------------------------------------------------------------- |
+| Topics        | `ai-engineering`, `multi-agent`, `skills`, `code-review`, etc.    |
+| Description   | Begins with "AI-native software engineering organization harness… |
+| License       | MIT — keeps it redistribution-friendly                            |
+| `SKILL.md`    | YAML frontmatter `name` + `description` is what the indexer reads|

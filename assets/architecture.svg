@@ -1,0 +1,206 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 820" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="50%" stop-color="#0f1530"/>
+      <stop offset="100%" stop-color="#1a0f2a"/>
+    </linearGradient>
+    <linearGradient id="coord" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c5cff"/><stop offset="100%" stop-color="#4a3aff"/>
+    </linearGradient>
+    <linearGradient id="evid" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4aa"/><stop offset="100%" stop-color="#00a98a"/>
+    </linearGradient>
+    <linearGradient id="mem"  x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffb547"/><stop offset="100%" stop-color="#ff8a3d"/>
+    </linearGradient>
+    <linearGradient id="rev"  x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff5e7a"/><stop offset="100%" stop-color="#e0395b"/>
+    </linearGradient>
+    <linearGradient id="impl" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5fb3ff"/><stop offset="100%" stop-color="#3d8be0"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#a8b3d6"/>
+    </marker>
+    <marker id="arrow-light" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#cdd5ec"/>
+    </marker>
+    <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <rect width="1440" height="820" fill="url(#bg)"/>
+  <g opacity="0.05" stroke="#a8b3d6" stroke-width="1">
+    <path d="M0 200 H1440 M0 400 H1440 M0 600 H1440"/>
+    <path d="M360 0 V820 M720 0 V820 M1080 0 V820"/>
+  </g>
+
+  <!-- Title -->
+  <text x="60" y="62" font-size="32" font-weight="700" fill="#f4f6ff">AI Engineering Harness</text>
+  <text x="60" y="92" font-size="16" font-weight="400" fill="#a8b3d6">Issue → Worktree → Plan → Implement → Adversarial Review → Evidence → Merge → Memory</text>
+  <text x="60" y="116" font-size="11" font-weight="600" fill="#6f78a8" letter-spacing="2">AI-NATIVE SOFTWARE ENGINEERING ORGANIZATION · 18 AGENTS · 9 WORKFLOWS · EVIDENCE-GATED</text>
+
+  <!-- Step 1..6 across the top (1440 wide, 6 boxes + connectors) -->
+  <!-- positions: 60, 290, 520, 750, 980, 1210, each 200 wide, gap 30 -->
+  <g transform="translate(60,180)">
+    <rect width="200" height="80" rx="10" fill="#1c2440" stroke="#5fb3ff" stroke-width="1.5"/>
+    <text x="14" y="22" font-size="11" font-weight="700" fill="#5fb3ff" letter-spacing="1">ISSUE ①</text>
+    <text x="14" y="46" font-size="15" font-weight="700" fill="#f4f6ff">Idea → Issue</text>
+    <text x="14" y="66" font-size="10" fill="#a8b3d6">Context · AC · Owner</text>
+  </g>
+  <g transform="translate(290,180)">
+    <rect width="200" height="80" rx="10" fill="#1c2440" stroke="#a8b3d6" stroke-width="1"/>
+    <text x="14" y="22" font-size="11" font-weight="700" fill="#a8b3d6" letter-spacing="1">PLAN ②</text>
+    <text x="14" y="46" font-size="15" font-weight="700" fill="#f4f6ff">Implementation Plan</text>
+    <text x="14" y="66" font-size="10" fill="#a8b3d6">Files · Schema · Tests</text>
+  </g>
+  <g transform="translate(520,180)">
+    <rect width="200" height="80" rx="10" fill="url(#impl)" filter="url(#glow)"/>
+    <text x="14" y="22" font-size="11" font-weight="700" fill="#dbeaff" letter-spacing="1">IMPLEMENT ③</text>
+    <text x="14" y="46" font-size="15" font-weight="700" fill="#ffffff">Worktree + Code</text>
+    <text x="14" y="66" font-size="10" fill="#dbeaff">FE / BE / DB Agents</text>
+  </g>
+  <g transform="translate(750,180)">
+    <rect width="200" height="80" rx="10" fill="#1c2440" stroke="#a8b3d6" stroke-width="1"/>
+    <text x="14" y="22" font-size="11" font-weight="700" fill="#a8b3d6" letter-spacing="1">CI ④</text>
+    <text x="14" y="46" font-size="15" font-weight="700" fill="#f4f6ff">Build + Test</text>
+    <text x="14" y="66" font-size="10" fill="#a8b3d6">Required green</text>
+  </g>
+  <g transform="translate(980,180)">
+    <rect width="200" height="80" rx="10" fill="url(#rev)" filter="url(#glow)"/>
+    <text x="14" y="22" font-size="11" font-weight="700" fill="#ffe2e9" letter-spacing="1">REVIEW ⑤</text>
+    <text x="14" y="46" font-size="15" font-weight="700" fill="#ffffff">Adversarial</text>
+    <text x="14" y="66" font-size="10" fill="#ffe2e9">Bug Hunter · Behavior · Arch</text>
+  </g>
+  <g transform="translate(1210,180)">
+    <rect width="200" height="80" rx="10" fill="url(#evid)" filter="url(#glow)"/>
+    <text x="14" y="22" font-size="11" font-weight="700" fill="#dffbf3" letter-spacing="1">EVIDENCE ⑥</text>
+    <text x="14" y="46" font-size="15" font-weight="700" fill="#0d2f29">Evidence Gate</text>
+    <text x="14" y="66" font-size="10" fill="#0d2f29">Screenshots · API · DB</text>
+  </g>
+
+  <g stroke="#a8b3d6" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
+    <path d="M260 220 H290 M490 220 H520 M720 220 H750 M950 220 H980 M1180 220 H1210"/>
+  </g>
+
+  <!-- Coordinator (middle band) -->
+  <g transform="translate(490,300)">
+    <rect width="460" height="62" rx="10" fill="url(#coord)" filter="url(#glow)"/>
+    <text x="20" y="22" font-size="11" font-weight="700" fill="#d6cbff" letter-spacing="2">COORDINATOR</text>
+    <text x="20" y="44" font-size="14" font-weight="700" fill="#ffffff">Reads docs · Owns kanban · Spawns agents · No business code</text>
+  </g>
+  <g stroke="#7c5cff" stroke-width="1" stroke-dasharray="3 4" fill="none" opacity="0.55">
+    <path d="M340 362 V260" marker-end="url(#arrow-light)"/>
+    <path d="M560 362 V260" marker-end="url(#arrow-light)"/>
+    <path d="M720 338 V260" marker-end="url(#arrow-light)"/>
+    <path d="M890 362 V260" marker-end="url(#arrow-light)"/>
+    <path d="M1130 362 V260" marker-end="url(#arrow-light)"/>
+    <path d="M1340 362 V260" marker-end="url(#arrow-light)"/>
+  </g>
+
+  <!-- Agent org chart: 2 rows × 8 boxes, 1320px wide, 156 per box × 8 + gaps = 1320 -->
+  <g transform="translate(60,420)" font-size="13" fill="#f4f6ff">
+    <text x="0" y="-12" font-size="11" font-weight="700" fill="#6f78a8" letter-spacing="2">AGENT ORG CHART · 18 PERSONAS</text>
+
+    <!-- Row 1 -->
+    <g transform="translate(0,0)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#5fb3ff"/>
+      <text x="12" y="20" font-size="10" fill="#5fb3ff" font-weight="700" letter-spacing="1">FRONTEND</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">UI · a11y · Motion</text>
+    </g>
+    <g transform="translate(170,0)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#5fb3ff"/>
+      <text x="12" y="20" font-size="10" fill="#5fb3ff" font-weight="700" letter-spacing="1">BACKEND</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">APIs · Services</text>
+    </g>
+    <g transform="translate(340,0)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#5fb3ff"/>
+      <text x="12" y="20" font-size="10" fill="#5fb3ff" font-weight="700" letter-spacing="1">DATABASE</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Schema · Migration</text>
+    </g>
+    <g transform="translate(510,0)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#00d4aa"/>
+      <text x="12" y="20" font-size="10" fill="#00d4aa" font-weight="700" letter-spacing="1">QA</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Tests · Evidence</text>
+    </g>
+    <g transform="translate(680,0)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#a8b3d6"/>
+      <text x="12" y="20" font-size="10" fill="#a8b3d6" font-weight="700" letter-spacing="1">EXPLORE</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Read-only recon</text>
+    </g>
+    <g transform="translate(850,0)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#a8b3d6"/>
+      <text x="12" y="20" font-size="10" fill="#a8b3d6" font-weight="700" letter-spacing="1">PLAN</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Implementation plan</text>
+    </g>
+    <g transform="translate(1020,0)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#7c5cff"/>
+      <text x="12" y="20" font-size="10" fill="#7c5cff" font-weight="700" letter-spacing="1">CONTEXT</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">L0–L3 manifest</text>
+    </g>
+    <g transform="translate(1190,0)">
+      <rect width="132" height="60" rx="8" fill="#1c2440" stroke="#ffb547"/>
+      <text x="12" y="20" font-size="10" fill="#ffb547" font-weight="700" letter-spacing="1">MEMORY</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Phase memory</text>
+    </g>
+
+    <!-- Row 2 (reviewers + meta) -->
+    <g transform="translate(0,80)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#ff5e7a"/>
+      <text x="12" y="20" font-size="10" fill="#ff5e7a" font-weight="700" letter-spacing="1">BUG HUNTER</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Runtime · Null · Race</text>
+    </g>
+    <g transform="translate(170,80)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#ff5e7a"/>
+      <text x="12" y="20" font-size="10" fill="#ff5e7a" font-weight="700" letter-spacing="1">BEHAVIOR</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Spec vs Actual</text>
+    </g>
+    <g transform="translate(340,80)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#ff5e7a"/>
+      <text x="12" y="20" font-size="10" fill="#ff5e7a" font-weight="700" letter-spacing="1">ARCHITECTURE</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Boundaries · Debt</text>
+    </g>
+    <g transform="translate(510,80)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#ffb547"/>
+      <text x="12" y="20" font-size="10" fill="#ffb547" font-weight="700" letter-spacing="1">SECURITY</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">AuthN · AuthZ · CWE</text>
+    </g>
+    <g transform="translate(680,80)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#ffb547"/>
+      <text x="12" y="20" font-size="10" fill="#ffb547" font-weight="700" letter-spacing="1">UI REVIEWER</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Visual · a11y</text>
+    </g>
+    <g transform="translate(850,80)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#a8b3d6"/>
+      <text x="12" y="20" font-size="10" fill="#a8b3d6" font-weight="700" letter-spacing="1">CONFLICT</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Merge strategy</text>
+    </g>
+    <g transform="translate(1020,80)">
+      <rect width="156" height="60" rx="8" fill="#1c2440" stroke="#a8b3d6"/>
+      <text x="12" y="20" font-size="10" fill="#a8b3d6" font-weight="700" letter-spacing="1">RELEASE</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Readiness · Tag</text>
+    </g>
+    <g transform="translate(1190,80)">
+      <rect width="132" height="60" rx="8" fill="#1c2440" stroke="#ff5e7a"/>
+      <text x="12" y="20" font-size="10" fill="#ff5e7a" font-weight="700" letter-spacing="1">AGGREGATOR</text>
+      <text x="12" y="42" font-weight="600" fill="#f4f6ff">Fix-task router</text>
+    </g>
+  </g>
+
+  <!-- Memory band -->
+  <g transform="translate(60,620)">
+    <rect width="1320" height="100" rx="12" fill="url(#mem)" filter="url(#glow)" opacity="0.95"/>
+    <text x="20" y="24" font-size="11" font-weight="700" fill="#3d2010" letter-spacing="2">MEMORY · EVERY CYCLE</text>
+    <text x="20" y="50" font-size="17" font-weight="700" fill="#1d0f08">Project memory · Architecture memory · Role memory · Lessons · ADRs · Phase summaries</text>
+    <text x="20" y="74" font-size="12" fill="#3d2010">Files on disk &gt; chat history. Each cycle promotes stable lessons; next Session reads them cold.</text>
+    <text x="20" y="92" font-size="11" font-weight="700" fill="#1d0f08">"We don't trust 'it works'. We trust verified Evidence + a remembered record."</text>
+  </g>
+
+  <!-- Loop indicator -->
+  <g stroke="#cdd5ec" stroke-width="1" stroke-dasharray="4 5" fill="none" opacity="0.4">
+    <path d="M1310 260 Q 1330 580 720 740 Q 80 660 60 220" marker-end="url(#arrow-light)"/>
+  </g>
+
+  <!-- Footer -->
+  <text x="60" y="800" font-size="11" fill="#6f78a8">MIT · npx -y skills add lora-sys/ai-engineering-harness -g --all · 60+ CLI agents · cold-start adversarial review · evidence-gated · human-approval gate</text>
+</svg>
