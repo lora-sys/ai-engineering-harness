@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+> **Note on versioning for this skill**: The skill's `description` and the
+> install instructions *are* the API surface — they're what the agent reads
+> to decide whether to invoke. Doc-only changes that clarify routing,
+> safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
+> for the rationale (decision D-006).
+
+## [0.1.4] - 2026-07-11
+
+### Added
+- **`meta.json`** at the repo root — structured metadata for skill indexes (skills.sh and friends). Fields: `id`, `name`, `description`, `category`, `priority`, `tags`, plus an `install` map covering the four install shapes (global / specific-skill / specific-agent / both). Schema compatible with the existing skills.sh convention used in `git-copilot/skills/`.
+- **Explicit `--all` safety contract** added to the README in both Chinese and English, placed right after the one-line install section. Documents today's safety (1 skill in repo) and the future risk (sister skills install automatically), and gives four safer alternatives:
+  - `npx -y skills add lora-sys/ai-engineering-harness --list` (preview)
+  - `-s <skill-name>` (limit to one skill)
+  - `-a <agents...>` (limit to specific agents)
+  - both flags together (one skill × one agent)
+- README now links to `meta.json` so anyone curious about the install contract has one place to look.
+
+## [0.1.3] - 2026-07-11
+
+### Added
+- **`memory/notes-2026-07-11.md`** — a project memory file capturing 6 key decisions from this build cycle, each with Context / Decision / Why / Consequence / **Revisit when**:
+  - **D-001** Single-skill repo vs multi-skill (chose single)
+  - **D-002** `npx skills` unified `~/.agents/skills/` model (preferred over custom `install.sh`)
+  - **D-003** `npx skills add --all` is safe in a single-skill repo (today); revisit when adding a sibling
+  - **D-004** SVG for diagrams, PNG only at OG / social-card gateways
+  - **D-005** skills.sh is auto-crawled from GitHub — optimize repo metadata, no manual submission
+  - **D-006** Doc-only changes bump patch version because the skill description is the API surface
+- **`assets/social-preview.png`** — 1200×630 PNG, the canonical social-card image (Twitter, GitHub, Slack, Discord unfurls). Distinct from `architecture.svg` — closed-loop ring on the right instead of the full 18-persona org chart.
+- README now references the social preview underneath the architecture diagram.
+
+## [0.1.2] - 2026-07-11
+
+### Added
+- **`assets/architecture.svg`** — a single 1440×820 SVG diagram showing the full closed loop:
+  - Six numbered stages across the top: Issue → Plan → Implement → CI → Adversarial Review → Evidence Gate
+  - Coordinator tying every stage together (no business code)
+  - 18-persona agent org chart (2 rows × 8 boxes) color-coded by role (implement / review / queue / support)
+  - Memory band at the bottom (project, architecture, role memories, lessons, ADRs, phase summaries)
+  - Closed-loop curve returning to Issue ①
+- **`## Discoverability` section in the README** explaining how `skills.sh` indexes the skill, with `npx skills find` commands users can run locally to verify inclusion.
+- Diagram embedded at the very top of the README (right below the badges) so any visitor sees the architecture first.
+
+## [0.1.1] - 2026-07-11
+
+### Added
+- **`## 使用指南 · Usage Guide`** section between the existing English content and the compatibility table. Bilingual (Chinese + English) and covers:
+  - **4 highest-frequency invocations**: bootstrap from PRD / resume interrupted work / drive one Issue / audit or rescue
+  - **7 operating principles** (evidence over vibes, cold-start review, L0–L3 context, Issue as unit, Worktree isolation, Human Approval Gate, memory as state)
+  - **7 canonical prompt snippets** ready to copy
+  - **Advanced usage** (30-second bootstrap, takeover of legacy repos, cross-CLI handoff, parallel Owners, CI self-recovery)
+  - **Anti-patterns table** (7 ways to misuse the harness)
+  - **When-(not)-to-use decision matrix**
+  - **Maintenance commands** (`skills update`, post-commit hook for index refresh)
+  - **Further reading** pointers to the rest of the repo
+- README grew from 389 → 585 lines.
+
 ## [0.1.0] - 2026-07-11
 
 ### Added
@@ -20,10 +76,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bilingual README (English + Chinese)
 - MIT license
 
-### Install
+## Install
 
 ```bash
 npx -y skills add lora-sys/ai-engineering-harness -g --all
 ```
 
-[0.1.0]: https://github.com/lora-sys/ai-engineering-harness/releases/tag/v0.1.0
+## Releases
+
+- [0.1.4]: https://github.com/lora-sys/ai-engineering-harness/releases/tag/v0.1.4
+- [0.1.3]: https://github.com/lora-sys/ai-engineering-harness/releases/tag/v0.1.3
+- [0.1.2]: https://github.com/lora-sys/ai-engineering-harness/releases/tag/v0.1.2
+- [0.1.1]: https://github.com/lora-sys/ai-engineering-harness/releases/tag/v0.1.1
+- [0.1.0]: https://github.com/lora-sys/ai-engineering-harness/releases/tag/v0.1.0
