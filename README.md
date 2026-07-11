@@ -647,6 +647,40 @@ After each Phase, the Coordinator automatically runs `workflows/06-phase-summary
 
 ---
 
+
+## Scripts and tooling · 工具脚本
+
+The repo ships with three helper scripts. All are safe to run from anywhere; they're the bones of every maintenance step.
+
+### `scripts/validate-meta.sh` — schema check for `meta.json`
+
+```bash
+scripts/validate-meta.sh                # default: ./meta.json, exit 0/1/2
+scripts/validate-meta.sh --strict       # also fail on warnings
+scripts/validate-meta.sh --json        # one-line JSON for CI
+```
+
+Validates `meta.json` against the embedded schema (id, name, description, category, priority, tags, install map, agents_supported, license, repository, entry). Returns exit 0 on success, 1 on errors, 2 on missing/invalid JSON. Designed to plug into PR pre-commit and CI.
+
+### `scripts/changelog-auto.sh` — half-automated CHANGELOG from git + `gh`
+
+```bash
+scripts/changelog-auto.sh                  # preview to stdout (default)
+scripts/changelog-auto.sh --write         # write to ./CHANGELOG.md
+scripts/changelog-auto.sh --append        # emit only versions newer than the latest documented
+scripts/changelog-auto.sh --since-tag v0.1.3   # filter to versions ≥ tag
+```
+
+Categorizes conventional-commit subjects into Keep-a-Changelog sections (Added / Changed / Fixed / Docs / Performance / Tests / Maintenance / CI / Build / Style), fetches the **What's new** intro from each GitHub Release via `gh release view`, and emits an index. `--append` is the safe default for ongoing maintenance — it preserves human-curated entries and only auto-fills new versions.
+
+### Existing tools
+
+- `scripts/new-session.sh` — `sessions/<id>/{status,plan,execution,review,summary}.md`
+- `scripts/new-evidence.sh` — `docs/evidence/<id>/{change-summary,verification,…}`
+- `scripts/new-worktree.sh` — `git worktree add ../<repo>-issue-<id>`
+- `scripts/refresh-index.sh` — `docs/.index/{manifest,freshness,relations}.json`
+
+
 ## Discoverability · 收录与发现
 
 This skill is automatically aggregated by [Vercel's `skills.sh`](https://skills.sh/) index — a public registry for AI agent skills. Once GitHub's crawler picks up the topics + SKILL.md metadata here, the install command shows up in skill search results.
