@@ -57,7 +57,7 @@ npx -y skills add lora-sys/ai-engineering-harness -g --all
 - `-g`:全局安装(写入用户级 skill 目录,而非当前项目)
 - `--all`:把仓库里的所有 skill 安装到 **所有** 受支持的 CLI 编码 Agent
 
-完成后,这套 Skill 会被放到 `~/.claude/skills/ai-engineering-harness/`、`~/.cursor/skills/ai-engineering-harness/`、`~/.gemini/skills/ai-engineering-harness/`、`~/.qwen/skills/ai-engineering-harness/`、`~/.grok/skills/ai-engineering-harness/`、`~/.codex/skills/ai-engineering-harness/`(待 Codex 目录可写后自动填充)等 38 个 CLI Agent 的全局 Skill 目录。
+完成后,这套 Skill 会被放到 `~/.claude/skills/ai-engineering-harness/`、`~/.cursor/skills/ai-engineering-harness/`、`~/.gemini/skills/ai-engineering-harness/`、`~/.qwen/skills/ai-engineering-harness/`、`~/.grok/skills/ai-engineering-harness/`、`~/.codex/skills/ai-engineering-harness/`(默认直接 cp,可写就装)等 38 个 CLI Agent 的全局 Skill 目录。
 
 
 
@@ -604,7 +604,7 @@ After each Phase, the Coordinator automatically runs `workflows/06-phase-summary
 | Compatibility / 兼容性 | Install path / 安装路径 | Status after one-liner / 一行安装后状态 |
 | --- | --- | --- |
 | Claude Code | `~/.claude/skills/` | ✅ |
-| Codex | `~/.codex/skills/` | ⏳ pending OS-level mount-RW on this system; copy manually after remount |
+| Codex | `~/.codex/skills/` | ✅ |
 | Cursor | `~/.cursor/skills/` | ✅ |
 | Gemini CLI | `~/.gemini/skills/` | ✅ |
 | Qwen / Qoder | `~/.qwen/skills/` | ✅ |
