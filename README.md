@@ -648,6 +648,53 @@ After each Phase, the Coordinator automatically runs `workflows/06-phase-summary
 ---
 
 
+
+## Troubleshooting · 安装常见问题
+
+### "I see only SKILL.md, not workflows/ or templates/"
+
+This is a known quirk of the Vercel `npx skills` CLI: it ships a *thin* canonical install
+(`~/.agents/skills/<name>/SKILL.md` only) and lets per-agent installs decide between
+copy or symlink. Symlinked agents like **Claude Code** then see nothing but `SKILL.md`
+because they read through the thin canonical.
+
+**Workarounds** (in order of preference):
+
+1. **Fat install — git clone + symlink everything**:
+
+   ```bash
+   bash <(curl -fsSL https://raw.githubusercontent.com/lora-sys/ai-engineering-harness/main/install.sh) --fat-install
+   ```
+
+   Or, if you have the repo cloned:
+
+   ```bash
+   ./install.sh --fat-install
+   ```
+
+   This `git clone`s the repo to `/tmp/ai-engineering-harness-fat` and replaces every
+   per-agent install with a symlink to the full bundle. After this, every agent that
+   allows a writable parent dir will see `workflows/`, `templates/`, `agents/`, etc.
+   Use `--clonedir <path>` to pick a different clone target.
+
+2. **Read the docs from the GitHub repo**: <https://github.com/lora-sys/ai-engineering-harness/tree/main>
+
+3. **Use git-copilot style — clone and symlink one agent**:
+
+   ```bash
+   git clone --depth 1 https://github.com/lora-sys/ai-engineering-harness.git /tmp/aeh
+   ln -s /tmp/aeh ~/.claude/skills/ai-engineering-harness
+   ```
+
+### Why didn't my `npx skills add` install the bundle?
+
+We did everything right on our end (the repo has `meta.json`, 10 topics, MIT license,
+proper `SKILL.md` frontmatter), but the canonical install under
+`~/.agents/skills/ai-engineering-harness/` ends up containing only `SKILL.md`. That's
+the Vercel CLI's design. We're tracking a fix at
+<https://github.com/vercel-labs/skills/issues/1630>.
+
+
 ## Scripts and tooling · 工具脚本
 
 The repo ships with three helper scripts. All are safe to run from anywhere; they're the bones of every maintenance step.

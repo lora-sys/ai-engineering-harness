@@ -1,39 +1,34 @@
 #!/usr/bin/env bash
 # Install the ai-engineering-harness skill onto agent platforms.
 #
-# Supports the major coding-agent CLIs the user has on this machine:
-# codex, claude, agents, cursor, gemini, qwen, opencode, grok, hermes,
-# aider-desk, continue, warp, kilocode, kiro, junie, roo, factory,
-# openhands, pi, iflow, adal, augment, bob, codebuddy, commandcode,
-# forge, kilocode, kode, marscode, mux, neovate, openhands, pi,
-# pochi, snowflake/cortex, tabnine, trae, trae-cn, vibe, zencoder,
-# devin, crush, goose, pohci
-#
-# Usage:
-#   ./install.sh              # interactive menu (recommended)
-#   ./install.sh --all        # try all known locations
-#   ./install.sh --target codex   # one specific location
-#   ./install.sh --uninstall  # remove previously installed copies
+# Modes:
+#   --all                  copy to every TARGET below (default coverage)
+#   --target <name>        copy to a single TARGET (e.g., --target claude)
+#   --uninstall            remove every previously installed copy
+#   --fat-install          git clone + symlink per-agent-dir (works around
+#                          the Vercel `npx skills add` thin-canonical quirk
+#                          where symlinked agents only see SKILL.md)
+#   --fat-install --clonedir <path>   override the clone target
+#   --list                 show every TARGET name + current state
 
-set -euo pipefail
+set -uo pipefail
 
 SKILL_NAME="ai-engineering-harness"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE="${SCRIPT_DIR}"
 
-# Resolve the user's actual home directory.
+# Resolve HOME (handles sudo)
 USER_HOME="${HOME:-}"
 if [[ -n "${SUDO_USER:-}" ]]; then
   USER_HOME="$(getent passwd "${SUDO_USER}" | cut -d: -f6)"
 fi
 [[ -z "${USER_HOME}" ]] && USER_HOME="${HOME}"
 
-# Detect target list: most of these CLIs accept a skill installed under their
-# well-known directory with the convention <skill>/SKILL.md.
+# Per-agent TARGETS — each CLI agent puts skills in its own dir.
+# The repo's canonical install lives at ~/.agents/skills/, but on
+# read-only mounts that dir is locked; we treat it as optional.
 TARGETS=(
-  "codex:${USER_HOME}/.codex/skills/${SKILL_NAME}"
   "claude:${USER_HOME}/.claude/skills/${SKILL_NAME}"
-  "agents:${USER_HOME}/.agents/skills/${SKILL_NAME}"
   "cursor:${USER_HOME}/.cursor/skills/${SKILL_NAME}"
   "gemini:${USER_HOME}/.gemini/skills/${SKILL_NAME}"
   "qwen:${USER_HOME}/.qwen/skills/${SKILL_NAME}"
@@ -71,32 +66,11 @@ TARGETS=(
   "vibe:${USER_HOME}/.vibe/skills/${SKILL_NAME}"
   "zencoder:${USER_HOME}/.zencoder/skills/${SKILL_NAME}"
   "adal:${USER_HOME}/.adal/skills/${SKILL_NAME}"
+  "codex:${USER_HOME}/.codex/skills/${SKILL_NAME}"
+  "agents:${USER_HOME}/.agents/skills/${SKILL_NAME}"
 )
 
-usage() {
-  cat <<USAGE
-Usage: $0 [--all] [--target <name>] [--uninstall] [--list]
-
-Targets:
-USAGE
-  for entry in "${TARGETS[@]}"; do
-    name="${entry%%:*}"
-    printf '  %s\n' "$name"
-  done
-}
-
-list_targets() {
-  for entry in "${TARGETS[@]}"; do
-    name="${entry%%:*}"
-    path="${entry#*:}"
-    if [[ -d "${path}" ]]; then
-      echo "INSTALLED  $name  $path"
-    else
-      echo "available  $name  $path"
-    fi
-  done
-}
-
+# --- Helpers ---
 writable_dir() {
   local p="$1"
   [[ -d "${p%/*}" ]] || mkdir -p "${p%/*}" 2>/dev/null || return 1
@@ -104,89 +78,147 @@ writable_dir() {
 }
 
 copy_skill() {
-  local dst="$1"
-  local plat="$2"
+  local dst="$1"; local plat="$2"
   if writable_dir "${dst}"; then
-    echo "→ Installing to ${plat}: ${dst}"
-    rm -rf "${dst}"
-    cp -r "${SOURCE}" "${dst}"
-    echo "  Installed."
-  else
-    echo "✗ ${plat} destination not writable: ${dst}"
-    echo "  Run this to install (one time):"
-    echo "    sudo mkdir -p \"${dst%/*}\" && sudo cp -r ${SOURCE} \"${dst}\""
-    echo "  Or remount the parent as read-write, then re-run."
+    echo "  → ${plat}: ${dst}"
+    rm -rf "${dst}" 2>/dev/null || true
+    cp -r "${SOURCE}" "${dst}" 2>/dev/null && return 0
+    echo "    ✗ copy failed" >&2
+    return 1
+  fi
+  echo "  ✗ ${plat} not writable: ${dst}"
+  return 1
+}
+
+uninstall_one() {
+  local dst="$1"; local plat="$2"
+  if [[ -d "${dst}" || -L "${dst}" ]]; then
+    rm -rf "${dst}" 2>/dev/null && echo "  → removed ${plat}: ${dst}"
   fi
 }
 
-uninstall_skill() {
-  local dst="$1"
-  local plat="$2"
-  if [[ -d "${dst}" ]]; then
-    echo "→ Removing from ${plat}: ${dst}"
-    rm -rf "${dst}"
+# --- Fat install: git clone + per-agent-dir symlink ---
+# This is the workaround for `npx skills add` which only puts SKILL.md in
+# ~/.agents/skills/<name>/ — symlinked agents see nothing else.
+run_fat_install() {
+  local clone_into="${FAT_CLONE_DIR:-/tmp/ai-engineering-harness-fat}"
+  echo "fat-install: cloning to ${clone_into}"
+  rm -rf "${clone_into}" 2>/dev/null || true
+  if ! git clone --depth 1 https://github.com/lora-sys/ai-engineering-harness.git "${clone_into}" 2>/dev/null; then
+    echo "  ✗ git clone failed; falling back to source dir"
+    if [[ ! -d "${SOURCE}/workflows" ]]; then
+      echo "  ✗ source missing workflows/; abort" >&2
+      return 1
+    fi
+    rm -rf "${clone_into}" 2>/dev/null
+    ln -s "${SOURCE}" "${clone_into}"
   fi
+  echo "  source ready at: $(readlink -f "${clone_into}")"
+  echo
+  echo "fat-install: replacing each agent's install with a symlink to the full bundle"
+  for entry in "${TARGETS[@]}"; do
+    local name="${entry%%:*}"
+    local path="${entry#*:}"
+    rm -rf "${path}" 2>/dev/null || true
+    if [[ -d "${path%/*}" ]]; then
+      if [[ -w "${path%/*}" ]]; then
+        if ln -sf "${clone_into}" "${path}" 2>/dev/null; then
+          echo "  ✓ ${name}: symlink → ${clone_into}"
+        elif cp -r "${clone_into}" "${path}" 2>/dev/null; then
+          echo "  ✓ ${name}: full copy"
+        else
+          echo "  ✗ ${name}: skipped (write failed)"
+        fi
+      else
+        echo "  ✗ ${name}: parent dir read-only (${path%/*})"
+      fi
+    fi
+  done
+  echo
+  echo "Done. To verify workflows land at every agent:"
+  echo "  ls -la \${HOME}/.claude/skills/ai-engineering-harness/workflows/"
+  echo
+  echo "To uninstall / revert:"
+  echo "  bash install.sh --uninstall"
 }
 
-TARGET_ONLY=""
-ALL=0
-UNINSTALL=0
-LIST=0
+# --- List ---
+list_targets() {
+  for entry in "${TARGETS[@]}"; do
+    local name="${entry%%:*}" path="${entry#*:}"
+    if [[ -d "${path}" || -L "${path}" ]]; then
+      echo "INSTALLED  ${name}  ${path}"
+    else
+      echo "available  ${name}  ${path}"
+    fi
+  done
+}
+
+# --- Argument parsing ---
+TARGET_ONLY="" ; ALL=0 ; UNINSTALL=0 ; LIST=0 ; FAT_MODE=0 ; FAT_CLONE_DIR=""
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --all)        ALL=1; shift ;;
-    --target)     TARGET_ONLY="$2"; shift 2 ;;
-    --uninstall)  UNINSTALL=1; shift ;;
-    --list)       LIST=1; shift ;;
-    -h|--help)    usage; exit 0 ;;
-    *) echo "Unknown arg: $1" >&2; usage; exit 1 ;;
+    --all)            ALL=1 ;;
+    --target)         TARGET_ONLY="$2"; shift 2 ;;
+    --uninstall)      UNINSTALL=1 ;;
+    --fat-install)    FAT_MODE=1 ;;
+    --clonedir)       FAT_CLONE_DIR="$2"; shift 2 ;;
+    --list)           LIST=1 ;;
+    -h|--help)
+      cat <<USAGE
+Usage: install.sh [--all] [--target <name>] [--fat-install] [--uninstall] [--list]
+  --all              install to every TARGET (default behavior)
+  --target <name>    install to one specific TARGET
+  --fat-install      git clone + symlink (works around thin canonical)
+  --clonedir <path>  override the clone target for --fat-install
+  --uninstall        remove everything
+  --list             show all TARGETS and their state
+  -h, --help         this message
+USAGE
+      exit 0 ;;
+    *) echo "unknown arg: $1" >&2; exit 1 ;;
   esac
+  shift
 done
 
-if [[ "${LIST}" -eq 1 ]]; then
-  list_targets
-  exit 0
-fi
+# --- Dispatch ---
+if [[ "$LIST" -eq 1 ]]; then list_targets; exit 0; fi
+if [[ "$FAT_MODE" -eq 1 ]]; then run_fat_install; exit 0; fi
 
-# --uninstall
-if [[ "${UNINSTALL}" -eq 1 ]]; then
-  if [[ -n "${TARGET_ONLY}" ]]; then
+if [[ "$UNINSTALL" -eq 1 ]]; then
+  if [[ -n "$TARGET_ONLY" ]]; then
     found=0
     for entry in "${TARGETS[@]}"; do
       name="${entry%%:*}"; path="${entry#*:}"
-      if [[ "${name}" == "${TARGET_ONLY}" ]]; then
-        uninstall_skill "${path}" "${name}"
-        found=1
-        break
+      if [[ "$name" == "$TARGET_ONLY" ]]; then
+        uninstall_one "${path}" "${name}"
+        found=1; break
       fi
     done
-    [[ "${found}" -eq 0 ]] && { echo "Unknown target: ${TARGET_ONLY}" >&2; exit 1; }
+    [[ "$found" -eq 0 ]] && { echo "unknown target: $TARGET_ONLY" >&2; exit 1; }
   else
     for entry in "${TARGETS[@]}"; do
       name="${entry%%:*}"; path="${entry#*:}"
-      uninstall_skill "${path}" "${name}"
+      uninstall_one "${path}" "${name}"
     done
   fi
   exit 0
 fi
 
-# --target <name>
-if [[ -n "${TARGET_ONLY}" ]]; then
-  found=0
+if [[ -n "$TARGET_ONLY" ]]; then
   for entry in "${TARGETS[@]}"; do
     name="${entry%%:*}"; path="${entry#*:}"
-    if [[ "${name}" == "${TARGET_ONLY}" ]]; then
+    if [[ "$name" == "$TARGET_ONLY" ]]; then
       copy_skill "${path}" "${name}"
-      found=1
-      break
+      exit 0
     fi
   done
-  [[ "${found}" -eq 0 ]] && { echo "Unknown target: ${TARGET_ONLY}" >&2; exit 1; }
-  exit 0
+  echo "unknown target: $TARGET_ONLY" >&2
+  exit 1
 fi
 
-# --all
-if [[ "${ALL}" -eq 1 ]]; then
+if [[ "$ALL" -eq 1 ]]; then
   for entry in "${TARGETS[@]}"; do
     name="${entry%%:*}"; path="${entry#*:}"
     copy_skill "${path}" "${name}"
@@ -194,39 +226,31 @@ if [[ "${ALL}" -eq 1 ]]; then
   exit 0
 fi
 
-# Interactive default
+# No flag selected — interactive menu
 echo "Where would you like to install ${SKILL_NAME}?"
 echo
-echo "  0) all (try every known location)"
-PS3="  Select number (or 'q' to quit): "
+echo "  0) all"
+PS3="Select number (or 'q' to quit): "
 options=()
-for entry in "${TARGETS[@]}"; do
-  options+=("${entry%%:*}")
-done
+for entry in "${TARGETS[@]}"; do options+=("${entry%%:*}"); done
 options+=("quit")
 select opt in "${options[@]}"; do
   case "${opt}" in
-    all) for entry in "${TARGETS[@]}"; do
-           name="${entry%%:*}"; path="${entry#*:}"
-           copy_skill "${path}" "${name}"
-         done
-         break ;;
+    all)
+      for entry in "${TARGETS[@]}"; do
+        name="${entry%%:*}"; path="${entry#*:}"
+        copy_skill "${path}" "${name}"
+      done
+      break ;;
     quit) exit 0 ;;
-    "")
-      # Some shells (zsh) leave REPLY when option is empty after invalid input.
-      ;;
     *)
       for entry in "${TARGETS[@]}"; do
         name="${entry%%:*}"; path="${entry#*:}"
-        if [[ "${name}" == "${opt}" ]]; then
+        if [[ "$name" == "${opt}" ]]; then
           copy_skill "${path}" "${name}"
           break
         fi
       done
-      break
-      ;;
+      break ;;
   esac
 done
-
-echo
-echo "Done. Restart your agent if the skill doesn't appear immediately."
