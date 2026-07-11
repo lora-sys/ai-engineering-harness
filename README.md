@@ -14,6 +14,9 @@
 
 *Coordinator reads docs, owns the kanban, and spawns 18 Agent personas across 9 closed-loop workflows. Every cycle is evidence-gated: code reaches `main` only when CI is green, ≥2 cold-start reviewers approve, and the Evidence pack is complete. Memory is promoted every cycle so the project gets smarter without losing it to chat history.*
 
+
+**Social preview**:  [assets/social-preview.png](./assets/social-preview.png) (1200×630, for Twitter / GitHub social cards).
+
 ---
 
 ---
