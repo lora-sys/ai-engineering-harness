@@ -11,6 +11,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.0.7] - 2026-07-12
+
+One last meta.json bump. Sorry for the noise.
+
+### Fixed
+- **`meta.json` (both skills)** — bumped to `1.0.6`. The v1.0.6 release tagged `7741369` still claimed `1.0.5` (the previous version before v1.0.6 was cut). This release finally closes the loop: a fresh `git checkout v1.0.7` produces a clean `OK: 0 warning(s)` smoke test.
+
+### Pattern note (for future maintainers)
+
+The release-process anti-pattern I kept hitting:
+
+> When bumping validator-relevant fields in commit X, the meta.json bump must match the **tag** that will be cut **after** commit X lands, not the tag that was current **before** commit X.
+
+Concretely: the v1.0.5 commit added a smarter validator. To release v1.0.5 cleanly, meta.json should have been bumped to `1.0.5` (matching the new tag), not `1.0.4` (the version of the previous tag). I did the latter, which forced v1.0.6 → v1.0.7 back-fills.
+
+The fix going forward: when committing changes that will become a new tag N, bump meta.json to `N` in that commit. The validator's drift check will then pass on the new checkout.
+
+### Files changed
+
+```
+M  meta.json                            1.0.5 → 1.0.6
+M  skills/build-agent-app/meta.json     1.0.5 → 1.0.6
+M  CHANGELOG.md                         This entry
+```
+
 ## [1.0.6] - 2026-07-12
 
 Back-fill: meta.json version to match v1.0.5.
