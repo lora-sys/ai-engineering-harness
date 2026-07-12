@@ -85,7 +85,7 @@ npx -y skills add lora-sys/ai-engineering-harness -g --all
 >
 > 索引器使用的完整元数据见仓库根目录的 [`meta.json`](./meta.json)。
 
-兼容性矩阵覆盖:Claude Code、Codex、Grok、Cursor、Gemini、Qwen、Cline、Hermes-Agent、Aider Desk、Amp、Antigravity、Continue、Cortex、Crush、Devin、Droid、Forgecode、Goose、Junie、Kilo、Kiro、Kode、Mar'sCode、Mistral Vibe、Mux、OpenCode、OpenHands、Pi、Qoder、Rovodev、Roo、Tabnine、Tinycloud、Trae、Warp、Windsurf、Zed、Zencoder、Zenflow、Neovate、Pochi、Adal 等全部 60+ CLI 编码 Agent。
+兼容性矩阵覆盖:Claude Code、Codex、Grok、Cursor、Gemini、Qwen、Cline、Hermes-Agent、Aider Desk、Amp、Antigravity、Continue、Cortex、Crush、Devin、Droid、Forgecode、Goose、Junie、Kilo、Kiro、Kode、Mar'sCode、Mistral Vibe、Mux、OpenCode、OpenHands、Pi、Qoder、Rovodev、Roo、Tabnine、Tinycloud、Trae、Warp、Windsurf、Zed、Zencoder、Zenflow、Neovate、Pochi、Adal 等 — `install.sh` 明确支持 40 个;`npx skills` CLI 生态系统涵盖 60+。
 
 ### 手动安装(若你想要更多控制)
 
@@ -282,7 +282,7 @@ After this runs, the skill lands in the global skill directory of every supporte
 - `~/.opencode/skills/ai-engineering-harness/` (in `~/.config/opencode/skills/`)
 - and 30+ more — see the full compatibility matrix below.
 
-**Supported agents**: Claude Code · Codex · Grok · Cursor · Gemini · Qwen · Cline · Hermes-Agent · Aider Desk · Amp · Antigravity · Continue · Cortex · Crush · Devin · Droid · Forgecode · Goose · Junie · Kilo · Kiro · Kode · Marscode · Mistral Vibe · Mux · OpenCode · OpenHands · Pi · Qoder · Rovodev · Roo · Tabnine · Tinycloud · Trae · Trae-CN · Warp · Windsurf · Zed · Zencoder · Zenflow · Neovate · Pochi · Adal · Bob · Codebuddy · Commandcode · KiloCode · Lingma · Loaf · Moxby · Vibe (60+ in total).
+**Supported agents**: Claude Code · Codex · Grok · Cursor · Gemini · Qwen · Cline · Hermes-Agent · Aider Desk · Amp · Antigravity · Continue · Cortex · Crush · Devin · Droid · Forgecode · Goose · Junie · Kilo · Kiro · Kode · Marscode · Mistral Vibe · Mux · OpenCode · OpenHands · Pi · Qoder · Rovodev · Roo · Tabnine · Tinycloud · Trae · Trae-CN · Warp · Windsurf · Zed · Zencoder · Zenflow · Neovate · Pochi · Adal · Bob · Codebuddy · Commandcode · KiloCode · Lingma · Loaf · Moxby · Vibe (40 explicitly listed in `install.sh`; 60+ covered by the npx skills CLI ecosystem; see install.sh --list for the exact set).
 
 ### Manual install — more control
 

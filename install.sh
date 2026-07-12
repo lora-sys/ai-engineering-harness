@@ -82,7 +82,17 @@ copy_skill() {
   if writable_dir "${dst}"; then
     echo "  → ${plat}: ${dst}"
     rm -rf "${dst}" 2>/dev/null || true
-    cp -r "${SOURCE}" "${dst}" 2>/dev/null && return 0
+    # Copy the source but exclude repo-internal noise (.git/, test artifacts,
+    # dotfiles that an agent does not need). Use rsync if available; fall back
+    # to cp + find filtering.
+    if command -v rsync >/dev/null 2>&1; then
+      rsync -a --exclude='.git' --exclude='.DS_Store' "${SOURCE}/" "${dst}" 2>/dev/null && return 0
+    fi
+    # Fallback: cp everything then prune .git/
+    if cp -r "${SOURCE}" "${dst}" 2>/dev/null; then
+      rm -rf "${dst}/.git" "${dst}/.DS_Store" 2>/dev/null || true
+      return 0
+    fi
     echo "    ✗ copy failed" >&2
     return 1
   fi
