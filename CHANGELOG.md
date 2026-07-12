@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.0.9] - 2026-07-12
+
+meta.json finally self-consistent. Bumped to `1.0.9` in the v1.0.9 commit (matching the new tag).
+
+## [1.0.8] - 2026-07-12
+
+Sigh — same pattern. meta.json bumped to `1.0.7` in the v1.0.8 commit (should have been `1.0.8`). I am writing this in real time as a reminder that the only thing that fixes this is bumping meta.json to the SAME version as the tag being cut, not the previous tag's version. v1.0.9 does that.
+
 ## [1.0.7] - 2026-07-12
 
 One last meta.json bump. Sorry for the noise.
