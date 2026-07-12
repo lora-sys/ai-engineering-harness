@@ -13,7 +13,10 @@
 # Add new assertions by appending to the TEMPLATE_ASSERTIONS array below.
 
 set -uo pipefail
-cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+# Resolve script location and cd to repo root (parent of scripts/).
+# This makes the script work no matter where it's invoked from.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.."
 
 STRICT=0
 for arg in "$@"; do

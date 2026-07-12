@@ -3,6 +3,10 @@
 # Usage: scripts/changelog.sh [previous-tag]
 set -euo pipefail
 
+# Resolve script location and cd to repo root (parent of scripts/).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.."
+
 # Guard: do not silently overwrite an existing versioned CHANGELOG.md.
 # Without this, an accidental run of scripts/changelog.sh would clobber a
 # hand-edited v1.0.2 entry with an auto-generated "[Unreleased]" block.

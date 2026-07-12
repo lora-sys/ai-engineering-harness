@@ -16,6 +16,10 @@
 
 set -uo pipefail
 
+# Resolve script location and cd to repo root (parent of scripts/).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.."
+
 PATH_ARG=""
 STRICT=0
 JSON_OUT=0

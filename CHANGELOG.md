@@ -11,6 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.0.4] - 2026-07-12
+
+Two follow-up fixes found during the v1.0.3 post-update smoke test on this machine. Pure tooling; no user-facing behavior change.
+
+### Fixed
+- **`meta.json` (both skills)** — bumped `version` from `1.0.2` to `1.0.3`. The v1.0.3 release shipped with `meta.json` still claiming `1.0.2`, which the new validator's drift check correctly flagged when run against the v1.0.3 checkout. This was a release-process oversight (the version field was added in v1.0.3 itself, so the bumped value should have been set to `1.0.3` not `1.0.2`). Apologies for the noise.
+- **`scripts/check-templates.sh`** + **`scripts/validate-meta.sh`** + **`scripts/changelog.sh`** — all three used `cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"` or pure relative paths. When invoked from a foreign cwd (e.g., from `/home/lora` when the script lives in `~/.codex/skills/.../scripts/`), the `git rev-parse` fallback to `pwd` would land in a directory where the templates/meta.json couldn't be found, and the check would fail with confusing errors. Replaced with `cd "$(dirname "${BASH_SOURCE[0]}")/.."` so each script reliably lands in its own repo root regardless of how it was invoked.
+
+### Files changed
+
+```
+M  meta.json                            version: 1.0.2 → 1.0.3
+M  skills/build-agent-app/meta.json     version: 1.0.2 → 1.0.3
+M  scripts/check-templates.sh           SCRIPT_DIR-based cd
+M  scripts/validate-meta.sh             SCRIPT_DIR-based cd
+M  scripts/changelog.sh                 SCRIPT_DIR-based cd
+M  CHANGELOG.md                         This entry
+```
+
+### Why v1.0.4 (not v1.0.3-patch)
+v1.0.3 is already released and immutable in users' hands. Re-tagging would not propagate. v1.0.4 carries the same patch-bump reasoning per D-006: no description change, no install command change, no routing-affecting change.
+
 ## [1.0.3] - 2026-07-12
 
 Tooling hardening: three guards that close the three highest-frequency release-process regressions. No user-facing behavior change; meta.json now carries an explicit `version` field discoverable by indexers.
