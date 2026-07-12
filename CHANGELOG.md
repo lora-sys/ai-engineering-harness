@@ -11,6 +11,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.0.5] - 2026-07-12
+
+Validator enhancement: stop firing the "drift" warning on cleanly-checked-out older tags. Plus back-fill meta.json version drift from v1.0.3.
+
+### Fixed
+- **`meta.json` (both skills)** — bumped to `1.0.4`. (v1.0.4 itself shipped with `1.0.3` — same oversight as v1.0.3.)
+- **`scripts/validate-meta.sh`** — smarter drift detection. Previously the check was `meta.json.version != latest_tag.version`, which would always fire on older checkouts AND on every release until meta.json was bumped in the same commit as the tag. Now: if `git describe --tags --exact-match HEAD` succeeds (i.e., HEAD is exactly at a tagged commit), compare to **that tag** instead of the latest one. Net effect:
+  - `git checkout v1.0.4` with `meta.json` claiming `1.0.4` → no warning.
+  - `git checkout v1.0.3` (which has a known self-inconsistency) → still warns, correctly, because the v1.0.3 release genuinely shipped with `meta.json` claiming `1.0.2`.
+  - On `main` between releases (HEAD is not at any tag) → compares to latest tag, fires when you've bumped the validator-relevant fields without yet tagging.
+
+### Files changed
+
+```
+M  meta.json                            1.0.3 → 1.0.4
+M  skills/build-agent-app/meta.json     1.0.3 → 1.0.4
+M  scripts/validate-meta.sh             Smarter drift check (uses checked-out tag)
+M  CHANGELOG.md                         This entry
+```
+
+### Why v1.0.5 (not v1.0.4-patch)
+
+v1.0.4 is already released. Re-tagging would not propagate. v1.0.5 carries the same patch-bump reasoning per D-006: no description change, no install command change, no routing-affecting change.
+
 ## [1.0.4] - 2026-07-12
 
 Two follow-up fixes found during the v1.0.3 post-update smoke test on this machine. Pure tooling; no user-facing behavior change.

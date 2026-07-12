@@ -142,13 +142,27 @@ def main(path):
             import subprocess
             tags = subprocess.check_output(["git", "tag", "--sort=-v:refname",
                                             "--format=%(refname:short)"],
-                                           cwd=os.path.dirname(os.path.abspath(path)) or ".",
                                            stderr=subprocess.DEVNULL).decode().splitlines()
-            semver_tags = [t.lstrip("v") for t in tags if re.match(r"^v[0-9]", t)]
+            semver_tags = [t for t in tags if re.match(r"^v[0-9]+\.[0-9]+\.[0-9]+$", t)]
             if semver_tags:
-                latest = semver_tags[0]
-                if data["version"] != latest:
-                    warn("version", f"meta.json version {data['version']} != latest git tag v{latest} (drift)")
+                latest = semver_tags[0]  # e.g. "v1.0.4"
+                # If HEAD is exactly at a tagged commit, compare to that tag
+                # (handles the "checked out older tag" case cleanly).
+                # Otherwise compare to the latest tag (the "haven't released yet" case).
+                try:
+                    head_tag = subprocess.check_output(
+                        ["git", "describe", "--tags", "--exact-match", "HEAD"],
+                        stderr=subprocess.DEVNULL
+                    ).decode().strip()
+                except Exception:
+                    head_tag = ""
+                compare_tag = head_tag if head_tag else latest
+                compare_ver = compare_tag.lstrip("v")
+                if data["version"] != compare_ver:
+                    warn("version",
+                         f"meta.json version {data['version']} != "
+                         f"{('checked-out tag ' + head_tag) if head_tag else ('latest tag ' + latest)} "
+                         f"(drift)")
         except Exception:
             pass  # no git available, or no tags — skip silently
 
