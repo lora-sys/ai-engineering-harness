@@ -11,6 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.0.6] - 2026-07-12
+
+Back-fill: meta.json version to match v1.0.5.
+
+### Fixed
+- **`meta.json` (both skills)** — bumped to `1.0.5`. The v1.0.5 release added the smarter drift-detection validator but did not bump the `meta.json` version field, so the v1.0.5 checkout still shows a drift warning. This is the last back-fill; v1.0.6 is purely a release-process correction.
+
+### Files changed
+
+```
+M  meta.json                            1.0.4 → 1.0.5
+M  skills/build-agent-app/meta.json     1.0.4 → 1.0.5
+M  CHANGELOG.md                         This entry
+```
+
 ## [1.0.5] - 2026-07-12
 
 Validator enhancement: stop firing the "drift" warning on cleanly-checked-out older tags. Plus back-fill meta.json version drift from v1.0.3.
