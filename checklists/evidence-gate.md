@@ -8,7 +8,8 @@ The Coordinator must complete **every box** relevant to the change type before d
 - [ ] `docs/evidence/<id>/verification.md` walks each Acceptance Criterion with PASS/FAIL.
 - [ ] All required reviewers' reports exist in `docs/evidence/<id>/`.
 - [ ] Aggregator status: ✅ Approved.
-- [ ] CI green on the branch.
+- [ ] **CI is GREEN on the latest commit at the head of the PR branch.** A red CI — even with passing reviews — fails this gate. Polling cadence per `references/cd-monitoring.md`. Capture the CI log at `docs/evidence/<id>/ci-log.txt`. If CI failed ≥2x on the same class: a `ci`-tagged Issue exists, and `memory/lessons.md` carries a one-line entry.
+- [ ] No "partial CI as green". All configured checks must pass — lint, tests, build, security scan.
 - [ ] Branch is up to date with main/rebase target.
 
 ## Frontend (UI)

@@ -54,9 +54,36 @@ QA agent (or Owner) compiles `docs/evidence/<id>/` with everything required by `
 
 PR template from `templates/pr-description.md`. Mark Draft until reviews run.
 
-## Phase 7 — CI
+## Phase 7 — CI  (BLOCKING GATE — do not advance while red)
 
-Wait for CI. If it fails → `04-ci-recovery.md`. If it passes → reviewers.
+**Behavior**: Owner Agent keeps eyes on CI from the moment the first commit lands on the branch. Coordinator does not allow Phase 8 until CI is green.
+
+**Sequence**:
+
+1. Owner pushes first commit.
+2. Owner (and Coordinator) watch CI dashboard. Polling cadence: every ~60–120 s until green, then once on every subsequent push.
+3. Push → wait → CI finishes:
+   - **Green** → Phase 8 (Adversarial Review).
+   - **Red** → Owner does NOT say "Done". `04-ci-recovery.md` runs. Loop until green.
+4. Coordinator blocks any of: requesting review, requesting merge, marking Issue Done, or closing the Issue.
+
+**Hard rules**:
+
+- A red CI is the only failure that is observable without subjective judgment. The harness **never** treats it as "best effort".
+- A flaky test failure still counts as a defect until proven otherwise (see `04-ci-recovery.md` re-run policy: at most one re-run before real-defect triage).
+- Merging while CI is red, or asking for review while CI is red, are both classified as **anti-patterns** (see SKILL.md §13).
+
+**What the Owner watches for**:
+
+- Failing unit / integration test → read the trace, fix the test or the code, push.
+- Lint / type error → fix the lint or the type signature, push.
+- Build error → read the build log, fix the dependency / toolchain breakage, push.
+- Integration / environment error → Coordinator (with Owner) checks secrets, env, network; may pause for Human Approval.
+- Infra / runner flake → Coordinator files a CI Issue, possibly re-runs.
+
+If the same class fails twice in a row → file a CI Issue tagged `ci` (template: `templates/issue-bug.md`) and a one-line `memory/lessons.md` entry.
+
+**Hand-off**: only Phase 8 (review) starts. Everything else (request review, merge, close Issue, plan next Issue) is suspended until CI is green.
 
 ## Phase 8 — Adversarial Review
 

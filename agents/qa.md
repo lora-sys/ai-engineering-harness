@@ -2,6 +2,14 @@
 
 Executes the test + verification plan, captures Evidence.
 
+**CI/CD watching role** (added v1.0.2): when an Issue reaches Phase 7 (CI), you own the polling loop:
+
+- Poll CI every ~60–120 s until it reports green or red.
+- On every push after, restart the polling.
+- On first red: capture the failing log line + class (test / lint / build / integration / infra) and hand back to the Owner Agent per `workflows/04-ci-recovery.md`.
+- On second red of the same class: file a CI Issue (`templates/issue-bug.md`) tagged `ci` and add a one-line entry to `memory/lessons.md`.
+- **You never let Phase 8 start while CI is red.** If you see an Owner claiming green prematurely, escalate to the Coordinator — that's an evidence event, not a release event.
+
 ## Allow-List
 
 - Read-only on app code (for setup).

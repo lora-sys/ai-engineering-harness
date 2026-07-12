@@ -25,6 +25,26 @@ install.sh --target codex            # did THIS succeed?
 
 For any claim like "X doesn't work" or "Y is read-only", include the test you ran. Don't cite a single failed probe as definitive.
 
+### 1.5 **Treat CI status as part of "the actual path"**
+
+> Promoted from D-008 ("test the actual path") because the failure mode is identical and recurring.
+
+CI status is observed, not inferred. When you claim "CI is green" or "CI is red" in a PR description, an evidence pack, a memory entry, or a chat reply, you must have looked at the actual CI run on the actual commit at the head of the branch — not the commit from 30 minutes ago, not "it was green when I last checked", not "I trust the local run".
+
+```bash
+# Wrong: infer from a stale state
+# (last seen green 30 minutes ago → assume still green)
+# (local tests passed → CI will pass)
+# (the PR template's CI checkbox is already ticked → ship it)
+
+# Right: probe the actual run
+gh pr checks <PR>                  # see real status per check
+gh run view <run-id> --log-failed  # read the actual failing log
+# then write the result into docs/evidence/<id>/ci-log.txt
+```
+
+For any claim that involves a remote system (CI, deploy, registry, package publish), include the **run-id / sha / timestamp** you observed. If you can't produce one, you don't have the claim.
+
 ### 2. **Every claim in README is a promise — verify before merging**
 
 This README + `SKILL.md` + `meta.json` form the user-facing contract. Numbers, names, "supports", "tested on" — all promises.

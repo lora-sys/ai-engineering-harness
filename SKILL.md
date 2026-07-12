@@ -16,6 +16,7 @@ This skill is a **software engineering organization**, not a coding prompt. It t
 5. **Evidence gates every transition.** Frontend screenshots + Playwright, backend tests + curl traces, DB migration + rollback, CI logs, Reviewer reports. No evidence → not Done.
 6. **Memory is project state, not chat.** Stable conclusions live in `docs/`, `memory/`, sessions reportable, ephemeral reasoning left out of long-term storage.
 7. **Documentation is the contract.** `CLAUDE.md`, `AGENTS.md`, `DESIGN.md`, `ENGINEERING.md`, `TESTING.md`, `CONTRIBUTING.md`, `PROJECT_STATUS.md` are referenced by every Issue/PR/Agent.
+8. **CI/CD is a blocking gate, not a checkpoint.** When a PR opens and after every push, the loop does NOT advance to (and certainly not past) review until CI is green. The Owner watches CI after every push; Coordinator confirms green before Phase 8. If CI is red, the feature is BLOCKED — stay in `workflows/04-ci-recovery.md` until green, no matter how many review approvals are queued. See `references/cd-monitoring.md`. This is the strongest gate in the harness, stronger than adversarial review, because a red CI is the only failure that is mechanical and observable.
 
 ## 2. When to Use This Skill
 
@@ -89,7 +90,7 @@ Idea
   → Self-test (unit + integration)
   → Commit (type(scope): description, refs Issue)
   → Draft PR (template in templates/pr-description.md)
-  → CI runs
+  → CI runs  **(BLOCK: do not advance while red — see `workflows/04-ci-recovery.md` and `references/cd-monitoring.md`)**
   → Adversarial Review (see workflows/adversarial-pr-review.md)
       ├── Bug Hunter    — runtime bugs, exceptions, races, nulls, edges
       ├── Behavior Reviewer — expected vs actual behavior vs spec
@@ -162,7 +163,7 @@ Minimum Evidence per change-type:
 | Frontend     | Screenshots (desktop + mobile), Playwright JSON, browser console clean, a11y check, UI Review |
 | Backend      | Test results, API traces, exception coverage, security probe, perf baseline where relevant |
 | Database     | Migration SQL, data-safety diff, rollback plan & dry run, seed impact                       |
-| Infra/DevOps | CI green, deploy dry-run, environment diff, secret scan                                      |
+| Infra/DevOps | **CI green (mandatory)** + deploy dry-run, environment diff, secret scan + rollback rehearsal |
 | Cross-cut    | Reviewer reports (each reviewer), change-summary.md, verification.md                       |
 
 Evidence goes to `docs/evidence/<feature-or-issue-id>/`. See `checklists/evidence-gate.md` and `templates/evidence-pack.md`.
@@ -209,7 +210,7 @@ When invoked as `$ai-engineering-harness`:
 - `workflows/` — step-by-step procedures (bootstrap, feature delivery, review, CI recovery, conflict, release).
 - `templates/` — Issue, Implementation Plan, PR, Review Report, Evidence Pack, Phase Summary, ADR, session files.
 - `checklists/` — Evidence Gate, frontend/backend/database/security/PR-merge checklists.
-- `references/` — context levels, document indexing, Worktree discipline, agent spawning patterns.
+- `references/` — context levels, document indexing, Worktree discipline, agent spawning patterns, **CI/CD monitoring pattern** (`cd-monitoring.md`).
 - `examples/` — worked samples of filled templates.
 - `scripts/` — bash helpers (`new-session.sh`, `context-manifest.sh`, `evidence-pack.sh`).
 
@@ -241,3 +242,5 @@ Use $ai-engineering-harness to audit open Issues, PRs, and CI; produce a recover
 - Auto-resolving multi-agent conflicts.
 - Treating chat history as project memory.
 - One agent implementing + reviewing the same PR.
+- **Calling an Issue "Done" while CI is red.** Merge is downstream of Phase 11; green CI is the gate at Phase 7. Red CI is a block, not a status.
+- **Calling an Issue "Done" while CI is red.** Merge is downstream of Phase 11; green CI is the gate at Phase 7. If CI is red, stay in `workflows/04-ci-recovery.md`.

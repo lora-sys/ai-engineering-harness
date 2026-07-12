@@ -464,6 +464,7 @@ The Coordinator inventories the gap from "current" to "expected", files a batch 
 | 5 | **上下文按 L0–L3 加载 · L0–L3 context control** | 默认不加载 `docs/` 全文。让 `agents/context-assembly.md` 按任务产出 `context-manifest.md`,只给 Agent 当前必需的最小可信上下文。 |
 | 6 | **人工审批闸门 · Human Approval Gate** | 涉及 鉴权 / 数据库 schema / 生产密钥 / 付费 API / 发布版本 时,Coordinator 会主动 `request_user_input` 并暂停。它不会代你做这些判断。 |
 | 7 | **记忆是项目状态,不是聊天 · Memory is project state, not chat** | 稳定结论写到 `docs/` 与 `memory/`;对话历史不留。每个 Phase 结束后 Coordinator 跑 `workflows/06-phase-summary.md` 沉淀。 |
+| 8 | **CI/CD 是阻塞闸门,不是检查项 · CI/CD is a blocking gate** | Owner 自首个 commit 起盯 CI;Coordinator 阻止进入 Phase 8 / 合并 / Done,直到 CI 绿。Red CI ⇒ `workflows/04-ci-recovery.md`,同一类失败 ≥2 次 ⇒ `ci`-tagged Issue + `memory/lessons.md` 一行。详见 `references/cd-monitoring.md`。 |
 
 ### 典型指令清单 · Canonical invocations
 

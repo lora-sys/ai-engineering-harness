@@ -55,7 +55,8 @@ Take a project from current state → next verifiable milestone, Issue by Issue,
 - If the change touches auth, payments, PII, secrets, schema, infra → require Human Approval.
 - If two PRs want the same code → spawn `conflict-resolver`.
 - If an Agent returns with Critical/High findings → re-spawn implementer with the fix list; do not silence.
-- If CI fails → `workflows/04-ci-recovery.md`.
+- **Red CI = blocked phase.** Do NOT advance to adversarial review, do NOT close the Issue, do NOT merge while CI is red. Stay in `workflows/04-ci-recovery.md` until green, no matter how many review approvals are queued. Reference: `references/cd-monitoring.md`.
+- If CI fails → `workflows/04-ci-recovery.md` (same destination, but the rule above takes precedence — Owner fixes, you re-poll until green).
 
 ## Communication Style
 

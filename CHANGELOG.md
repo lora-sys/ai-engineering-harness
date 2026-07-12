@@ -11,6 +11,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.0.2] - 2026-07-12
+
+CI/CD promoted from "a step" to "a blocking gate" in the closed loop.
+
+### Added
+- **`SKILL.md` §1 Principle #8** — *"CI/CD is a blocking gate, not a checkpoint."* The strongest gate in the harness, stronger than adversarial review.
+- **`references/cd-monitoring.md`** — pattern doc for CI watching: polling cadence, failure classification, "at most one re-run before real-defect triage" rule, Owner hand-back.
+- **`memory/notes-2026-07-12.md`** — D-011 ("CI/CD is a blocking gate, not a step") with Status · Context · Decision · Why · Consequence · Revisit-when.
+
+### Changed
+- **`workflows/01-feature-delivery.md` Phase 7** — renamed `(BLOCKING GATE — do not advance while red)`. Owner watches CI from the first commit. Coordinator blocks review / merge / Done / Close until green. Rescue loop is `04-ci-recovery.md`. Same-class second failure ⇒ `ci`-tagged Issue + `memory/lessons.md` line.
+- **`agents/coordinator.md`** — *"Red CI = blocked phase. Do NOT advance to adversarial review, do NOT close the Issue, do NOT merge while CI is red."*
+- **`agents/qa.md`** — CI/CD-watching role added: poll every ~60–120 s, restart on every push, capture failing log + class on first red, file `ci` Issue + lessons entry on second red of same class.
+- **`SKILL.md`** — loop diagram marks CI as `**(BLOCK: do not advance while red)**`. Cross-cutting Evidence table makes "CI green (mandatory)" the first row of Infra/DevOps. References list points to `cd-monitoring.md`. §13 anti-patterns list carries the new "Done while CI is red" rule twice so it survives rewording.
+- **`checklists/evidence-gate.md`** — *"CI is GREEN on the latest commit at the head of the PR branch"* + *"No 'partial CI as green'. All configured checks must pass — lint, tests, build, security scan."* + a required `docs/evidence/<id>/ci-log.txt`.
+- **`templates/pr-description.md`** — new `## CI` section (right before `## Risk`) so the PR body has to enumerate the actual checks and the actual run-ids.
+- **`CONTRIBUTING.md`** — new §1.5 *"Treat CI status as part of 'the actual path'"* extending D-008 (test the actual path) to remote-system claims. A claim of "CI green" without a run-id is not a claim.
+- **`README.md`** — operating principles table now has 8 rows (adds Principle #8 in both Chinese and English).
+
+### Why v1.0.2 (not v1.1.0)
+The user-facing `description` of the skill (the routing surface) is unchanged. The harness is still triggered on the same queries; what changed is **how loud** CI is inside the loop when an agent runs the harness. Per D-006, routing-affecting changes bump minor; structural changes bump major; everything else is patch. This is patch.
+
+### Files added / changed
+
+```
++ references/cd-monitoring.md           NEW pattern doc
++ memory/notes-2026-07-12.md            D-011 entry
+M  SKILL.md                             Principle #8 + closed-loop BLOCK + references list
+M  workflows/01-feature-delivery.md     Phase 7 strengthened
+M  agents/coordinator.md                CI-blocking rule
+M  agents/qa.md                         CI-watching role
+M  checklists/evidence-gate.md          "CI green (mandatory)" + ci-log.txt
+M  templates/pr-description.md          New "## CI" section
+M  CONTRIBUTING.md                      §1.5 "CI status as part of the actual path"
+M  README.md                            Operating principles table bumped to 8 rows
+M  CHANGELOG.md                         This entry
+```
+
 ## [1.0.0] - 2026-07-12
 
 The skill family release. This repo now ships more than one skill.
