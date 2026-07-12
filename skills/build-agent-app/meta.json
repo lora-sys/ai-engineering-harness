@@ -1,0 +1,28 @@
+{
+  "id": "build-agent-app",
+  "name": "Build Agent App",
+  "description": "Design, take over, or refactor an agent app (LLM + tools + state). Use when user has a PRD for an agent, wants to wire in an existing one, or reports a broken one. Writes Agent + Harness Contract, picks the workflow, hands off to $ai-engineering-harness. Kernel: agent = model + harness.",
+  "category": "agent-architecture",
+  "priority": 18,
+  "tags": [
+    "agent-design",
+    "agent-contract",
+    "harness",
+    "mcp",
+    "memory",
+    "tools",
+    "observability",
+    "human-in-the-loop",
+    "refactor",
+    "takeover"
+  ],
+  "install": {
+    "global": "npx -y skills add lora-sys/ai-engineering-harness -g --skill build-agent-app",
+    "specific-skill": "npx -y skills add lora-sys/ai-engineering-harness -g -s build-agent-app",
+    "via-script": "bash install.sh --skill build-agent-app"
+  },
+  "agents_supported": 60,
+  "license": "MIT",
+  "repository": "https://github.com/lora-sys/ai-engineering-harness",
+  "entry": "SKILL.md"
+}

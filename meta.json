@@ -12,12 +12,15 @@
     "context-control",
     "issue-driven",
     "worktree-isolated",
-    "memory-evolving"
+    "memory-evolving",
+    "skill-family:ai-engineering-harness",
+    "sibling-skill:build-agent-app"
   ],
   "install": {
     "global": "npx -y skills add lora-sys/ai-engineering-harness -g --all",
     "specific-skill": "npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness",
-    "specific-agent": "npx -y skills add lora-sys/ai-engineering-harness -g -a claude-code codex grok"
+    "specific-agent": "npx -y skills add lora-sys/ai-engineering-harness -g -a claude-code codex grok",
+    "via-script": "bash install.sh  # default installs the full family"
   },
   "agents_supported": 60,
   "license": "MIT",

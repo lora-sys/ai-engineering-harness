@@ -728,6 +728,49 @@ Categorizes conventional-commit subjects into Keep-a-Changelog sections (Added /
 - `scripts/refresh-index.sh` — `docs/.index/{manifest,freshness,relations}.json`
 
 
+
+## Companion skills
+
+This repo ships a small skill family, not just one skill. Both skills install
+into the same per-CLI-agent directory under different folder names and are
+independently invokable.
+
+### `build-agent-app` (sibling · at `skills/build-agent-app/`)
+
+The **Agent App Architect**. Trigger when the user wants to design an agent app
+(greenfield from a PRD), integrate an existing one, or fix a broken one.
+
+```text
+Use $build-agent-app to design a code-review agent from PRD.md
+Use $build-agent-app to integrate /path/to/agent-app into my project
+Use $build-agent-app to diagnose why /path/to/agent is misbehaving
+```
+
+Workflow: `references/decision-0.md` ("is this even an agent?") →
+Agent Contract → Harness Spec → hand off back to `$ai-engineering-harness` for
+implementation. Pairs with this skill; both share the kernel **agent = model + harness**.
+
+### Install (covers the family)
+
+```bash
+bash install.sh                                  # both skills to every TARGET (default)
+bash install.sh --skill build-agent-app          # only the sibling
+bash install.sh --fat-install --skill all        # git clone + symlink both skills
+```
+
+The `npx skills add lora-sys/ai-engineering-harness -g --all` command still
+installs only the primary skill (its own canonical). For the sibling, run the
+above `bash install.sh --skill build-agent-app` after.
+
+### When to call which skill
+
+| Want to … | Trigger |
+| --- | --- |
+| Build a software product (engineering org) | `$ai-engineering-harness` |
+| Design / take over / refactor an **agent app** | `$build-agent-app` |
+| Both — agent app with engineering-grade evidence gates | `$build-agent-app` designs, then hands off to `$ai-engineering-harness` |
+
+
 ## Discoverability · 收录与发现
 
 This skill is automatically aggregated by [Vercel's `skills.sh`](https://skills.sh/) index — a public registry for AI agent skills. Once GitHub's crawler picks up the topics + SKILL.md metadata here, the install command shows up in skill search results.

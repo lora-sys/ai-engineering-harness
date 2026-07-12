@@ -11,6 +11,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.0.0] - 2026-07-12
+
+The skill family release. This repo now ships more than one skill.
+
+### Added
+- **`skills/build-agent-app/`** — companion skill "Build Agent App". The Agent App Architect: design / take over / refactor an agent app. Writes Agent Contract + Harness Contract, picks an entry workflow (new | takeover | refactor), then hands implementation back to `$ai-engineering-harness`. Triggers on `$build-agent-app`.
+- **`scripts/validate-meta.sh`** — extended to walk the entire skill family. With no file argument, it validates `./meta.json` and every `skills/*/meta.json` it finds. `OK: ./meta.json passes schema validation` becomes `Summary: 2 passed, 0 failed`.
+- **`meta.json`** at repo root: still the primary entry pointing to `ai-engineering-harness`. Now tags include `skill-family:ai-engineering-harness` and `sibling-skill:build-agent-app` so indexers that don't recurse can still discover the family.
+- **`skills/build-agent-app/meta.json`** — the sibling's own metadata. Passes our own `validate-meta.sh --strict` and the upstream skill-creator `quick_validate.py`.
+- **`install.sh`** — refactored from single-skill to multi-skill via the `SKILL_SOURCES` map. New flag `--skill <name>` chooses `ai-engineering-harness`, `build-agent-app`, or `all` (default). Maintains full back-compat with the old `--all` / `--target X` / `--uninstall` / `--fat-install` behaviour.
+- **`README.md`** — new "Companion skills" section. Documents the family, when to trigger which skill, and a `when-to-call-which-skill` table.
+
+### Changed
+- **Skill status: single skill → skill family.** `npx skills add lora-sys/ai-engineering-harness` still installs only the primary skill at canonical (unchanged). The sibling rides along only when using our `bash install.sh` (with `--skill all`, the default).
+- **Validation contract.** Both meta.json files now pass `scripts/validate-meta.sh --strict` with 0 warnings. Run as part of release pre-flight.
+
+### Why v1.0.0 (not v0.2.0)
+The repository evolved from "one skill prototype" to "a vetted skill family with hand-off contracts". That's a major version-bump-worthy transition. The skill description / install behaviour of `ai-engineering-harness` itself is unchanged, so existing `npx skills add` users see no disruption.
+
+### Install / Update
+
+```bash
+# Existing: still works, no behavior change
+npx -y skills update lora-sys/ai-engineering-harness -g
+
+# New: install the family (both skills at 38 CLI agent dirs)
+bash install.sh --all                        # both
+bash install.sh --skill build-agent-app      # only sibling
+bash install.sh --fat-install               # git clone + symlink, both skills
+```
+
+### Files added / changed
+
+```
++ skills/build-agent-app/                NEW skill folder (SKILL.md + references/ +
+                                          templates/ + workflows/ + scripts/ +
+                                          examples/ + agents/openai.yaml + meta.json)
+M  install.sh                            multi-skill aware, --skill flag, family walk
+M  scripts/validate-meta.sh              walks skills/*/meta.json when no FILE given
+M  README.md                             +49 lines (Companion skills section)
+M  meta.json                             +2 tags (skill-family:..., sibling-skill:...)
+M  CHANGELOG.md                          v1.0.0 entry (this file)
+```
+
+### Compatibility
+
+- No behavior change for `npx skills add lora-sys/ai-engineering-harness -g --all` users.
+- The new sibling is opt-in via `bash install.sh --skill build-agent-app`.
+- All previous per-CLI-agent routing descriptions remain valid.
+
+
 ## [0.1.4] - 2026-07-11
 
 ### Added

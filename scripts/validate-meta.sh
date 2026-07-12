@@ -32,9 +32,25 @@ for arg in "$@"; do
   esac
 done
 
-FILE="${PATH_ARG:-./meta.json}"
 HAS_ERRS=0
 HAS_WARNS=0
+
+# Family walk: when no file arg given, validate every meta.json in this repo.
+if [[ -z "$PATH_ARG" ]]; then
+  echo "Family walk:"
+  ok=0; failed=0
+  for f in ./meta.json skills/*/meta.json; do
+    [[ -f "$f" ]] || continue
+    echo "── $f ──"
+    if "$0" "$f" 2>&1; then ok=$((ok+1)); else failed=$((failed+1)); fi
+  done
+  echo
+  echo "Summary: $ok passed, $failed failed"
+  [[ $failed -eq 0 ]] && exit 0 || exit 1
+fi
+
+FILE="${PATH_ARG:-./meta.json}"
+
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "python3 not found in PATH" >&2

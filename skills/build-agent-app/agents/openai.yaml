@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build Agent App"
+  short_description: "Design, take over, or refactor an agent app"
+  default_prompt: "Use $build-agent-app to <describe your PRD / takeover target / broken agent>"
