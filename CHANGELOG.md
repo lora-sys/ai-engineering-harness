@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.0.10] - 2026-07-12
+
+Post-release documentation roll-up. No user-facing behavior change; the runtime-visible files (SKILL.md, agents/, workflows/, scripts/, references/) are unchanged from v1.0.9.
+
+### Added
+- **`memory/notes-2026-07-12.md` D-013** — *"meta.json must match the tag being cut, not the previous tag"*. Documents the release-process anti-pattern that forced the v1.0.4 → v1.0.9 back-fill chain. The validator added in v1.0.5 catches this drift at release time; D-013 records the rule so future maintainers don't repeat the mistake.
+- **`CHANGELOG.md`** — retrospective entries for v1.0.8 and v1.0.9 (the back-fill chain that didn't have proper CHANGELOG entries at the time).
+
+### Files changed
+
+```
+M  meta.json                            1.0.9 → 1.0.10
+M  skills/build-agent-app/meta.json     1.0.9 → 1.0.10
+M  CHANGELOG.md                         This entry
+M  memory/notes-2026-07-12.md           (already in main, this release rolls up the D-013 commit)
+```
+
+### Why v1.0.10 (not skipping until next functional release)
+
+Cutting a release tag right after a docs-only commit lets `git describe` report `v1.0.10` cleanly on the checkout, instead of `v1.0.9-2-g3f64fe4` which mixes the tag with the post-release doc commits. Cleaner state for downstream consumers (skill indexes, `npx skills` cache invalidation, etc.).
+
 ## [1.0.9] - 2026-07-12
 
 meta.json finally self-consistent. Bumped to `1.0.9` in the v1.0.9 commit (matching the new tag).
