@@ -86,7 +86,7 @@ Stable lessons go into `memory/notes-<date>.md` with Status · Context · Decisi
 1. **Open an issue first** for non-trivial changes. Use the templates in `.github/ISSUE_TEMPLATE/`.
 2. **Branch off `main`**: `feature/#<id>-<slug>` or `fix/#<id>-<slug>`.
 3. **Worktree discipline**: one PR = one Worktree = one Issue (template in `templates/implementation-plan.md`).
-4. **`scripts/validate-meta.sh --strict`** must pass before commit (catches schema drift).
+4. **`scripts/validate-meta.sh --strict` + `scripts/check-templates.sh --strict`** must pass before commit. The former catches schema + version + D-006 drift; the latter catches missing required headings in templates (e.g. `## CI` in `templates/pr-description.md`). Both exit non-zero on failure.
 5. **`scripts/changelog-auto.sh --append`** to preview the changelog entry your commits will produce; commit `CHANGELOG.md` separately if anything is off.
 6. **PR description uses `templates/pr-description.md`** with the relevant sections.
 7. **Adversarial review** if the change touches a workflow, an Agent role, the L0–L3 context model, or any architecture-bearing contract.
@@ -130,7 +130,7 @@ npx -y skills update lora-sys/ai-engineering-harness -g
 
 ## When in doubt
 
-- Run `install.sh --help` and `bash scripts/validate-meta.sh` before opening a PR.
+- Run `bash scripts/validate-meta.sh --strict` and `bash scripts/check-templates.sh --strict` before opening a PR. Both must be clean.
 - Read `memory/notes-2026-07-11.md` to see what prior maintainers already learned.
 - Re-read section 1 of this file. **Test the actual path.**
 

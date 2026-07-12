@@ -11,6 +11,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.0.3] - 2026-07-12
+
+Tooling hardening: three guards that close the three highest-frequency release-process regressions. No user-facing behavior change; meta.json now carries an explicit `version` field discoverable by indexers.
+
+### Added
+- **`scripts/check-templates.sh`** (NEW) — asserts required headings exist at start-of-line in `templates/*.md`. Currently 15 assertions covering PR description, evidence pack, implementation plan, review report, issue templates, ADR, and phase summary. Fast awk-based check (no regex meta-char escaping). Catches phantom edits like the v1.0.2 `## CI` regression that landed without `git diff` confirming it. Exit non-zero on missing required heading.
+- **`meta.json` (both skills)** — added `"version": "1.0.2"` field. Indexers that walk meta.json can now surface the version without scraping `git tag`.
+
+### Changed
+- **`scripts/changelog.sh`** — added overwrite guard. If `CHANGELOG.md` already has a `## [X.Y.Z]` versioned entry, the script REFUSES to run (exit 2, message directs to `changelog-auto.sh --append` or `--force`). This prevents the bug where running the low-level generator would silently clobber a hand-edited changelog with `[Unreleased]`. Only `--force` bypasses, and only intentionally.
+- **`scripts/validate-meta.sh`** — three new checks:
+  1. `version` is now REQUIRED in `meta.json`. Format-validated against semver `X.Y.Z[-prerelease]`.
+  2. Drift check: meta.json's `version` is compared to the latest `v*.*.*` git tag; mismatch → warning.
+  3. **D-006 enforcement**: if `description` changed between two adjacent versioned tags AND only patch bumped, warn (description is routing surface, should bump minor per D-006).
+- **`CONTRIBUTING.md`** — PR-process step 4 now requires both `validate-meta.sh --strict` AND `check-templates.sh --strict` to pass before commit.
+- **`memory/notes-2026-07-12.md`** — added D-012 ("Tooling hardening: catch regressions before they ship") documenting the three guards and their motivation.
+
+### Why v1.0.3 (not v1.1.0)
+- The user-facing skill `description` is unchanged.
+- The install commands are unchanged.
+- The harness triggers on the same queries.
+- The new tooling is invisible to runtime users (only maintainers see it).
+- Per D-006 (routing-affecting → minor, structural → major, everything else → patch), this is a **patch bump**.
+
+### Files added / changed
+
+```
++ scripts/check-templates.sh            NEW template assertion check
+M  scripts/changelog.sh                 Added overwrite guard (exit 2 + --force)
+M  scripts/validate-meta.sh             version required + drift + D-006 enforcement
+M  meta.json                            Added "version": "1.0.2"
+M  skills/build-agent-app/meta.json     Added "version": "1.0.2"
+M  CONTRIBUTING.md                      PR-process step 4 + "When in doubt" updated
+M  memory/notes-2026-07-12.md           D-012 added
+M  CHANGELOG.md                         This entry
+```
+
 ## [1.0.2] - 2026-07-12
 
 CI/CD promoted from "a step" to "a blocking gate" in the closed loop.

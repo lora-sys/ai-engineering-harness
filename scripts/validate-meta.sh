@@ -4,7 +4,7 @@
 # Usage:
 #   scripts/validate-meta.sh                  # validates ./meta.json
 #   scripts/validate-meta.sh <path>           # validates a specific file
-#   scripts/validate-meta.sh --strict        # also fail on warnings (unknown fields, etc.)
+#   scripts/validate-meta.sh --strict        # also fail on warnings (unknown fields, version drift, etc.)
 #   scripts/validate-meta.sh --json          # print a JSON line on stdout (for CI)
 #
 # Exit codes:
@@ -74,7 +74,7 @@ def main(path):
     def err(field, msg):  errs.append(f"{field}: {msg}")
     def warn(field, msg): warns.append(f"{field}: {msg}")
 
-    REQUIRED = ["id", "name", "description", "category", "priority", "tags",
+    REQUIRED = ["id", "version", "name", "description", "category", "priority", "tags",
                 "install", "license", "repository", "entry"]
 
     for k in REQUIRED:
@@ -84,6 +84,10 @@ def main(path):
     for k in ("id", "name", "description", "category", "license", "repository", "entry"):
         if k in data and not isinstance(data[k], str):
             err(k, f"expected string, got {type(data[k]).__name__}")
+
+    if "version" in data and isinstance(data["version"], str):
+        if not re.match(r"^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$", data["version"]):
+            err("version", f"{data['version']!r} is not valid semver (e.g., 1.0.2)")
 
     if "priority" in data and not isinstance(data["priority"], int):
         err("priority", f"expected int, got {type(data['priority']).__name__}")
@@ -128,6 +132,64 @@ def main(path):
     if "repository" in data and isinstance(data["repository"], str):
         if not data["repository"].startswith(("https://", "http://", "git@")):
             err("repository", "must be an https/http URL or git@ URL")
+
+    if "version" in data and isinstance(data["version"], str):
+        try:
+            import subprocess
+            tags = subprocess.check_output(["git", "tag", "--sort=-v:refname",
+                                            "--format=%(refname:short)"],
+                                           cwd=os.path.dirname(os.path.abspath(path)) or ".",
+                                           stderr=subprocess.DEVNULL).decode().splitlines()
+            semver_tags = [t.lstrip("v") for t in tags if re.match(r"^v[0-9]", t)]
+            if semver_tags:
+                latest = semver_tags[0]
+                if data["version"] != latest:
+                    warn("version", f"meta.json version {data['version']} != latest git tag v{latest} (drift)")
+        except Exception:
+            pass  # no git available, or no tags — skip silently
+
+    # D-006 enforcement: description is part of the routing surface. A change to
+    # description between two adjacent versions should bump at least minor.
+    # If only patch bumped while description changed, warn (likely missed bump).
+    if "version" in data and isinstance(data["version"], str) and "description" in data:
+        try:
+            import subprocess
+            tags_raw = subprocess.check_output(["git", "tag", "--sort=-v:refname",
+                                                "--format=%(refname:short)"],
+                                               cwd=os.path.dirname(os.path.abspath(path)) or ".",
+                                               stderr=subprocess.DEVNULL).decode().splitlines()
+            semver_tags = [t for t in tags_raw if re.match(r"^v[0-9]+\.[0-9]+\.[0-9]+$", t)]
+            if len(semver_tags) >= 2:
+                cur_v = data["version"]
+                latest_tag, prev_tag = semver_tags[0], semver_tags[1]
+                if cur_v == latest_tag.lstrip("v"):
+                    # Find the description at prev_tag and compare.
+                    # `path` is relative to repo root (e.g. "./meta.json" or
+                    # "skills/build-agent-app/meta.json"). Use it directly.
+                    repo_rel_path = path.lstrip("./")
+                    try:
+                        prev_desc_blob = subprocess.check_output(
+                            ["git", "show", f"{prev_tag}:{repo_rel_path}"],
+                            stderr=subprocess.DEVNULL
+                        ).decode()
+                    except Exception:
+                        prev_desc_blob = None
+                    if prev_desc_blob:
+                        try:
+                            prev_data = json.loads(prev_desc_blob)
+                        except Exception:
+                            prev_data = {}
+                    if "description" in prev_data and prev_data["description"] != data["description"]:
+                        # Parse prev_tag into major.minor.patch
+                        pv = prev_tag.lstrip("v").split(".")
+                        cv = cur_v.split(".")
+                        if len(pv) == 3 and len(cv) == 3:
+                            if pv[0] == cv[0] and pv[1] == cv[1] and int(cv[2]) - int(pv[2]) >= 1 and pv[0:2] == cv[0:2]:
+                                warn("description",
+                                     f"description changed but only patch bumped ({prev_tag} → v{cur_v}); "
+                                     f"D-006 says description is routing surface, should bump minor")
+        except Exception:
+            pass
 
     if "entry" in data and isinstance(data["entry"], str):
         base = os.path.dirname(os.path.abspath(path))
