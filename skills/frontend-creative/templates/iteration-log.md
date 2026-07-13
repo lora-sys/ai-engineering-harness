@@ -9,11 +9,16 @@ One row per round. Screenshots saved alongside as `round-N.png` in the design wo
 | 3 | | local: Scroll-narrative section pinned | round-3.png | | |
 | ... | | | | | |
 
-## Anti-drift check
+## Anti-drift check (mandatory after every round)
 
-After each round, ask:
+After each round, answer YES / NO to each:
+
 - Did the page get MORE generic or LESS generic this round?
-- Is the type scale still giant / asymmetric?
-- Is the motion layered (heavy on focal, light elsewhere)?
+- Is the type scale still giant (≥ clamp(4rem, 12vw, 12rem))?
+- Is the layout still asymmetric (no centered 3-card sections)?
+- Is the motion still layered (heavy on focal, light elsewhere — not 100% motion)?
+- Is the Awwwards self-score (from `review-checklist.md`) holding or improving?
 
-If "more generic" twice in a row: STOP and re-read `references/creative-ui-design-spec.md` §12 (Iteration Flow).
+**Reject round if**: more generic, OR type scale shrunk, OR asymmetry flattened, OR motion scope expanded to everything.
+
+**Hard rule**: if "more generic" or any single rejection criterion fires **twice in a row**, stop iterating. Re-read `references/creative-ui-design-spec.md` §12 (Iteration Flow). Consider restarting from `workflows/01-macro-design.md` with a different theme.

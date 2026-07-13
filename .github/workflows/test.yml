@@ -1,0 +1,23 @@
+name: harness-tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  bats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Install bats
+        run: sudo apt-get update && sudo apt-get install -y bats
+      - name: Install just + python3
+        run: sudo apt-get install -y just python3
+      - name: Run meta validators
+        run: |
+          bash scripts/validate-meta.sh --strict
+          bash scripts/check-templates.sh --strict
+      - name: Run bats suite
+        run: bash scripts/run-tests.sh

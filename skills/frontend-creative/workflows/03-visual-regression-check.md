@@ -9,13 +9,14 @@ Catch drift before ship. Compare the current state against the brief and against
 
 ## Steps
 
-1. Run the **Phase 3 prompt** from `references/prompt-library.md`:
+1. **Run the Awwwards review checklist** (mandatory — see `templates/review-checklist.md`): 6 categories, 1-10 each. Total < 36 = fail; 36-47 = needs work; ≥ 48 = ship-able.
+2. Run the **Phase 3 prompt** from `references/prompt-library.md`:
    > Compare the current state to the brief.
-2. Walk each row of the brief and the `templates/review-checklist.md`.
-3. List the top 3 issues, ordered by **impact on Awwwards criteria** (not by ease).
-4. **Do NOT modify the code** in this round. Just review.
-5. If issues are found: go back to `workflows/02-local-refinement.md` for one more round targeting the top issue.
-6. If the page passes review with ≥ 48/60: proceed to ship.
+3. Walk each row of the brief and the `templates/review-checklist.md`.
+4. List the top 3 issues, ordered by **impact on Awwwards criteria** (not by ease).
+5. **Do NOT modify the code** in this round. Just review.
+6. If issues are found: go back to `workflows/02-local-refinement.md` for one more round targeting the top issue.
+7. If the page passes review with ≥ 48/60: proceed to ship.
 
 ## Drift detection
 

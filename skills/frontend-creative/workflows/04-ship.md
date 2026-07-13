@@ -10,7 +10,7 @@ Final checks + hand-off to `$ai-engineering-harness` (if the design needs to bec
 ## Steps
 
 1. Run the **Phase 4 prompt** from `references/prompt-library.md`.
-2. Run `templates/review-checklist.md` end-to-end. Final score recorded.
+2. **Run `templates/review-checklist.md` end-to-end** (mandatory pre-ship gate). Final score recorded.
 3. Verify performance:
    - Lighthouse mobile ≥ 90 (Performance, A11y, Best Practices, SEO)
    - LCP < 2.5s on mid-range mobile

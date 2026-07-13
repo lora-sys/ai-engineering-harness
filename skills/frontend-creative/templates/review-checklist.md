@@ -43,7 +43,18 @@ Run before `workflows/04-ship.md`. Score 1-10 each. Reject if total < 36.
 
 ## Total
 
-Sum of all six categories. Target: ≥ 48/60 (ship-able). 36-47 (needs work). < 36 (rethink the design).
+Sum of all six categories.
+
+- **< 36**: REJECT. Re-think the design.
+- **36–47**: NEEDS WORK. Back to `workflows/02-local-refinement.md` for one more round.
+- **≥ 48**: SHIP-ABLE. Proceed to `workflows/04-ship.md`.
+
+## Reject criteria (any one fails → back to refinement)
+
+- Total < 36
+- Any individual category = 0
+- The page is recognizably "Tailwind default"
+- Lorem ipsum or fake testimonials remain
 
 ## Reject criteria
 

@@ -15,7 +15,7 @@ Round 2+: improve **one region at a time**. Never rewrite the whole page.
 3. Implement the change in 1 commit.
 4. Save `round-N.png`.
 5. Update `iteration-log.md` with the round N row.
-6. Run the **Anti-drift check** (see `templates/iteration-log.md`):
+6. **Run the Anti-drift check** (mandatory — see `templates/iteration-log.md`):
    - Did the page get MORE generic or LESS generic this round?
    - Is the type scale still giant / asymmetric?
    - Is the motion layered?

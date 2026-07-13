@@ -1,6 +1,6 @@
 {
   "id": "build-agent-app",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "name": "Build Agent App",
   "description": "Design, take over, or refactor an agent app (LLM + tools + state). Use when user has a PRD for an agent, wants to wire in an existing one, or reports a broken one. Writes Agent + Harness Contract, picks the workflow, hands off to $ai-engineering-harness. Kernel: agent = model + harness.",
   "category": "agent-architecture",

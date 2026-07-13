@@ -245,6 +245,7 @@ _(Roadmap Part 1 和 Part 2 已完成 — 见 Done 段。)_
 
 #### Done
 
+- **v1.7.0** — GHA workflow (`test.yml` runs harness tests on every PR) + `scripts/release.sh` (one-command release flow) + 4 frontend-creative theme variants + Awwwards / anti-drift gates wired into workflows; 69 bats tests
 - **v1.6.0** — `skills/frontend-creative/` sibling skill (Awwwards-grade creative web UIs) + 2 `install.sh` bug fixes; 66 bats tests
 - **v1.5.0** — PR intake flow (`workflows/09-pr-intake.md`) + Local-first principle (SKILL.md #9) + decision matrix; closes Roadmap Part 1
 - **v1.4.0** — `scripts/sync-project.sh` + 58 个 bats 测试
@@ -573,6 +574,7 @@ _(Roadmap Part 1 and Part 2 done — see Done section.)_
 
 #### Done
 
+- **v1.7.0** — GHA workflow (`test.yml` runs harness tests on every PR) + `scripts/release.sh` (one-command release flow) + 4 frontend-creative theme variants + Awwwards / anti-drift gates wired into workflows; 69 bats tests
 - **v1.6.0** — `skills/frontend-creative/` sibling skill (Awwwards-grade creative web UIs) + 2 `install.sh` bug fixes; 66 bats tests
 - **v1.5.0** — PR intake flow (`workflows/09-pr-intake.md`) + Local-first principle (SKILL.md #9) + decision matrix; closes Roadmap Part 1
 - **v1.4.0** — `scripts/sync-project.sh` + 58 bats tests (sync already-bootstrapped projects)

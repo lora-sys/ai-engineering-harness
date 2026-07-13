@@ -11,6 +11,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.7.0] - 2026-07-13
+
+Closes the 4 Roadmap Backlog items. Operational tooling (GHA + release script) + frontend-creative content (4 theme variants + wired Awwwards / anti-drift gates).
+
+### Added
+
+- **`.github/workflows/test.yml`** — runs `validate-meta.sh --strict` + `check-templates.sh --strict` + `scripts/run-tests.sh` on every PR and push to main. Catches harness regressions before merge (this is the harness using its own evidence-gate on itself).
+- **`scripts/release.sh <version>`** — automates the full release flow. Verifies `meta.json` version matches the requested version, runs validators, commits pending changes, pushes tag + branch, creates the GitHub release with notes auto-extracted from `CHANGELOG.md` for that version, updates local fat + thin installs.
+- **`scripts/frontend-creative/references/theme-{a,b,c,d}-*.md`** — 4 fully-fleshed theme variants (Cyberpunk / Minimal Gallery / Retro Acid / Future 3D). Each file: Tailwind config (colors / fonts / sizes / shadows / animations), motion presets (GSAP + Framer Motion + R3F snippets), reference brand list, anti-patterns.
+- **`scripts/frontend-creative/references/theme-variants.md`** — now an index pointing to the 4 per-theme files.
+- **`tests/release.bats`** (NEW, 3 tests) — covers missing-version-arg, meta.json version mismatch, CHANGELOG regex.
+
+### Changed
+
+- **`skills/frontend-creative/workflows/02-local-refinement.md`** — Anti-drift check is now **mandatory** (was: suggested). Hard rule added: if "more generic" or any single rejection criterion fires twice in a row, stop and restart.
+- **`skills/frontend-creative/workflows/03-visual-regression-check.md`** — Awwwards review checklist (from `templates/review-checklist.md`) is now the first step. Subsequent steps renumbered.
+- **`skills/frontend-creative/workflows/04-ship.md`** — review-checklist run is now a pre-ship **gate**, not a suggestion.
+- **`skills/frontend-creative/templates/iteration-log.md`** — anti-drift check expanded to 5 YES/NO questions + explicit reject criteria + hard rule about two consecutive failures.
+- **`skills/frontend-creative/templates/review-checklist.md`** — explicit numeric thresholds (< 36 reject / 36-47 needs work / ≥ 48 ship-able) + reject-criteria list.
+
+### Why v1.7.0 (not v1.6.1)
+
+Two new files in `.github/workflows/` + `scripts/release.sh` is genuine new infrastructure. Plus 4 substantive theme docs (~400 lines) + workflow enforcement changes. Per D-006, tooling + content = minor.
+
+### Files changed
+
+```
++ .github/workflows/test.yml                       NEW (28 lines)
++ scripts/release.sh                                NEW (~80 lines)
++ tests/release.bats                                NEW (3 tests)
++ skills/frontend-creative/references/theme-a-cyberpunk.md       NEW
++ skills/frontend-creative/references/theme-b-minimal-gallery.md  NEW
++ skills/frontend-creative/references/theme-c-retro-acid.md      NEW
++ skills/frontend-creative/references/theme-d-future-3d.md       NEW
+M  skills/frontend-creative/references/theme-variants.md  now an index
+M  skills/frontend-creative/workflows/02-local-refinement.md  mandatory anti-drift
+M  skills/frontend-creative/workflows/03-visual-regression-check.md  mandatory Awwwards
+M  skills/frontend-creative/workflows/04-ship.md  review-checklist as pre-ship gate
+M  skills/frontend-creative/templates/iteration-log.md  expanded anti-drift gate
+M  skills/frontend-creative/templates/review-checklist.md  explicit thresholds
+M  meta.json                                version: 1.6.0 → 1.7.0
+M  skills/build-agent-app/meta.json         version: 1.6.0 → 1.7.0
+M  skills/frontend-creative/meta.json       version: 1.6.0 → 1.7.0
+M  CHANGELOG.md                            This entry
+```
+
+### Upgrade
+
+```bash
+npx -y skills update lora-sys/ai-engineering-harness -g
+# Optional: use the new release script (CI runs on PRs automatically)
+./scripts/release.sh 1.7.0   # if you have a v1.7.0 ready
+```
+
 ## [1.6.0] - 2026-07-13
 
 New sibling skill **`$frontend-creative`** for Awwwards-grade creative web UIs. Closes the 3 Part-2 issues on the Roadmap.
