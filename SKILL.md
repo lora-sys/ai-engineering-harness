@@ -17,6 +17,7 @@ This skill is a **software engineering organization**, not a coding prompt. It t
 6. **Memory is project state, not chat.** Stable conclusions live in `docs/`, `memory/`, sessions reportable, ephemeral reasoning left out of long-term storage.
 7. **Documentation is the contract.** `CLAUDE.md`, `AGENTS.md`, `DESIGN.md`, `ENGINEERING.md`, `TESTING.md`, `CONTRIBUTING.md`, `PROJECT_STATUS.md` are referenced by every Issue/PR/Agent.
 8. **CI/CD is a blocking gate, not a checkpoint.** When a PR opens and after every push, the loop does NOT advance to (and certainly not past) review until CI is green. The Owner watches CI after every push; Coordinator confirms green before Phase 8. If CI is red, the feature is BLOCKED — stay in `workflows/04-ci-recovery.md` until green, no matter how many review approvals are queued. See `references/cd-monitoring.md`. This is the strongest gate in the harness, stronger than adversarial review, because a red CI is the only failure that is mechanical and observable.
+9. **Local-first for overlapping changes.** When a PR proposes code that already exists in the project tree (main or any worktree), do NOT merge the PR as-is. Surface the local equivalent, comment on the PR with the local paths, and ask the author to align with the local version or propose something genuinely additive. The local version stays as-is. Operationalised by `workflows/09-pr-intake.md` and `agents/conflict-resolver.md`; criteria in `references/pr-intake-decision-matrix.md`.
 
 ## 2. When to Use This Skill
 
@@ -207,10 +208,10 @@ When invoked as `$ai-engineering-harness`:
 ## 11. Bundled Resources — Read on Demand
 
 - `agents/` — one file per agent persona with role, scope, allowed files, input/output format.
-- `workflows/` — step-by-step procedures (bootstrap, feature delivery, review, CI recovery, conflict, release).
+- `workflows/` — step-by-step procedures (bootstrap, feature delivery, review, CI recovery, conflict, release, **PR intake (Local-first triage)** — `09-pr-intake.md`).
 - `templates/` — Issue, Implementation Plan, PR, Review Report, Evidence Pack, Phase Summary, ADR, session files.
 - `checklists/` — Evidence Gate, frontend/backend/database/security/PR-merge checklists.
-- `references/` — context levels, document indexing, Worktree discipline, agent spawning patterns, **CI/CD monitoring pattern** (`cd-monitoring.md`), **SessionStart hook pattern** (`session-start-hook.md`), **context-bundle pattern** (`context-bundle.md`), **compact-report pattern** (`compact-report.md`).
+- `references/` — context levels, document indexing, Worktree discipline, agent spawning patterns, **CI/CD monitoring pattern** (`cd-monitoring.md`), **SessionStart hook pattern** (`session-start-hook.md`), **context-bundle pattern** (`context-bundle.md`), **compact-report pattern** (`compact-report.md`), **PR intake decision matrix** (`pr-intake-decision-matrix.md`).
 - `examples/` — worked samples of filled templates.
 - `scripts/` — bash helpers (`install-session-hook.sh`, `context-bundle.sh`, `compact-report.sh`, `validate-meta.sh`, `check-templates.sh`, `run-tests.sh`, ...).
 
@@ -244,3 +245,4 @@ Use $ai-engineering-harness to audit open Issues, PRs, and CI; produce a recover
 - One agent implementing + reviewing the same PR.
 - **Calling an Issue "Done" while CI is red.** Merge is downstream of Phase 11; green CI is the gate at Phase 7. Red CI is a block, not a status.
 - **Calling an Issue "Done" while CI is red.** Merge is downstream of Phase 11; green CI is the gate at Phase 7. If CI is red, stay in `workflows/04-ci-recovery.md`.
+- **Merging a PR that duplicates local code.** Per Principle #9 (Local-first), the right answer is to comment on the PR with the local paths, not to merge. The local version stays as-is; the PR author can align with it or propose something genuinely additive.

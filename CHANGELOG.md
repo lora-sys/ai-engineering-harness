@@ -11,6 +11,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.5.0] - 2026-07-13
+
+Refined contribution/PR intake flow with the **Local-first principle**. Closes the 4 Part-1 issues on the Roadmap.
+
+### Added
+
+- **`workflows/09-pr-intake.md`** (NEW) — PR intake workflow. Steps: triage against project history → check for local equivalence → sequence PRs oldest-first → self-review against project context → merge/comment/close decision.
+- **`agents/conflict-resolver.md`** — new section **"Local-first for overlapping changes (Principle #9)"** with detection grep + comment template.
+- **`references/pr-intake-decision-matrix.md`** (NEW) — 12-row merge/comment/close rubric.
+- **`SKILL.md`** — Principle #9: *"Local-first for overlapping changes."* Anti-pattern added: *"Merging a PR that duplicates local code."*
+- **`README.md`** — operating principles table bumped to 9 rows (bilingual). Workflows list updated. Roadmap section.
+
+### Why v1.5.0 (not v1.4.1)
+
+Adds an Operating Principle. Per D-006, principle additions are patch-level. But the workflow + agent + reference doc together represent a coherent new capability (PR intake as a first-class workflow), which warrants a minor bump.
+
+### Files changed
+
+```
++ workflows/09-pr-intake.md                       NEW (90 lines)
++ references/pr-intake-decision-matrix.md         NEW (37 lines)
+M  agents/conflict-resolver.md                    +Local-first section (43 lines)
+M  SKILL.md                                       Principle #9 + anti-pattern
+M  README.md                                      operating principles table → 9 rows
+M  meta.json                                      version: 1.4.0 → 1.5.0
+M  skills/build-agent-app/meta.json               version: 1.4.0 → 1.5.0
+M  CHANGELOG.md                                   This entry
+```
+
+Closes GitHub issues: #1 (workflow), #2 (agent), #3 (decision matrix), #4 (principle).
+
 ## [1.4.0] - 2026-07-13
 
 `scripts/sync-project.sh` — sync already-bootstrapped projects to the current harness version. Plus 18 new bats tests (56 total).
