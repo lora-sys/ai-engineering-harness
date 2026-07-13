@@ -11,6 +11,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.8.2] - 2026-07-13
+
+Adds `skills/frontend-creative/QUICKSTART.md` — the skill's official tutorial. Was previously only a SKILL.md (reference) + 9 workflows. Users had to read 9 workflow files to figure out how to use the skill. Now there's a single 305-line tutorial that walks through all 4 lifecycle paths with copy-paste prompt templates.
+
+### Added
+
+- **`skills/frontend-creative/QUICKSTART.md`** (NEW, 305 lines) — working tutorial covering:
+  1. What the skill does (and doesn't)
+  2. Decision table: which of the 9 workflows to start with
+  3. End-to-end example: new project (bootstrap → brief → macro → local refinement → visual regression → ship)
+  4. End-to-end example: take over an existing project
+  5. End-to-end example: redo a "狗屎" project
+  6. Copy-paste prompt templates (one per phase)
+  7. Cheat sheet (always do / never do)
+  8. Where to read more (links to all references / templates / workflows)
+- **`skills/frontend-creative/SKILL.md`** — first paragraph of Quick start now links to QUICKSTART.md first.
+
+### Why v1.8.2 (not v1.9.0)
+
+Per D-006: "Doc-only changes that clarify routing, safety, or onboarding therefore bump the patch number." A tutorial that makes the skill more discoverable / less error-prone is a routing/onboarding patch. Patch.
+
+### Files changed
+
+```
++ skills/frontend-creative/QUICKSTART.md                NEW (305 lines)
+M  skills/frontend-creative/SKILL.md                    +QUICKSTART link at top of Quick start
+M  meta.json                                version: 1.8.1 → 1.8.2
+M  skills/build-agent-app/meta.json         version: 1.8.1 → 1.8.2
+M  skills/frontend-creative/meta.json       version: 1.8.1 → 1.8.2
+M  CHANGELOG.md                            This entry
+```
+
+### Upgrade
+
+```bash
+npx -y skills update lora-sys/ai-engineering-harness -g
+# Then point a new user at QUICKSTART.md before they read SKILL.md.
+```
+
 ## [1.8.1] - 2026-07-13
 
 Hotfix: bulk-register script for projects taken over before `.harness-state.json` existed (v1.4.0+). Closes a real user pain point — without this, projects the user "took over" with the skill but never re-synced are stuck without state files, fenced blocks, or auto-update visibility.

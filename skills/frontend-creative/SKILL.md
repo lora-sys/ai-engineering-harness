@@ -25,7 +25,10 @@ Do **not** trigger this skill for:
 
 ## Quick start
 
-1. Read [`references/creative-ui-design-spec.md`](references/creative-ui-design-spec.md) — the 17-section spec. This is the rulebook.
+> **New to this skill? Read [`QUICKSTART.md`](QUICKSTART.md) first** — it's a working tutorial with end-to-end examples for all 4 lifecycle paths (new / takeover / redo / post-mortem) + copy-paste prompt templates.
+
+1. Read [`QUICKSTART.md`](QUICKSTART.md) — the working tutorial.
+2. Read [`references/creative-ui-design-spec.md`](references/creative-ui-design-spec.md) — the 17-section spec. This is the rulebook.
 2. **What are you doing?** (pick the right starting workflow):
    - **New project from scratch** → `workflows/00-bootstrap.md` (scaffold the project) → `00-design-brief-collection.md` → `01-macro-design.md` → ...
    - **Resume an existing design** → `workflows/05-takeover.md` (inventory + baseline score) → `01-macro-design.md` → ...
