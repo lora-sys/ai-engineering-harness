@@ -210,7 +210,7 @@ When invoked as `$ai-engineering-harness`:
 - `workflows/` — step-by-step procedures (bootstrap, feature delivery, review, CI recovery, conflict, release).
 - `templates/` — Issue, Implementation Plan, PR, Review Report, Evidence Pack, Phase Summary, ADR, session files.
 - `checklists/` — Evidence Gate, frontend/backend/database/security/PR-merge checklists.
-- `references/` — context levels, document indexing, Worktree discipline, agent spawning patterns, **CI/CD monitoring pattern** (`cd-monitoring.md`), **SessionStart hook pattern** (`session-start-hook.md`).
+- `references/` — context levels, document indexing, Worktree discipline, agent spawning patterns, **CI/CD monitoring pattern** (`cd-monitoring.md`), **SessionStart hook pattern** (`session-start-hook.md`), **context-bundle pattern** (`context-bundle.md`), **compact-report pattern** (`compact-report.md`).
 - `examples/` — worked samples of filled templates.
 - `scripts/` — bash helpers (`new-session.sh`, `context-manifest.sh`, `evidence-pack.sh`).
 

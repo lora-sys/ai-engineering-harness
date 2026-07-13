@@ -34,6 +34,22 @@ Document in `PROJECT_STATUS.md` and on the Issue.
 
 ## Phase 3 — Implement
 
+### 3.0 — Bundle context (one-shot, parallel)
+
+Before spawning the Owner Agent, Coordinator dumps a context bundle so sub-agents don't each re-explore the repo:
+
+```bash
+bash scripts/context-bundle.sh \
+  --out docs/evidence/<id>/context-bundle.md \
+  --commits 20
+```
+
+The bundle (`references/context-bundle.md`) includes repo identity, recent commits, working-tree state, top-level layout, open issues/PRs (if `gh` is authenticated), key harness files, recent memory notes, and the harness roster. Sections run in parallel; wall time ~5–8 s.
+
+Sub-agents spawned in Phase 3+ read `docs/evidence/<id>/context-bundle.md` from their context manifest instead of running their own `git log` / `ls` / `find`.
+
+### 3.1 — Spawn Owner
+
 Spawn Owner Agent (frontend / backend / database, possibly parallel — see `references/worktree-discipline.md`).
 
 Owner produces:
@@ -41,6 +57,9 @@ Owner produces:
 - Code modifications in allow-list.
 - Self-tests.
 - Commit history with conventional messages: `feat(scope): description (#<id>)`.
+- Free-form `implementation-report.md` in `docs/evidence/<id>/`.
+
+When Owner finishes, Coordinator (or Owner itself) calls `scripts/compact-report.sh --evidence-dir docs/evidence/<id>/ --branch <branch> --agent <name>` to produce a `compact-report.json` the parent can read in 200 bytes instead of 20 KB. See `references/compact-report.md`.
 
 ## Phase 4 — Self-test
 

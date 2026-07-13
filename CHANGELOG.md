@@ -11,6 +11,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.2.0] - 2026-07-13
+
+Two new scripts that cut Coordinator work: a one-shot parallel context dump, and a structured compact-report for sub-agent hand-back.
+
+### Added
+
+- **`scripts/context-bundle.sh`** (NEW) — parallelized one-shot dump of repo state into `context-bundle.md`. Eight sections (repo identity, recent commits, working-tree, top-level layout, open issues/PRs, key harness files, memory notes, harness roster) run in parallel as backgrounded subshells. Wall time ~5–8 s vs ~8 s sequential. Sub-agents read `docs/evidence/<id>/context-bundle.md` instead of each running its own `git log` / `ls` / `find`.
+- **`scripts/compact-report.sh`** (NEW) — compresses a sub-agent's free-form output into a single structured JSON report at `<evidence-dir>/compact-report.json`. Schema: `{agent, branch, commit, files, test, blockers, evidence_paths, evidence_size_bytes, report_md, generated_at}`. Auto-detects commit SHA, file count (`git diff --name-only base...HEAD`), and test status from `test-results/*` (FAIL wins over PASS). Coordinator parses 200 bytes instead of re-reading 20 KB of implementation narrative.
+- **`references/context-bundle.md`** (NEW) — pattern doc for the bundle: what goes in each section, failure modes, reproducibility, when to use.
+- **`references/compact-report.md`** (NEW) — pattern doc for the compact report: output schema, auto-detection rules, decision order.
+
+### Changed
+
+- **`workflows/01-feature-delivery.md` Phase 3** — split into 3.0 (Bundle context) and 3.1 (Spawn Owner). Step 3.0 calls `scripts/context-bundle.sh` once and writes to `docs/evidence/<id>/context-bundle.md`. Step 3.1 (after Owner finishes) calls `scripts/compact-report.sh`.
+- **`SKILL.md`** — references list updated to include `context-bundle.md` and `compact-report.md`.
+
+### Why v1.2.0 (not v1.1.1)
+
+Two new scripts + two new reference docs + a workflow change. Per D-006, install-behavior changes are patch, but **net-new scripts that change how the harness operates** are closer to minor. v1.2.0 signals "this is a new capability" rather than "behaviour tweak".
+
+### Files changed
+
+```
++ scripts/context-bundle.sh                  NEW (parallel context dump)
++ scripts/compact-report.sh                  NEW (structured JSON report)
++ references/context-bundle.md               NEW (pattern doc)
++ references/compact-report.md               NEW (pattern doc)
+M  workflows/01-feature-delivery.md          Phase 3 split (3.0 bundle, 3.1 spawn)
+M  SKILL.md                                  references list updated
+M  meta.json                                 version: 1.1.0 → 1.2.0
+M  skills/build-agent-app/meta.json          version: 1.1.0 → 1.2.0
+M  CHANGELOG.md                              This entry
+```
+
+### Upgrade
+
+```bash
+npx -y skills update lora-sys/ai-engineering-harness -g
+```
+
+### How to use
+
+```bash
+# Once per Issue, in Phase 3.0
+bash scripts/context-bundle.sh \
+  --out docs/evidence/<id>/context-bundle.md
+
+# Once per Owner Agent, after it finishes
+bash scripts/compact-report.sh \
+  --evidence-dir docs/evidence/<id> \
+  --branch feature/<id>-<slug> \
+  --agent <backend|frontend|qa|...> \
+  --blocker "needs review from security-reviewer"
+```
+
 ## [1.1.0] - 2026-07-13
 
 New capability: SessionStart hook that auto-reads `.claude/SESSION.md` and injects it as context on every new Claude Code session. Read-only — the hook never writes to SESSION.md.
