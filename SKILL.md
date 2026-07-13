@@ -21,7 +21,7 @@ This skill is a **software engineering organization**, not a coding prompt. It t
 
 ## 2. When to Use This Skill
 
-Use this skill when **any** of the following is true:
+> **New to this skill? Read [`QUICKSTART.md`](QUICKSTART.md) first** — working tutorial covering the 9 workflows, the 9 operating principles, end-to-end examples, copy-paste prompt templates, and the upgrade flow for existing projects.
 
 - The user wants to start, take over, or rescue a non-trivial product (MVP, internal tool, SaaS, feature set).
 - A repo has no operating system yet (no `docs/INDEX.md`, no issue template, no PR template, no ADR log, no evidence directory).

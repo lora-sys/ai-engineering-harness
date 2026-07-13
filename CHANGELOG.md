@@ -11,6 +11,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.8.3] - 2026-07-13
+
+Adds QUICKSTART.md to the two other skills in the family (`build-agent-app` and the main `ai-engineering-harness`). Per the rule: "every skill in the family has a working tutorial users can read end-to-end."
+
+### Added
+
+- **`skills/build-agent-app/QUICKSTART.md`** (NEW, 221 lines) — working tutorial for the agent-app architect skill. Covers:
+  1. When to use (agent app / takeover / refactor) vs. when not
+  2. Decision table: which of the 3 workflows
+  3. End-to-end example: new agent app (Agent Contract + Harness Contract + hand-off)
+  4. End-to-end example: take over an existing agent app
+  5. End-to-end example: refactor a broken agent app
+  6. Copy-paste prompt templates
+  7. Cheat sheet (always do / never do — including "never write business code from this skill")
+  8. Where to read more
+- **`QUICKSTART.md`** (NEW, at repo root, 241 lines) — working tutorial for the main `ai-engineering-harness` skill. Covers:
+  1. The 9 operating principles
+  2. Decision table: which of the 9+ workflows
+  3. End-to-end example: bootstrap a new project
+  4. End-to-end example: drive a feature through the closed loop
+  5. End-to-end example: triage an external PR (with Local-first principle)
+  6. **Managing existing projects** — the upgrade flow (npx skills update → sync --auto → register-existing.sh)
+  7. The skill family (3 skills: ai-engineering-harness + build-agent-app + frontend-creative)
+  8. Copy-paste prompt templates
+  9. Cheat sheet
+- **`skills/build-agent-app/SKILL.md`** — links to QUICKSTART.md at the top.
+- **`SKILL.md`** (root) — links to QUICKSTART.md at the top of "When to Use This Skill" section.
+
+### Rule (durability)
+
+> Every skill in the `ai-engineering-harness` family ships a `QUICKSTART.md` next to its `SKILL.md`. The QUICKSTART is a working tutorial (end-to-end examples + copy-paste prompt templates + cheat sheet), not a reference. New users should read QUICKSTART before SKILL.md.
+
+Currently: 3 skills × 1 QUICKSTART each = 3 QUICKSTARTs, all in place. Future sibling skills must include a QUICKSTART at the same commit.
+
+### Why v1.8.3 (not v1.8.2.1)
+
+Same kind of patch as v1.8.2 (doc-only / onboarding patch per D-006). Bump to v1.8.3 to make the family-rule change visible.
+
+### Files changed
+
+```
++ skills/build-agent-app/QUICKSTART.md                   NEW (221 lines)
++ QUICKSTART.md                                          NEW (241 lines, at repo root)
+M  skills/build-agent-app/SKILL.md                       +QUICKSTART link
+M  SKILL.md                                              +QUICKSTART link in §2
+M  meta.json                                version: 1.8.2 → 1.8.3
+M  skills/build-agent-app/meta.json         version: 1.8.2 → 1.8.3
+M  skills/frontend-creative/meta.json       version: 1.8.2 → 1.8.3
+M  CHANGELOG.md                            This entry
+```
+
+### Upgrade
+
+```bash
+npx -y skills update lora-sys/ai-engineering-harness -g
+# Then:
+# - For new users: point them at QUICKSTART.md before SKILL.md
+# - For existing users: nothing changes (QUICKSTART is additive)
+```
+
 ## [1.8.2] - 2026-07-13
 
 Adds `skills/frontend-creative/QUICKSTART.md` — the skill's official tutorial. Was previously only a SKILL.md (reference) + 9 workflows. Users had to read 9 workflow files to figure out how to use the skill. Now there's a single 305-line tutorial that walks through all 4 lifecycle paths with copy-paste prompt templates.

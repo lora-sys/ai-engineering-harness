@@ -19,6 +19,8 @@ The kernel: **agent = model + harness**. Designing an agent app is the act of sp
 
 This skill is the **architect step**. Implementation belongs to `$ai-engineering-harness`. Never write business code from this skill.
 
+> **New to this skill? Read [`QUICKSTART.md`](QUICKSTART.md) first** — working tutorial with end-to-end examples for the 3 entry workflows (new / takeover / refactor), copy-paste prompt templates, and a do/don't cheat sheet.
+
 ## When to use
 
 Use this skill if the user's request is **any of**:
