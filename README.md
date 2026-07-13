@@ -233,18 +233,7 @@ Done 不是"PR 合进去了",而是 `docs/evidence/<id>/` 里齐了:
 
 #### Active
 
-Part 1 — 贡献/PR 接入流程精化(Local-first 原则):
-
-- [ ] **workflow** `workflows/09-pr-intake.md` — 收 → 按项目历史 triage → 跟本地对比 → 排队 → 自审 → 合并/评论/迭代
-- [ ] **agent** 强化 `agents/conflict-resolver.md` — 把"本地有就优先本地"明确化
-- [ ] **docs** `references/pr-intake-decision-matrix.md` — 合并 vs 评论决策表
-- [ ] **principle** SKILL.md §1 第 9 条 — *"Local-first for overlapping changes。"* 别合入本地已有等价物的 PR,留评论指路
-
-Part 2 — 前端/UI 创意 skill(跟 `build-agent-app` 一样是兄弟 skill):
-
-- [ ] **skill** `skills/frontend-creative/` 骨架(SKILL.md + meta.json + 目录结构)
-- [ ] **docs** `references/creative-ui-design-spec.md` — 移植 17 节创意 UI 设计规范
-- [ ] **install** `install.sh --skill frontend-creative` — 跟主 harness 并列可选装
+_(Roadmap Part 1 和 Part 2 已完成 — 见 Done 段。)_
 
 #### Backlog
 
@@ -256,6 +245,8 @@ Part 2 — 前端/UI 创意 skill(跟 `build-agent-app` 一样是兄弟 skill):
 
 #### Done
 
+- **v1.6.0** — `skills/frontend-creative/` sibling skill (Awwwards-grade creative web UIs) + 2 `install.sh` bug fixes; 66 bats tests
+- **v1.5.0** — PR intake flow (`workflows/09-pr-intake.md`) + Local-first principle (SKILL.md #9) + decision matrix; closes Roadmap Part 1
 - **v1.4.0** — `scripts/sync-project.sh` + 58 个 bats 测试
 - **v1.3.0** — bats 测试套件(38→58)+ 修 3 个 install-session-hook 回归
 - **v1.2.1** — `install-session-hook.sh --status` + README Showcase 真实 e2e 产物
@@ -570,18 +561,7 @@ Three lanes: **Active** (in progress this week), **Backlog** (planned, queued), 
 
 #### Active
 
-Part 1 — Refined contribution/PR intake flow (Local-first principle):
-
-- [ ] **workflow** `workflows/09-pr-intake.md` — receive → triage against project history → compare with local → sequence → self-review → merge/comment/iterate
-- [ ] **agent** enhance `agents/conflict-resolver.md` — make the "local-first for overlapping changes" rule explicit
-- [ ] **docs** `references/pr-intake-decision-matrix.md` — merge vs comment criteria
-- [ ] **principle** SKILL.md §1 Principle #9 — *"Local-first for overlapping changes."* Don't merge a PR whose equivalent already exists locally; comment with the local path and explain
-
-Part 2 — Frontend/UI creative skill (sibling to `build-agent-app`):
-
-- [ ] **skill** `skills/frontend-creative/` skeleton (SKILL.md + meta.json + directories)
-- [ ] **docs** `references/creative-ui-design-spec.md` — port the 17-section Creative UI Design Spec
-- [ ] **install** `install.sh --skill frontend-creative` — opt-in install alongside the main harness
+_(Roadmap Part 1 and Part 2 done — see Done section.)_
 
 #### Backlog
 
@@ -593,6 +573,8 @@ Part 2 — Frontend/UI creative skill (sibling to `build-agent-app`):
 
 #### Done
 
+- **v1.6.0** — `skills/frontend-creative/` sibling skill (Awwwards-grade creative web UIs) + 2 `install.sh` bug fixes; 66 bats tests
+- **v1.5.0** — PR intake flow (`workflows/09-pr-intake.md`) + Local-first principle (SKILL.md #9) + decision matrix; closes Roadmap Part 1
 - **v1.4.0** — `scripts/sync-project.sh` + 58 bats tests (sync already-bootstrapped projects)
 - **v1.3.0** — bats test suite (38→58 tests) + 3 install-session-hook regressions fixed
 - **v1.2.1** — `install-session-hook.sh --status` + README Showcase with real e2e artifacts
