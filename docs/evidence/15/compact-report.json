@@ -1,0 +1,16 @@
+{
+  "agent": "backend",
+  "branch": "feature/15-install-status",
+  "commit": "f5b26d1",
+  "files": 2,
+  "test": "skipped",
+  "blockers": [],
+  "evidence_paths": [
+    "implementation-report.md",
+    "context-bundle.md",
+    "compact-report.json"
+  ],
+  "evidence_size_bytes": 19930,
+  "report_md": "implementation-report.md",
+  "generated_at": "2026-07-13T10:09:41+08:00"
+}

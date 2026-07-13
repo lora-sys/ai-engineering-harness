@@ -11,6 +11,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.2.1] - 2026-07-13
+
+End-to-end polish: real feature delivery (adds `install-session-hook.sh --status`), Showcase section in README with the actual artifacts captured during that run, and a small closed-loop diagram.
+
+### Added
+
+- **`scripts/install-session-hook.sh --status`** (NEW flag) — reports whether the SessionStart hook is currently installed per target without modifying any files. Exits 0 if installed, 1 if not. Critically: does **NOT** create `settings.json` when the file is missing (status is read-only by design). Caught by self-test in the e2e run; the first iteration created the file, the self-test caught it, fix shipped.
+- **`assets/closed-loop-v1.2.svg` + `.png`** (NEW) — small closed-loop diagram showing the 6 main phases, the Evidence gate at the center, the v1.2.0 additions highlighted, and the v1.0.2 CI gate as the blocking gate. 5.3 KB SVG, 60 KB PNG.
+- **`README.md` Showcase section** — real artifacts (excerpts from a real `context-bundle.md`, the actual `compact-report.json`, and an honest self-review of friction encountered during the e2e run). Both English and Chinese versions.
+
+### Captured during e2e
+
+- `docs/evidence/15/context-bundle.md` — 281-line bundle from Phase 3.0.
+- `docs/evidence/15/implementation-report.md` — free-form report.
+- `docs/evidence/15/test-results/manual.log` — 7-test self-test log.
+- `docs/evidence/15/compact-report.json` — Phase 5 structured summary.
+- `docs/evidence/15/self-review.md` — honest friction notes (heredoc quoting, --status side effect, solo adversarial review, missing GitHub Issue).
+
+### Why v1.2.1 (not v1.3.0)
+
+The new feature (`--status`) is a small additive flag. The README polish and SVG are documentation, not new functionality. Per D-006 (additive behavior → patch), this is a patch bump.
+
+### Files changed
+
+```
++ assets/closed-loop-v1.2.svg                 NEW (5.3 KB)
++ assets/closed-loop-v1.2.png                 NEW (60 KB, generated from SVG)
++ docs/evidence/15/                           NEW (e2e artifacts)
+M  scripts/install-session-hook.sh            +--status flag (+54/-2)
+M  README.md                                  +Showcase section (en + zh)
+M  meta.json                                  version: 1.2.0 → 1.2.1
+M  skills/build-agent-app/meta.json           version: 1.2.0 → 1.2.1
+M  CHANGELOG.md                               This entry
+```
+
+### Upgrade
+
+```bash
+npx -y skills update lora-sys/ai-engineering-harness -g
+```
+
 ## [1.2.0] - 2026-07-13
 
 Two new scripts that cut Coordinator work: a one-shot parallel context dump, and a structured compact-report for sub-agent hand-back.

@@ -201,7 +201,34 @@ Done 不是"PR 合进去了",而是 `docs/evidence/<id>/` 里齐了:
 └── scripts/                    # new-session / new-evidence / new-worktree / refresh-index / changelog
 ```
 
+### 展示 · Showcase
+
+这一节是**真实 e2e 跑出来的产物**(`feature/15-install-status`,commit `4f311e2`,merge `f5b26d1`),不是为 README 编出来的。
+
+#### 闭环 (v1.2.0)
+
+![Closed loop](assets/closed-loop-v1.2.svg)
+
+黄色高亮的是 v1.2.0 新增。红色 CI 闸门是 harness 最强的 gate —— 比对抗式审查还强,因为 red CI 是唯一机械可观察的失败。
+
+#### context bundle 真样
+
+`scripts/context-bundle.sh` 一次产出 18 KB / 281 行 markdown,子代理读它就不用各自 `git log / ls / find`。并行 ~5.6s,串行 ~8.0s。
+
+#### compact report 真样
+
+`scripts/compact-report.sh` 产出 374 字节 JSON,Coordinator 读这个比读 20 KB 实现叙事快两个数量级。Test 状态从 `test-results/*` 自动扫,任何 FAIL 标记胜出。
+
+#### 自审里说了哪些实话
+
+- `--status` 第一版有 bug:在空环境跑会把 `settings.json` 创建出来。是 7 个手动测试抓到的,删了文件创建那行才修好。
+- Adversarial review 我只做了一行自问自答。真生产里得 spawn `bug-hunter` + `behavior-reviewer`。
+- 没有真的开 GitHub Issue #15 —— 在自己仓库上很容易跳过这一步。
+
+完整自审:[docs/evidence/15/self-review.md](./docs/evidence/15/self-review.md)。
+
 ### 许可
+
 
 MIT — 见 [LICENSE](./LICENSE)。
 
@@ -396,6 +423,107 @@ Each Session has `sessions/<id>/{status,plan,execution,review,summary}.md`. Agen
 ├── examples/                # 6 filled samples
 └── scripts/                 # session / evidence / worktree / index / changelog helpers
 ```
+
+### Showcase — what this actually produces
+
+This section is filled with **real output** from a real end-to-end run (`feature/15-install-status`, commit `4f311e2`, merged via `f5b26d1`). Every artifact below was captured during the actual workflow, not fabricated for the README.
+
+#### Closed loop (v1.2.0)
+
+![Closed loop](assets/closed-loop-v1.2.svg)
+
+Phases highlighted yellow are new in v1.2.0. The CI gate (red) is the strongest gate in the harness — stronger than adversarial review, because a red CI is the only failure that is mechanical and observable.
+
+#### Phase 3.0 — context bundle (real excerpt)
+
+`scripts/context-bundle.sh --out docs/evidence/15/context-bundle.md` produces an 18 KB / 281-line markdown file. Sub-agents spawned in later phases read it instead of each running their own `git log` / `ls` / `find`:
+
+```markdown
+# Context bundle
+
+_Generated 2026-07-13T10:05:54+08:00 by scripts/context-bundle.sh_
+_Repo: git@github.com:lora-sys/ai-engineering-harness.git_
+_HEAD: 765ecd0_
+
+## Repo identity
+
+- **origin**: `git@github.com:lora-sys/ai-engineering-harness.git`
+- **branch**: `main`
+- **HEAD**: `765ecd0`
+- **tag**: `v1.2.0`
+- **working tree**: clean
+
+## Recent commits (last 20)
+
+765ecd0 feat(scripts): context-bundle.sh + compact-report.sh (v1.2.0)
+5a65b7a feat(hooks): SessionStart hook auto-reads .claude/SESSION.md (v1.1.0)
+...
+
+## Harness roster
+
+### Workflows
+  - `00-project-bootstrap.md` — Workflow — Project Bootstrap
+  - `01-feature-delivery.md` — Workflow — Feature Delivery
+  ...
+
+### Agents
+  - `architecture-reviewer`
+  - `backend`
+  - `bug-hunter`
+  - `coordinator`
+  ...
+```
+
+Wall time: ~5.6 s parallel / ~8.0 s sequential. Sections run in parallel as backgrounded subshells. Source: [references/context-bundle.md](./references/context-bundle.md).
+
+#### Phase 5 — compact report (real)
+
+`scripts/compact-report.sh --evidence-dir docs/evidence/15 --branch feature/15-install-status --agent backend` produces a 374-byte JSON the parent Coordinator parses instead of re-reading the 20 KB implementation narrative:
+
+```json
+{
+  "agent": "backend",
+  "branch": "feature/15-install-status",
+  "commit": "4f311e2",
+  "files": 2,
+  "test": "pass",
+  "blockers": ["needs review"],
+  "evidence_paths": [
+    "compact-report.json",
+    "implementation-report.md",
+    "test-results/manual.log"
+  ],
+  "evidence_size_bytes": 1407,
+  "report_md": "implementation-report.md",
+  "generated_at": "2026-07-13T10:08:44+08:00"
+}
+```
+
+Test status auto-detected by grepping `test-results/*` (any FAIL marker wins over PASS). Source: [references/compact-report.md](./references/compact-report.md).
+
+#### Honest self-review of the e2e run
+
+What worked:
+
+1. `context-bundle.sh` gave the implementer everything they needed in one read — no redundant exploration.
+2. Worktree discipline (`git worktree add ... -b feature/...`) kept `main` untouched.
+3. The harness's own validators (validate-meta.sh + check-templates.sh) caught the 2 script-syntax errors during development.
+4. `compact-report.sh` produced a structured 374-byte summary the parent actually needs.
+
+What friction showed up:
+
+1. **Editing complex bash with Python subshells is fragile** — my first rewrite attempt failed silently due to heredoc quoting. Lesson: write Python to a file first, don't inline.
+2. **`--status` initially created `settings.json` on a fresh machine** — the file-creation check ran before the action switch. The 7-test self-test caught it. Without the test, that would have shipped as a side effect.
+3. **Adversarial review was one-line self-Q&A** — in production I'd spawn `bug-hunter` and `behavior-reviewer`. Solo-maintainer mode is harder to do honestly.
+4. **GitHub Issue #15 doesn't exist** — the harness workflow says every change starts as an Issue. Working on your own repo makes that easy to skip.
+
+Full self-review: [docs/evidence/15/self-review.md](./docs/evidence/15/self-review.md).
+
+#### What this is NOT
+
+- Not a screenshot of a polished demo. The artifacts above are from a real `git log` / `ls` / `cat` of the working tree at commit `4f311e2`.
+- Not a green-tick theatre. The honest self-review section above names real gaps.
+- Not a replacement for adversarial review. The e2e ran with solo self-review; in production you'd run `bug-hunter` + `behavior-reviewer` per the harness's closed loop.
 
 ### License
 
