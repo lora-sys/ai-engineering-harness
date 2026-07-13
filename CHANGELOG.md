@@ -11,6 +11,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.4.0] - 2026-07-13
+
+`scripts/sync-project.sh` — sync already-bootstrapped projects to the current harness version. Plus 18 new bats tests (56 total).
+
+### The user problem this solves
+
+When a project is bootstrapped at harness v1.0.0 and the harness ships v1.4.0 with new capabilities, the project keeps its old state. The install location updates via `npx skills update`, but the project's `.harness-state.json` (didn't exist), AGENTS.md (no fenced block for v1.2 capabilities), and evidence dirs (no `compact-report.json`) all stay at v1.0.0. The user has to manually diff CHANGELOG and apply each change.
+
+`sync-project.sh` automates this.
+
+### Added
+
+- **`scripts/sync-project.sh`** — idempotent project sync. Detects current state via `.harness-state.json` (or treats as "pre-v1.0" if missing). Default mode = plan (dry-run). `--apply` runs the migrations:
+  - Write/update `.harness-state.json` (with `.bak` backup if pre-existing).
+  - Ensure `.github/ISSUE_TEMPLATE/` + `.github/PULL_REQUEST_TEMPLATE.md` exist (copies from harness templates).
+  - Patch fenced block `<!-- HARNESS:START harness-capabilities -->` in AGENTS.md (user content outside is preserved).
+  - Back-fill `compact-report.json` for each existing `docs/evidence/<id>/` (only when missing — never overwrites).
+- **`tests/sync-project.bats`** (NEW, 12 tests) — covers help, refusal modes, dry-run, --apply, idempotency, AGENTS.md preservation, compact-report non-overwrite, status drift reporting.
+- **`tests/changelog-auto.bats`** (NEW, 2 tests) — covers --help + refuses to clobber existing CHANGELOG.
+- **`tests/new-session.bats`** (NEW, 2 tests) — covers no-args + valid-id paths.
+- **`tests/new-evidence.bats`** (NEW, 2 tests) — covers no-args + valid-id paths.
+
+### Changed
+
+- **`scripts/new-session.sh` + `scripts/new-evidence.sh`** — added `Usage:` line in header comment block (so `--help`-style output convention is consistent across the harness).
+
+### Why v1.4.0 (not v1.3.1)
+
+`sync-project.sh` is net-new capability and addresses the second-most-asked question after "what does it do?" — "how do I upgrade?". Per D-006, new capability → minor.
+
+### Files changed
+
+```
++ scripts/sync-project.sh                     NEW (project-state sync)
++ tests/sync-project.bats                     NEW (12 tests)
++ tests/changelog-auto.bats                   NEW (2 tests)
++ tests/new-session.bats                      NEW (2 tests)
++ tests/new-evidence.bats                     NEW (2 tests)
+M  scripts/new-session.sh                     Usage prefix in header
+M  scripts/new-evidence.sh                    Usage prefix in header
+M  CONTRIBUTING.md                            (no changes — already covers run-tests.sh)
+M  meta.json                                  version: 1.3.0 → 1.4.0
+M  skills/build-agent-app/meta.json           version: 1.3.0 → 1.4.0
+M  memory/notes-2026-07-12.md                 D-016 added
+M  CHANGELOG.md                               This entry
+```
+
+### Upgrade
+
+```bash
+npx -y skills update lora-sys/ai-engineering-harness -g
+# Then in each existing harness-managed project:
+bash /path/to/ai-engineering-harness/scripts/sync-project.sh            # dry-run preview
+bash /path/to/ai-engineering-harness/scripts/sync-project.sh --apply    # actually sync
+```
+
 ## [1.3.0] - 2026-07-13
 
 Add bats test framework for the harness's own shell scripts. 38 tests across 6 files. Caught 3 real regressions in `install-session-hook.sh` while writing the test suite.

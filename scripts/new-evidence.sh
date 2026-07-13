@@ -9,6 +9,13 @@ if [[ -z "$issue_id" ]]; then
   exit 1
 fi
 
+# Reject flag-like args so '--help' / '-h' is not treated as an issue-id.
+if [[ "$issue_id" == -* ]]; then
+  echo "Usage: $0 <issue-id>" >&2
+  echo "  (got what looks like a flag: $issue_id)" >&2
+  exit 2
+fi
+
 target="docs/evidence/${issue_id}"
 mkdir -p "${target}/test-results"
 mkdir -p "${target}/screenshots"

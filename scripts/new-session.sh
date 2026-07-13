@@ -10,6 +10,13 @@ if [[ -z "$session_id" ]]; then
   exit 1
 fi
 
+# Reject flag-like args so '--help' / '-h' is not treated as a session-id.
+if [[ "$session_id" == -* ]]; then
+  echo "Usage: $0 <session-id>" >&2
+  echo "  (got what looks like a flag: $session_id)" >&2
+  exit 2
+fi
+
 # Prefer docs/sessions; fall back to sessions/
 target="docs/sessions/${session_id}"
 [[ -d "docs/sessions" ]] || target="sessions/${session_id}"

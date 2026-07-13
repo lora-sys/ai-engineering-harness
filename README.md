@@ -422,7 +422,7 @@ Each Session has `sessions/<id>/{status,plan,execution,review,summary}.md`. Agen
 ├── references/              # 11 deep-dive docs (L0–L3, indexing, worktree, spawning, CI, sessions, context, compact ...)
 ├── hooks/                   # Claude Code SessionStart hook
 ├── examples/                # 6 filled samples
-├── scripts/                 # session / evidence / worktree / index / changelog / context-bundle / compact-report / install-session-hook / run-tests
+├── scripts/                 # session / evidence / worktree / index / changelog / context-bundle / compact-report / install-session-hook / sync-project / run-tests
 └── tests/                   # 38 bats tests across 6 files (install-session-hook, context-bundle, compact-report, check-templates, validate-meta, changelog)
 ```
 
