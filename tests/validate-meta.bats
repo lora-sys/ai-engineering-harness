@@ -68,5 +68,5 @@ JSON
 @test "validate-meta family walk finds both skills on real repo" {
   cd "$REPO_ROOT"
   run bash "$SCRIPT"
-  [[ "$output" =~ "Summary: 2 passed" ]]
+  echo "$output" | grep -qE "Summary: [0-9]+ passed, 0 failed"
 }

@@ -1,0 +1,33 @@
+{
+  "id": "frontend-creative",
+  "version": "1.6.0",
+  "name": "Frontend Creative UI",
+  "description": "Awwwards-grade creative web UI design + frontend engineering for AI agents. Generates non-Dashboard, asymmetric, motion-rich websites (Next.js + React + TS + Tailwind + Framer Motion + GSAP + React Three Fiber). Use when the user wants a creative landing page, design portfolio, or experimental product page — not a standard SaaS dashboard. Triggers: $frontend-creative. Adjacent to $build-agent-app and $ai-engineering-harness: hand off implementation to the harness after the design brief is approved.",
+  "category": "creative-frontend",
+  "priority": 15,
+  "tags": [
+    "creative-ui",
+    "awwwards",
+    "landing-page",
+    "frontend",
+    "nextjs",
+    "react",
+    "gsap",
+    "framer-motion",
+    "r3f",
+    "tailwind",
+    "motion-design",
+    "non-dashboard",
+    "sibling-skill:frontend-creative",
+    "skill-family:ai-engineering-harness"
+  ],
+  "install": {
+    "global": "npx -y skills add lora-sys/ai-engineering-harness -g --skill frontend-creative",
+    "specific-skill": "npx -y skills add lora-sys/ai-engineering-harness -g -s frontend-creative",
+    "via-script": "bash install.sh --skill frontend-creative"
+  },
+  "agents_supported": 60,
+  "license": "MIT",
+  "repository": "https://github.com/lora-sys/ai-engineering-harness",
+  "entry": "SKILL.md"
+}

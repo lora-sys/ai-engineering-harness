@@ -11,6 +11,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.6.0] - 2026-07-13
+
+New sibling skill **`$frontend-creative`** for Awwwards-grade creative web UIs. Closes the 3 Part-2 issues on the Roadmap.
+
+### Added
+
+- **`skills/frontend-creative/`** (NEW sibling skill, mirrors `build-agent-app` pattern):
+  - `SKILL.md` — entry, when to use, operating principles, hand-off to `$ai-engineering-harness`.
+  - `meta.json` — for indexers (`sibling-skill:frontend-creative` tag).
+  - `references/creative-ui-design-spec.md` — the 17-section Creative UI Design Spec (full text).
+  - `references/theme-variants.md` — Cyberpunk / Minimal Gallery / Retro Acid / Future 3D + Tailwind tokens + motion presets.
+  - `references/prompt-library.md` — reusable prompts per phase.
+  - `templates/design-brief.md`, `templates/iteration-log.md`, `templates/review-checklist.md`.
+  - `workflows/00..04-*.md` — design-brief → macro-design → local-refinement → visual-regression → ship.
+  - `agents/creative-frontend.md` — the design-aware agent persona.
+- **`install.sh`** — `--skill frontend-creative` now supported alongside `--skill ai-engineering-harness` and `--skill build-agent-app`. `--skill all` (the default) installs the full family.
+- **`SKILL.md`** — Adjacent skills note in §2 lists all 3 family members and when to route to each.
+- **`meta.json`** (root) — added `sibling-skill:frontend-creative` tag so family walks pick it up.
+- **`tests/install.bats`** (NEW, 8 tests) — covers help, --skill frontend-creative + --target codex installs correctly, doesn't install main harness, build-agent-app regression, --uninstall, --skill all (the family), unknown-arg rejection, combined-flag-parsing regression.
+
+### Fixed
+
+- **`install.sh`** arg parser — pre-existing bug: combined `--skill X --target Y` was being misparsed (outer `shift` consumed `--target`). Each arm now shifts its own args; no outer shift. Caught by the new install tests.
+- **`install.sh`** `--skill all --target <name>` — pre-existing bug: only installed the FIRST skill alphabetically (`build-agent-app`) instead of all three. Inner `break` was leaking out of the per-target loop. Fixed; now installs the whole family.
+
+### Why v1.6.0 (not v1.5.1)
+
+A new sibling skill is net-new capability that significantly expands the family. Per D-006, structural changes warrant a minor bump. Plus two install.sh fixes that were caught by the new test suite.
+
+### Files changed
+
+```
++ skills/frontend-creative/                       NEW (8 files: SKILL.md + meta.json + references/ + templates/ + workflows/ + agents/)
++ tests/install.bats                              NEW (8 tests)
+M  install.sh                                     +frontend-creative in SKILL_SOURCES; 2 arg-parser fixes
+M  SKILL.md                                       +Adjacent skills note (3 family members)
+M  meta.json                                      version: 1.5.0 → 1.6.0 + sibling-skill tag
+M  skills/build-agent-app/meta.json               version: 1.5.0 → 1.6.0
+M  skills/frontend-creative/meta.json             NEW (v1.6.0)
+M  tests/sync-project.bats                        idempotency test uses bounded fence-block capture
+M  tests/validate-meta.bats                       family-walk test uses grep -qE + dynamic count regex
+M  CHANGELOG.md                                   This entry
+```
+
+Closes GitHub issues #5, #6, #7.
+
 ## [1.5.0] - 2026-07-13
 
 Refined contribution/PR intake flow with the **Local-first principle**. Closes the 4 Part-1 issues on the Roadmap.

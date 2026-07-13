@@ -136,11 +136,11 @@ MD
   bash "$SCRIPT" --project-dir "$TMPDIR" --apply >/dev/null 2>&1
   # Capture state file content + fenced block content
   state1=$(cat .harness-state.json)
-  agents1=$(grep -A 100 "HARNESS:START harness-capabilities" AGENTS.md | md5sum | cut -c1-32)
+  agents1=$(awk "/HARNESS:START harness-capabilities/{p=1;next} p&&/HARNESS:END/{exit} p" AGENTS.md | md5sum | cut -c1-32)
   # Run again
   bash "$SCRIPT" --project-dir "$TMPDIR" --apply >/dev/null 2>&1
   state2=$(cat .harness-state.json)
-  agents2=$(grep -A 100 "HARNESS:START harness-capabilities" AGENTS.md | md5sum | cut -c1-32)
+  agents2=$(awk "/HARNESS:START harness-capabilities/{p=1;next} p&&/HARNESS:END/{exit} p" AGENTS.md | md5sum | cut -c1-32)
   [ "$state1" = "$state2" ]
   [ "$agents1" = "$agents2" ]
 }

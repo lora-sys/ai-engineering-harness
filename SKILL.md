@@ -31,6 +31,13 @@ Use this skill when **any** of the following is true:
 
 For one-off scripts, throwaway prototypes, or single-file edits, fall back to a regular coding skill — this harness is overhead for those.
 
+### Adjacent skills (same family)
+
+- **`$build-agent-app`** — designs / takes over / refactors agent apps (LLM + tools + state). Use BEFORE `$ai-engineering-harness` when the project is an agent app. Sibling skill; install with `bash install.sh --skill build-agent-app`.
+- **`$frontend-creative`** — generates Awwwards-grade creative web UIs (non-Dashboard layouts, GSAP/Framer Motion/R3F). Route creative landing-page / portfolio / brand-site tasks here for the design phase, then hand off to this skill for evidence-gated implementation. Sibling skill; install with `bash install.sh --skill frontend-creative`.
+
+These three form the `ai-engineering-harness` skill family. Install any combination via `bash install.sh --skill <name>` or `bash install.sh --skill all` (the default).
+
 ## 3. Repository Layout the Skill Expects
 
 When the harness is initialized on a project, the following structure is created and **continuously maintained**:

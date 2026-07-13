@@ -20,6 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 declare -A SKILL_SOURCES=(
   ["ai-engineering-harness"]="$SCRIPT_DIR"
   ["build-agent-app"]="$SCRIPT_DIR/skills/build-agent-app"
+  ["frontend-creative"]="$SCRIPT_DIR/skills/frontend-creative"
 )
 
 # Paths to exclude when copying a skill bundle
@@ -130,20 +131,20 @@ SKILL_FILTER="all"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --all)            ALL=1 ;;
+    --all)            ALL=1; shift ;;
     --target)         TARGET_ONLY="$2"; shift 2 ;;
-    --uninstall)      UNINSTALL=1 ;;
-    --fat-install)    FAT_MODE=1 ;;
+    --uninstall)      UNINSTALL=1; shift ;;
+    --fat-install)    FAT_MODE=1; shift ;;
     --skill)          SKILL_FILTER="$2"; shift 2 ;;
     --clonedir)       FAT_CLONE_DIR="$2"; shift 2 ;;
-    --list)           LIST=1 ;;
+    --list)           LIST=1; shift ;;
     -h|--help)
       cat <<USAGE
 Usage: install.sh [--all] [--target <name>] [--skill <name>] [--fat-install] [--uninstall] [--list]
 
   --all               install every family member to every TARGET
   --target <name>     install selected skill(s) to a single TARGET
-  --skill <name>      ai-engineering-harness | build-agent-app | all (default: all)
+  --skill <name>      ai-engineering-harness | build-agent-app | frontend-creative | all (default: all)
   --uninstall         remove installed copies
   --fat-install       git clone + symlink per-agent-dir (works around npx skills thin canonical)
   --fat-install --clonedir <path>
@@ -153,12 +154,12 @@ Usage: install.sh [--all] [--target <name>] [--skill <name>] [--fat-install] [--
 Examples:
   bash install.sh                                                   # everything, everywhere
   bash install.sh --skill build-agent-app                          # only build-agent-app
+  bash install.sh --skill frontend-creative                        # only the creative-UI skill
   bash install.sh --all --target claude                           # one platform
 USAGE
       exit 0 ;;
     *) echo "unknown arg: $1" >&2; exit 1 ;;
   esac
-  shift
 done
 
 # ------- dispatch -------
@@ -203,14 +204,13 @@ fi
 if [[ -n "$TARGET_ONLY" ]]; then
   found=0
   while IFS= read -r skill; do
-    if [[ "$found" -eq 1 ]]; then break; fi
     for entry in "${TARGETS[@]}"; do
       name="${entry%%:*}"
       raw_path="${entry#*:}"
       if [[ "${name}" == "${TARGET_ONLY}" ]]; then
         path="$(resolve_path "$raw_path" "$skill")"
         copy_skill "$skill" "${SKILL_SOURCES[$skill]}" "$path" "$name"
-        found=1; break
+        found=1
       fi
     done
   done < <(skills_to_install)
