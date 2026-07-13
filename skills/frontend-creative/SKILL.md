@@ -26,12 +26,14 @@ Do **not** trigger this skill for:
 ## Quick start
 
 1. Read [`references/creative-ui-design-spec.md`](references/creative-ui-design-spec.md) — the 17-section spec. This is the rulebook.
-2. Pick a **style theme** (section §4): Cyberpunk / Minimal Gallery / Retro Acid / Future 3D / or invent one.
-3. Run `workflows/00-design-brief.md` → fill in `templates/design-brief.md`.
-4. Run `workflows/01-macro-design.md` → produce macro layout (3 commits: skeleton → layout → motion).
-5. Run `workflows/02-local-refinement.md` → iterate on a single region at a time.
-6. Run `workflows/03-visual-regression.md` → screenshot + compare against the brief.
-7. Run `workflows/04-ship.md` → Lighthouse + perf budget.
+2. **What are you doing?** (pick the right starting workflow):
+   - **New project from scratch** → `workflows/00-bootstrap.md` (scaffold the project) → `00-design-brief-collection.md` → `01-macro-design.md` → ...
+   - **Resume an existing design** → `workflows/05-takeover.md` (inventory + baseline score) → `01-macro-design.md` → ...
+   - **Existing design is unsalvageable (狗屎)** → `workflows/07-redo.md` (diagnose + archive old + restart)
+   - **Design already shipped, time to learn from it** → `workflows/06-post-mortem.md`
+3. **Always**: pick a **style theme** (section §4): Cyberpunk / Minimal Gallery / Retro Acid / Future 3D / or invent one.
+4. **Always**: fill in `templates/design-brief.md`.
+5. **For design work**: `01-macro-design.md` → `02-local-refinement.md` (Anti-drift check mandatory) → `03-visual-regression-check.md` (Awwwards checklist mandatory) → `04-ship.md` (review-checklist gate).
 
 ## Operating principles
 
@@ -78,10 +80,19 @@ When the design brief + 3 macro rounds are approved, hand off implementation to 
 ## See also
 
 - `references/creative-ui-design-spec.md` — full 17-section rulebook (READ THIS FIRST).
-- `references/theme-variants.md` — four style themes with reference aesthetic + Tailwind tokens.
+- `references/theme-{a,b,c,d}-*.md` — 4 fully-fleshed theme variants (Tailwind config + motion presets + reference brands).
 - `references/prompt-library.md` — reusable prompts for each phase.
 - `templates/design-brief.md` — fill in per project.
 - `templates/iteration-log.md` — track each round's screenshots + diffs.
-- `templates/review-checklist.md` — Awwwards-style self-review before ship.
-- `workflows/00-design-brief.md` → `04-ship.md` — phased execution.
+- `templates/review-checklist.md` — Awwwards-style self-review before ship (mandatory pre-ship gate).
+- **Lifecycle workflows:**
+  - `workflows/00-bootstrap.md` — new project from scratch (scaffold + creative stack + theme)
+  - `workflows/00-design-brief-collection.md` — fill the brief
+  - `workflows/01-macro-design.md` — Round 1 macro
+  - `workflows/02-local-refinement.md` — Round 2+ local iteration (Anti-drift check mandatory)
+  - `workflows/03-visual-regression-check.md` — review (Awwwards checklist mandatory)
+  - `workflows/04-ship.md` — ship (review-checklist as pre-ship gate)
+  - `workflows/05-takeover.md` — resume an existing design
+  - `workflows/06-post-mortem.md` — 复盘 (after ship)
+  - `workflows/07-redo.md` — 狗屎 → restart
 - `agents/creative-frontend.md` — the agent persona that drives this skill.

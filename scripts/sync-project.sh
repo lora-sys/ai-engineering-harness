@@ -24,6 +24,7 @@
 # Usage:
 #   scripts/sync-project.sh                       # dry-run in CWD
 #   scripts/sync-project.sh --apply               # actually sync
+#   scripts/sync-project.sh --auto                # apply, log only errors (batch use)
 #   scripts/sync-project.sh --project-dir /path   # sync a specific project
 #   scripts/sync-project.sh --status             # report only
 #   scripts/sync-project.sh --help
@@ -45,7 +46,8 @@ HARNESS_REPO="$(cd "$SCRIPT_DIR/.." && pwd)"
 HARNESS_VERSION="$(python3 -c "import json; print(json.load(open('$HARNESS_REPO/meta.json'))['version'])")"
 
 PROJECT_DIR=""
-ACTION="plan"  # plan | apply | status
+ACTION="plan"
+AUTO=0  # plan | apply | status
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -53,6 +55,7 @@ while [[ $# -gt 0 ]]; do
     --project-dir)   shift; PROJECT_DIR="${1:-}" ;;
     --apply)         ACTION="apply" ;;
     --status)        ACTION="status" ;;
+    --auto)          ACTION="apply"; AUTO=1 ;;
     -h|--help)
       sed -n '2,40p' "$0"
       exit 0
@@ -339,11 +342,14 @@ main() {
     local apply_fn="${m#*|}"
     local desc
     desc="$($describe_fn "$from_v" "$HARNESS_VERSION")"
-    printf "  → %s ... " "$desc"
+    if [[ $AUTO -eq 0 ]]; then
+      printf "  → %s ... " "$desc"
+    fi
     if "$apply_fn" "$from_v" "$HARNESS_VERSION"; then
-      echo "ok"
+      if [[ $AUTO -eq 0 ]]; then echo "ok"; fi
     else
-      echo "FAILED"
+      if [[ $AUTO -eq 0 ]]; then echo "FAILED"; fi
+      log "FAILED: $desc"
       failed=$((failed+1))
     fi
   done
@@ -352,9 +358,11 @@ main() {
     log "$failed migration(s) failed"
     return 1
   fi
-  echo
-  echo "Done. Project now at v$HARNESS_VERSION."
-  echo "(backup of any pre-existing .harness-state.json saved at .harness-state.json.bak)"
+  if [[ $AUTO -eq 0 ]]; then
+    echo
+    echo "Done. Project now at v$HARNESS_VERSION."
+    echo "(backup of any pre-existing .harness-state.json saved at .harness-state.json.bak)"
+  fi
 }
 
 main

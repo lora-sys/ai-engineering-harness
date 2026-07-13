@@ -11,6 +11,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.8.0] - 2026-07-13
+
+`sync-project.sh --auto` + 4 new frontend-creative lifecycle workflows (bootstrap / takeover / post-mortem / redo). Closes the user's three open questions from this session.
+
+### Added
+
+- **`sync-project.sh --auto`** (NEW flag) — apply mode with quiet output. Designed for batch use: after `npx skills update lora-sys/ai-engineering-harness -g`, run `bash /path/to/install.sh --skill ai-engineering-harness` and `for proj in ~/projects/*/; do bash sync-project.sh --project-dir "$proj" --auto; done` to push the upgrade into every managed project. Per-migration errors still go to stderr; the dry-run is still the default.
+- **`skills/frontend-creative/workflows/00-bootstrap.md`** (NEW) — new project from scratch. Scaffolds Next.js + TS + Tailwind + Framer Motion + GSAP + R3F + (optional) Lenis, applies the chosen theme's Tailwind config, initializes the brief + iteration-log + review-checklist, hands off to `01-macro-design.md`.
+- **`skills/frontend-creative/workflows/05-takeover.md`** (NEW) — resume an existing design. Inventories current state, captures "before" screenshots, sets a baseline Awwwards score, identifies the gap, runs `01-macro-design.md` as a *target* then `02-local-refinement.md` to bring the existing design toward it.
+- **`skills/frontend-creative/workflows/06-post-mortem.md`** (NEW) — 复盘 after ship. Gathers analytics + user feedback, compares to the brief + Awwwards checklist, identifies the top 3 lessons, writes `docs/case-studies/<project>.md`. Different from `04-ship.md` (pre-ship gate) — this is *after* the design has been live.
+- **`skills/frontend-creative/workflows/07-redo.md`** (NEW) — the "狗屎" workflow. For when Awwwards baseline < 24/60 or the user describes the design as garbage. Diagnoses, archives the old version (`git tag before-redo-<n>`), restarts from `00-bootstrap.md` with a *different* theme, runs through the lifecycle again.
+
+### Changed
+
+- **`skills/frontend-creative/SKILL.md`** — Quick-start section now branches by intent (new project / takeover / redo / post-mortem). See-also list now points at the 9 lifecycle workflows (4 design + 4 lifecycle + 1 brief-collection).
+- **`scripts/sync-project.sh`** — `--auto` flag for batch use. Suppresses the plan output and per-migration success lines; per-migration failures still go to stderr so batch scripts can pipe through `grep FAIL`.
+
+### Why v1.8.0 (not v1.7.1)
+
+`--auto` is a usability patch (small). The 4 new workflows are net-new capability that completes the lifecycle coverage. Per D-006, capability = minor.
+
+### Files changed
+
+```
+M  scripts/sync-project.sh                         +--auto flag
++ skills/frontend-creative/workflows/00-bootstrap.md       NEW
++ skills/frontend-creative/workflows/05-takeover.md        NEW
++ skills/frontend-creative/workflows/06-post-mortem.md     NEW
++ skills/frontend-creative/workflows/07-redo.md            NEW
+M  skills/frontend-creative/SKILL.md               Quick-start lifecycle table + see-also list
+M  meta.json                                version: 1.7.0 → 1.8.0
+M  skills/build-agent-app/meta.json         version: 1.7.0 → 1.8.0
+M  skills/frontend-creative/meta.json       version: 1.7.0 → 1.8.0
+M  CHANGELOG.md                            This entry
+```
+
+### Upgrade
+
+```bash
+npx -y skills update lora-sys/ai-engineering-harness -g
+# Batch-update all your projects:
+for proj in ~/projects/*/; do
+  bash /path/to/ai-engineering-harness/scripts/sync-project.sh --project-dir "$proj" --auto
+done
+```
+
 ## [1.7.0] - 2026-07-13
 
 Closes the 4 Roadmap Backlog items. Operational tooling (GHA + release script) + frontend-creative content (4 theme variants + wired Awwwards / anti-drift gates).
