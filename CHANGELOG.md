@@ -11,6 +11,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.8.1] - 2026-07-13
+
+Hotfix: bulk-register script for projects taken over before `.harness-state.json` existed (v1.4.0+). Closes a real user pain point — without this, projects the user "took over" with the skill but never re-synced are stuck without state files, fenced blocks, or auto-update visibility.
+
+### Added
+
+- **`scripts/register-existing.sh <root>`** (NEW) — walks a directory tree, finds every project that LOOKS like a harness project (has `AGENTS.md` + `docs/evidence/`), and runs `sync-project.sh --auto` on it. Result: every previously-taken-over project gets a `.harness-state.json` + the `AGENTS.md` fenced block + (when present) `compact-report.json` back-fills.
+  - Flags: `--dry-run` (show what would be done, change nothing), `--quiet` (only print errors + summary, useful for batch).
+  - Skips projects that already have `.harness-state.json` (idempotent — safe to re-run).
+  - Detection: AGENTS.md + docs/evidence/ are the markers of a harness-managed project.
+- **`tests/register-existing.bats`** (NEW, 8 tests) — covers happy path, idempotency, dry-run, AGENTS.md absence, docs/evidence/ absence, sync-failure detection.
+
+### Bug context
+
+In the v1.8.0 audit, the user had 12 projects under `~/repos/` with full harness-style structure (AGENTS.md + docs/evidence/ + .github/ISSUE_TEMPLATE/), but NONE had `.harness-state.json`. Root cause: the state-file concept was introduced in v1.4.0; projects taken over by the skill before v1.4.0 (or by a workflow that didn't write the state file) were "harness-like" but "un-registered". Without registration, `sync-project.sh` couldn't tell what features they already had, and they were silently missing the new fenced block + version tracking.
+
+`register-existing.sh` is the one-shot fix: run it once per root directory, and every pre-existing harness project gets registered at the current harness version.
+
+### Why v1.8.1 (not v1.8.0.1)
+
+The user surfaced the bug during v1.8.0 audit, while v1.8.0 was being shipped. v1.8.1 ships the fix. Patch-level per D-006 (no new capability, just closes a real-world gap).
+
+### Files changed
+
+```
++ scripts/register-existing.sh                    NEW (~80 lines)
++ tests/register-existing.bats                    NEW (8 tests)
+M  meta.json                                version: 1.8.0 → 1.8.1
+M  skills/build-agent-app/meta.json         version: 1.8.0 → 1.8.1
+M  skills/frontend-creative/meta.json       version: 1.8.0 → 1.8.1
+M  CHANGELOG.md                            This entry
+```
+
+### Upgrade
+
+```bash
+npx -y skills update lora-sys/ai-engineering-harness -g
+# Then, if you have pre-v1.4.0 harness projects:
+bash /path/to/ai-engineering-harness/scripts/register-existing.sh ~/repos
+# Check what got registered:
+/tmp/audit-harness-projects.sh   # or any custom audit script
+```
+
 ## [1.8.0] - 2026-07-13
 
 `sync-project.sh --auto` + 4 new frontend-creative lifecycle workflows (bootstrap / takeover / post-mortem / redo). Closes the user's three open questions from this session.
