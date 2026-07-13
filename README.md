@@ -227,7 +227,44 @@ Done 不是"PR 合进去了",而是 `docs/evidence/<id>/` 里齐了:
 
 完整自审:[docs/evidence/15/self-review.md](./docs/evidence/15/self-review.md)。
 
+### 路线图 · Roadmap
+
+三段:**Active**(本周在做的)、**Backlog**(计划中)、**Done**(已发布)。
+
+#### Active
+
+Part 1 — 贡献/PR 接入流程精化(Local-first 原则):
+
+- [ ] **workflow** `workflows/09-pr-intake.md` — 收 → 按项目历史 triage → 跟本地对比 → 排队 → 自审 → 合并/评论/迭代
+- [ ] **agent** 强化 `agents/conflict-resolver.md` — 把"本地有就优先本地"明确化
+- [ ] **docs** `references/pr-intake-decision-matrix.md` — 合并 vs 评论决策表
+- [ ] **principle** SKILL.md §1 第 9 条 — *"Local-first for overlapping changes。"* 别合入本地已有等价物的 PR,留评论指路
+
+Part 2 — 前端/UI 创意 skill(跟 `build-agent-app` 一样是兄弟 skill):
+
+- [ ] **skill** `skills/frontend-creative/` 骨架(SKILL.md + meta.json + 目录结构)
+- [ ] **docs** `references/creative-ui-design-spec.md` — 移植 17 节创意 UI 设计规范
+- [ ] **install** `install.sh --skill frontend-creative` — 跟主 harness 并列可选装
+
+#### Backlog
+
+- frontend-creative: 4 套主题变体(Cyberpunk / Minimal Gallery / Retro Acid / Future 3D)
+- frontend-creative: iteration-log 模板(防"AI 越改越普通")
+- frontend-creative: Awwwards 风格自评清单
+- 主 harness: 给 `scripts/release-prep.sh` 加 `gh release` 自动化
+- 主 harness: GHA workflow 跑 `scripts/run-tests.sh`(目前只有本地)
+
+#### Done
+
+- **v1.4.0** — `scripts/sync-project.sh` + 58 个 bats 测试
+- **v1.3.0** — bats 测试套件(38→58)+ 修 3 个 install-session-hook 回归
+- **v1.2.1** — `install-session-hook.sh --status` + README Showcase 真实 e2e 产物
+- **v1.2.0** — `context-bundle.sh` + `compact-report.sh`
+- **v1.1.0** — `.claude/SESSION.md` 的 SessionStart hook(只读)
+- **v1.0.x** — CI 作为阻塞闸门、validators、check-templates、install-session-hook、D-013 发版流程修复
+
 ### 许可
+
 
 
 MIT — 见 [LICENSE](./LICENSE)。
@@ -526,6 +563,42 @@ Full self-review: [docs/evidence/15/self-review.md](./docs/evidence/15/self-revi
 - Not a screenshot of a polished demo. The artifacts above are from a real `git log` / `ls` / `cat` of the working tree at commit `4f311e2`.
 - Not a green-tick theatre. The honest self-review section above names real gaps.
 - Not a replacement for adversarial review. The e2e ran with solo self-review; in production you'd run `bug-hunter` + `behavior-reviewer` per the harness's closed loop.
+
+### Roadmap
+
+Three lanes: **Active** (in progress this week), **Backlog** (planned, queued), **Done** (shipped).
+
+#### Active
+
+Part 1 — Refined contribution/PR intake flow (Local-first principle):
+
+- [ ] **workflow** `workflows/09-pr-intake.md` — receive → triage against project history → compare with local → sequence → self-review → merge/comment/iterate
+- [ ] **agent** enhance `agents/conflict-resolver.md` — make the "local-first for overlapping changes" rule explicit
+- [ ] **docs** `references/pr-intake-decision-matrix.md` — merge vs comment criteria
+- [ ] **principle** SKILL.md §1 Principle #9 — *"Local-first for overlapping changes."* Don't merge a PR whose equivalent already exists locally; comment with the local path and explain
+
+Part 2 — Frontend/UI creative skill (sibling to `build-agent-app`):
+
+- [ ] **skill** `skills/frontend-creative/` skeleton (SKILL.md + meta.json + directories)
+- [ ] **docs** `references/creative-ui-design-spec.md` — port the 17-section Creative UI Design Spec
+- [ ] **install** `install.sh --skill frontend-creative` — opt-in install alongside the main harness
+
+#### Backlog
+
+- Frontend-creative: theme variants (Cyberpunk / Minimal Gallery / Retro Acid / Future 3D)
+- Frontend-creative: iteration-log template (prevents "AI 越改越普通")
+- Frontend-creative: Awwwards-style review checklist
+- Harness: add `gh release` automation to `scripts/release-prep.sh`
+- Harness: GHA workflow that runs `scripts/run-tests.sh` on every PR (currently local-only)
+
+#### Done
+
+- **v1.4.0** — `scripts/sync-project.sh` + 58 bats tests (sync already-bootstrapped projects)
+- **v1.3.0** — bats test suite (38→58 tests) + 3 install-session-hook regressions fixed
+- **v1.2.1** — `install-session-hook.sh --status` + README Showcase with real e2e artifacts
+- **v1.2.0** — `context-bundle.sh` + `compact-report.sh` (parallel dump + structured JSON summary)
+- **v1.1.0** — SessionStart hook for `.claude/SESSION.md` (read-only)
+- **v1.0.x** — CI as a blocking gate, validators, check-templates, install-session-hook, D-013 release-process fix
 
 ### License
 
