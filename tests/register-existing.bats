@@ -45,12 +45,13 @@ make_harness_project() {
   [ "$status" -eq 0 ]
   [ -f "$ROOT/projA/.harness-state.json" ]
   [ -f "$ROOT/projB/.harness-state.json" ]
-  python3 -c "
-import json
-for p in ['$ROOT/projA', '$ROOT/projB']:
+  python3 - "$REPO_ROOT/meta.json" "$ROOT/projA" "$ROOT/projB" <<'PYEOF'
+import json, sys
+hv = json.load(open(sys.argv[1]))['version']
+for p in sys.argv[2:]:
     d = json.load(open(p + '/.harness-state.json'))
-    assert d['version'] == '1.8.0', d
-"
+    assert d['version'] == hv, (p, d)
+PYEOF
 }
 
 @test "register-existing skips already-registered projects" {
@@ -60,7 +61,8 @@ for p in ['$ROOT/projA', '$ROOT/projB']:
   bash "$SCRIPT" --quiet "$ROOT" 2>&1
   md5_after=$(md5sum "$ROOT/projA/.harness-state.json" | cut -c1-32)
   # State file should not have been touched again (only timestamp changes; md5 may differ)
-  [ "$(jq -r .version "$ROOT/projA/.harness-state.json")" = "1.8.0" ]
+  harness_v=$(python3 -c "import json; print(json.load(open('$REPO_ROOT/meta.json'))['version'])")
+  [ "$(jq -r .version "$ROOT/projA/.harness-state.json")" = "$harness_v" ]
 }
 
 @test "register-existing ignores dirs without AGENTS.md" {

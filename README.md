@@ -111,6 +111,29 @@ cd ai-engineering-harness
 `install.sh` 支持的 target(完整列表 38 个):
 `codex` · `claude` · `agents` · `cursor` · `gemini` · `qwen` · `opencode` · `grok` · `hermes-agent` · `hermes` · `aider-desk` · `augment` · `bob` · `codebuddy` · `commandcode` · `continue` · `crush` · `devin` · `factory` · `forge` · `goose` · `iflow` · `junie` · `kilocode` · `kiro` · `kode` · `marscode` · `mux` · `neovate` · `openhands` · `pi` · `pochi` · `roo` · `snowflake` · `tabnine` · `trae` · `trae-cn` · `vibe` · `zencoder` · `adal`
 
+### 管理已有项目 · Managing existing projects
+
+Harness 在不断演进 — v1.0 加了闭环,v1.4 加了 `sync-project.sh`,v1.7 加了 GHA + 4 套主题,v1.8 加了 `--auto` + `register-existing.sh`。**已经被这个 skill 接管的项目需要重跑 sync 才能拿到新功能。**
+
+三条路径,全部幂等,全部非破坏性:
+
+```bash
+# 1. 更新 harness 自身
+npx -y skills update lora-sys/ai-engineering-harness -g
+
+# 2. 更新单个已接管的项目
+bash /path/to/ai-engineering-harness/scripts/sync-project.sh --project-dir ~/projects/my-app --auto
+
+# 3. 一次性更新所有项目
+bash /path/to/ai-engineering-harness/scripts/register-existing.sh ~/repos
+```
+
+**设计上非破坏性** — 迁移从不覆盖用户内容:
+- `compact-report.json` 永不覆盖(只在缺失时创建)
+- AGENTS.md 的 fenced block(用 `<!-- HARNESS:START name -->` 标记)有边界 — harness 只管 block,其它都归用户
+- `.github/ISSUE_TEMPLATE/` 只在缺失时复制
+- `.harness-state.json` 重跑只改 `last_synced_at` 时间戳
+
 ### 典型用法
 
 #### 1. 从 PRD 启动新项目
@@ -365,6 +388,38 @@ cd ai-engineering-harness
 `install.sh` targets (full list):
 
 `codex`, `claude`, `agents`, `cursor`, `gemini`, `qwen`, `opencode`, `grok`, `hermes-agent`, `hermes`, `aider-desk`, `augment`, `bob`, `codebuddy`, `commandcode`, `continue`, `crush`, `devin`, `factory`, `forge`, `goose`, `iflow`, `junie`, `kilocode`, `kiro`, `kode`, `marscode`, `mux`, `neovate`, `openhands`, `pi`, `pochi`, `roo`, `snowflake`, `tabnine`, `trae`, `trae-cn`, `vibe`, `zencoder`, `adal`.
+
+### Managing existing projects (the upgrade flow)
+
+The harness evolves — v1.0 added the closed loop, v1.4 added `sync-project.sh`, v1.7 added GHA + 4 theme variants, v1.8 added `--auto` + `register-existing.sh`. **Projects you've already taken over with the skill need to be re-synced to pick up the new features.**
+
+Three paths, all idempotent and non-destructive:
+
+```bash
+# 1. Update the harness install (the skill itself).
+npx -y skills update lora-sys/ai-engineering-harness -g
+
+# 2. Update a SINGLE project you already manage:
+bash /path/to/ai-engineering-harness/scripts/sync-project.sh --project-dir ~/projects/my-app --auto
+
+# 3. Update MANY projects at once (e.g. all your repos):
+bash /path/to/ai-engineering-harness/scripts/register-existing.sh ~/repos
+# Walks the tree, finds every AGENTS.md + docs/evidence/ project,
+# and runs #2 on the ones without .harness-state.json. One-shot.
+```
+
+After syncing, verify:
+
+```bash
+bash /path/to/ai-engineering-harness/scripts/sync-project.sh --project-dir ~/projects/my-app --status
+# Output: "Status: in sync"
+```
+
+**Non-destructive by design** — migrations never overwrite user content:
+- `compact-report.json` is never overwritten (only created when missing).
+- AGENTS.md fenced blocks (`<!-- HARNESS:START name -->`) are bounded — the harness owns the block, the user owns everything else.
+- `.github/ISSUE_TEMPLATE/` and `PULL_REQUEST_TEMPLATE.md` are copied only if missing.
+- `.harness-state.json` only changes the `last_synced_at` timestamp on re-runs.
 
 ### Typical usage
 
