@@ -11,6 +11,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.1.0] - 2026-07-13
+
+New capability: SessionStart hook that auto-reads `.claude/SESSION.md` and injects it as context on every new Claude Code session. Read-only — the hook never writes to SESSION.md.
+
+### Added
+- **`hooks/session-start-read-session-md.sh`** (NEW) — the actual hook script. Reads `.claude/SESSION.md` from CWD; if it exists and is non-empty, prints the contents to stdout (which Claude Code injects as session context). Defence-in-depth: rejects symlinks that resolve outside CWD; caps at 64 KB with an advisory; exits 0 even on errors (never blocks the session).
+- **`scripts/install-session-hook.sh`** (NEW) — idempotent installer. `--target global` writes to `~/.claude/settings.json`; `--target project` writes to `./.claude/settings.json`. `--dry-run` shows what would change. `--uninstall` removes only the hook entries (preserves other hooks). Atomic write via Python `os.replace` so a crash never wipes the user's settings.json.
+- **`references/session-start-hook.md`** (NEW) — pattern doc covering the protocol, security notes, install/uninstall steps, and compatibility table.
+- **`workflows/00-project-bootstrap.md`** — Step 11 added: optional SessionStart hook install (host-level change, opt-in, not part of default bootstrap).
+
+### Changed
+- **`SKILL.md`** — references list updated to include `session-start-hook.md`.
+
+### Why v1.1.0 (not v1.0.11)
+
+This is a clearly new capability (new script + new reference + new bootstrap step + new hook). Per D-006, install-behavior changes are patch-level, but a NEW install option for a NEW hook is closer to "structural" than "behavior tweak". Bumping to v1.1.0 (minor) signals to downstream consumers that there's new functionality to discover.
+
+### Files changed
+
+```
++ hooks/session-start-read-session-md.sh     NEW (read-only hook script)
++ scripts/install-session-hook.sh            NEW (idempotent installer)
++ references/session-start-hook.md           NEW (pattern doc)
+M  workflows/00-project-bootstrap.md         Step 11 added (opt-in install)
+M  SKILL.md                                  references list updated
+M  meta.json                                 version: 1.0.10 → 1.1.0
+M  skills/build-agent-app/meta.json          version: 1.0.10 → 1.1.0
+M  memory/notes-2026-07-12.md                D-014 ("Atomic write inside Python + bash mv outside" is a footgun)
+M  CHANGELOG.md                              This entry
+```
+
+### Upgrade
+
+```bash
+npx -y skills update lora-sys/ai-engineering-harness -g
+# Then optionally install the hook:
+bash /path/to/ai-engineering-harness/scripts/install-session-hook.sh --target global
+```
+
 ## [1.0.10] - 2026-07-12
 
 Post-release documentation roll-up. No user-facing behavior change; the runtime-visible files (SKILL.md, agents/, workflows/, scripts/, references/) are unchanged from v1.0.9.

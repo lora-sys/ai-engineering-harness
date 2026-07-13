@@ -97,6 +97,18 @@ Create:
 - Create `sessions/current-session.md` pointing at `sessions/<id>/`.
 - Coordinator stands ready to receive the first Issue.
 
+## Step 11 — Optional: SessionStart hook for `.claude/SESSION.md`
+
+The harness ships a read-only SessionStart hook that auto-injects `.claude/SESSION.md` as session context on every new Claude Code session. Installing it is **host-level** (modifies `~/.claude/settings.json` or `.claude/settings.json`), so bootstrap does **not** install it by default. To opt in:
+
+```bash
+bash scripts/install-session-hook.sh --target global
+# or
+bash scripts/install-session-hook.sh --target project
+```
+
+See `references/session-start-hook.md` for the protocol, security notes, and uninstall steps.
+
 ## Acceptance Criteria for Bootstrap Done
 
 - Every file in §3 of `SKILL.md` exists and is non-stub.
