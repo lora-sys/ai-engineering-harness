@@ -3,6 +3,7 @@
 #
 # Idempotent installer for the SessionStart hook that reads .claude/SESSION.md.
 #
+# Usage:
 #   scripts/install-session-hook.sh                    # interactive: ask global vs project
 #   scripts/install-session-hook.sh --target global    # ~/.claude/settings.json + ~/.claude/hooks/
 #   scripts/install-session-hook.sh --target project   # .claude/settings.json + .claude/hooks/ (in CWD)
@@ -84,7 +85,11 @@ resolve_target() {
       printf '%s\n' "./.claude/hooks"
       ;;
     *)
-      fail "unknown target: $1 (expected 'global' or 'project')"
+      # Unreachable now that the main loop validates targets up front.
+      # Be defensive: emit empty paths so process_target exits cleanly.
+      printf '%s\n' ""
+      printf '%s\n' ""
+      return 1
       ;;
   esac
 }
@@ -260,6 +265,7 @@ process_target() {
   case "$ACTION" in
     status)
       status_target "$settings_path" "$hooks_dir"
+      STATUS_RC=$?
       ;;
     install)
       # Copy the hook script (or symlink in the future, but copy for now).
@@ -307,8 +313,24 @@ process_target() {
   esac
 }
 
+# Validate every target up front. Doing this here (rather than inside
+# resolve_target, which runs in a subshell via command substitution) means
+# `exit 1` from fail() actually terminates the script.
+for t in "${TARGETS[@]}"; do
+  case "$t" in
+    global|project) ;;
+    *) fail "unknown target: $t (expected 'global' or 'project')" ;;
+  esac
+done
+
+STATUS_RC=0
 for t in "${TARGETS[@]}"; do
   process_target "$t"
 done
 
 log "done ($ACTION, ${#TARGETS[@]} target(s))"
+# For --status, propagate the worst per-target exit code so callers can
+# script on it (0 = all installed, 1 = at least one missing).
+if [[ "$ACTION" == "status" ]]; then
+  exit "$STATUS_RC"
+fi

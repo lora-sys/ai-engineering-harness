@@ -11,6 +11,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.3.0] - 2026-07-13
+
+Add bats test framework for the harness's own shell scripts. 38 tests across 6 files. Caught 3 real regressions in `install-session-hook.sh` while writing the test suite.
+
+### Added
+
+- **`tests/`** (NEW directory, 6 `.bats` files, 38 tests):
+  - `install-session-hook.bats` (10 tests) — install / idempotency / --status / --uninstall / --dry-run / bad-target / preservation of other hooks / regression for the `--status does NOT create settings.json` bug.
+  - `context-bundle.bats` (5 tests) — bundle structure, parallel ≡ sequential, --commits depth control, --help, --commits validation.
+  - `compact-report.bats` (12 tests) — required inputs, JSON shape, test status auto-detection (PASS/FAIL/mixed PASS+FAIL → FAIL wins), --blocker accumulation, --files-changed override, written file existence.
+  - `check-templates.bats` (6 tests) — happy path, missing-heading detection, inline-reference false-positive guard.
+  - `validate-meta.bats` (5 tests) — happy path, version-required, semver format, family walk.
+  - `changelog.bats` (2 tests) — overwrite guard, --force override.
+- **`scripts/run-tests.sh`** (NEW) — bats runner. Locates bats via `command -v` or `~/.local/bin/bats`. Filters by name (`scripts/run-tests.sh install` runs only install-session-hook.bats). Exits 1 if bats not installed (with install instructions for three platforms).
+
+### Fixed (caught while writing the test suite)
+
+- **`scripts/install-session-hook.sh`**: `--status` now propagates a non-zero exit code when the hook is not installed. Previously exited 0 unconditionally, so callers couldn't script on it.
+- **`scripts/install-session-hook.sh`**: invalid `--target` value (e.g., `--target galaxy`) is now caught up front instead of twice in a subshell where `exit 1` only killed the subshell. Cleaner failure mode, exits 1 with one error message.
+- **`scripts/install-session-hook.sh`**: `--help` now prints a `Usage:` line (cosmetic but matches what the bats test asserts).
+- **`scripts/context-bundle.sh`**: `--commits` now validates that the value is a positive integer. Previously `--commits abc` silently fell through to `git log -n abc` and produced unexpected output.
+- **`scripts/compact-report.sh` + `scripts/context-bundle.sh`**: help blocks now lead with `Usage:` to match what users (and the bats `--help` tests) expect.
+
+### Changed
+
+- **`CONTRIBUTING.md`** — pre-commit step 4 now requires `scripts/run-tests.sh` (38 bats tests) alongside `validate-meta.sh --strict` and `check-templates.sh --strict`.
+- **`SKILL.md`** — scripts list updated to mention the new scripts and the test runner.
+- **`README.md`** — repository layout block updated to include `tests/` and `hooks/`.
+- **`memory/notes-2026-07-12.md`** D-015 — durable decision: bats for harness shell scripts.
+
+### Why v1.3.0 (not v1.2.2)
+
+This is net-new capability (testing infrastructure). Per D-006, install-behavior changes are patch, but **new tooling + fixed real bugs discovered by it** warrants a minor bump.
+
+### Files changed
+
+```
++ tests/install-session-hook.bats               NEW (10 tests)
++ tests/context-bundle.bats                     NEW (5 tests)
++ tests/compact-report.bats                     NEW (12 tests)
++ tests/check-templates.bats                    NEW (6 tests)
++ tests/validate-meta.bats                      NEW (5 tests)
++ tests/changelog.bats                          NEW (2 tests)
++ scripts/run-tests.sh                          NEW (bats runner)
+M  scripts/install-session-hook.sh              --status exit, target validation, Usage prefix
+M  scripts/context-bundle.sh                    --commits validation, Usage prefix
+M  scripts/compact-report.sh                    Usage prefix
+M  CONTRIBUTING.md                              pre-commit step 4 adds run-tests.sh
+M  SKILL.md                                     scripts list updated
+M  README.md                                    repository layout updated
+M  meta.json                                    version: 1.2.1 → 1.3.0
+M  skills/build-agent-app/meta.json             version: 1.2.1 → 1.3.0
+M  memory/notes-2026-07-12.md                   D-015 added
+M  CHANGELOG.md                                 This entry
+```
+
+### Upgrade
+
+```bash
+npx -y skills update lora-sys/ai-engineering-harness -g
+# Then install bats if you want to run the test suite locally:
+npm install -g bats && ln -sf $(npm root -g)/bats/bin/bats ~/.local/bin/bats
+bash scripts/run-tests.sh   # should report "ok 1..38"
+```
+
 ## [1.2.1] - 2026-07-13
 
 End-to-end polish: real feature delivery (adds `install-session-hook.sh --status`), Showcase section in README with the actual artifacts captured during that run, and a small closed-loop diagram.

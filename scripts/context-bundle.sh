@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # scripts/context-bundle.sh
 #
+# Usage:
 # Dump a one-shot "context bundle" markdown file for sub-agents to read instead
 # of each one running its own git/ls/find exploration. Coordinator runs this
 # before Phase 5 (spawn implementer); sub-agents read docs/evidence/<id>/context-bundle.md
@@ -245,6 +246,12 @@ SECTIONS=(
   section_memory
   section_harness_roster
 )
+
+# Validate --commits is a positive integer.
+if ! [[ "$COMMITS" =~ ^[0-9]+$ ]] || [[ "$COMMITS" -lt 1 ]]; then
+  printf '[context-bundle] FAIL: --commits must be a positive integer (got: %s)\n' "$COMMITS" >&2
+  exit 2
+fi
 
 log "writing bundle to $OUT (parallel=$PARALLEL, commits=$COMMITS)"
 mkdir -p "$(dirname "$OUT")"

@@ -86,7 +86,11 @@ Stable lessons go into `memory/notes-<date>.md` with Status · Context · Decisi
 1. **Open an issue first** for non-trivial changes. Use the templates in `.github/ISSUE_TEMPLATE/`.
 2. **Branch off `main`**: `feature/#<id>-<slug>` or `fix/#<id>-<slug>`.
 3. **Worktree discipline**: one PR = one Worktree = one Issue (template in `templates/implementation-plan.md`).
-4. **`scripts/validate-meta.sh --strict` + `scripts/check-templates.sh --strict`** must pass before commit. The former catches schema + version + D-006 drift; the latter catches missing required headings in templates (e.g. `## CI` in `templates/pr-description.md`). Both exit non-zero on failure.
+4. **`scripts/validate-meta.sh --strict` + `scripts/check-templates.sh --strict` + `scripts/run-tests.sh`** must all pass before commit. Together they catch:
+   - schema + version + D-006 drift (`validate-meta.sh`)
+   - missing required template headings like `## CI` in `templates/pr-description.md` (`check-templates.sh`)
+   - regressions in the harness's own bash scripts (38 bats tests across 6 files: `install-session-hook.bats`, `context-bundle.bats`, `compact-report.bats`, `check-templates.bats`, `validate-meta.bats`, `changelog.bats`)
+   All three exit non-zero on failure. Install bats first: `npm install -g bats && ln -sf $(npm root -g)/bats/bin/bats ~/.local/bin/bats` (or `apt install bats` / `brew install bats-core`).
 5. **`scripts/changelog-auto.sh --append`** to preview the changelog entry your commits will produce; commit `CHANGELOG.md` separately if anything is off.
 6. **PR description uses `templates/pr-description.md`** with the relevant sections.
 7. **Adversarial review** if the change touches a workflow, an Agent role, the L0–L3 context model, or any architecture-bearing contract.
@@ -130,7 +134,7 @@ npx -y skills update lora-sys/ai-engineering-harness -g
 
 ## When in doubt
 
-- Run `bash scripts/validate-meta.sh --strict` and `bash scripts/check-templates.sh --strict` before opening a PR. Both must be clean.
+- Run `bash scripts/validate-meta.sh --strict`, `bash scripts/check-templates.sh --strict`, and `bash scripts/run-tests.sh` before opening a PR. All three must be clean.
 - Read `memory/notes-2026-07-11.md` to see what prior maintainers already learned.
 - Re-read section 1 of this file. **Test the actual path.**
 

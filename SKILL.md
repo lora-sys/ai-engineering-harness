@@ -212,7 +212,7 @@ When invoked as `$ai-engineering-harness`:
 - `checklists/` — Evidence Gate, frontend/backend/database/security/PR-merge checklists.
 - `references/` — context levels, document indexing, Worktree discipline, agent spawning patterns, **CI/CD monitoring pattern** (`cd-monitoring.md`), **SessionStart hook pattern** (`session-start-hook.md`), **context-bundle pattern** (`context-bundle.md`), **compact-report pattern** (`compact-report.md`).
 - `examples/` — worked samples of filled templates.
-- `scripts/` — bash helpers (`new-session.sh`, `context-manifest.sh`, `evidence-pack.sh`).
+- `scripts/` — bash helpers (`install-session-hook.sh`, `context-bundle.sh`, `compact-report.sh`, `validate-meta.sh`, `check-templates.sh`, `run-tests.sh`, ...).
 
 **Do not read them all into context.** Use the workflow file to decide which to read.
 

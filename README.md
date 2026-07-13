@@ -419,9 +419,11 @@ Each Session has `sessions/<id>/{status,plan,execution,review,summary}.md`. Agen
 ├── workflows/               # 9 closed-loop procedures
 ├── templates/               # 16 templates (Issue / Plan / PR / Review / Evidence / Phase / ADR ...)
 ├── checklists/              # 6 acceptance checklists
-├── references/              # 6 deep-dive docs (L0–L3, indexing, worktree, spawning)
+├── references/              # 11 deep-dive docs (L0–L3, indexing, worktree, spawning, CI, sessions, context, compact ...)
+├── hooks/                   # Claude Code SessionStart hook
 ├── examples/                # 6 filled samples
-└── scripts/                 # session / evidence / worktree / index / changelog helpers
+├── scripts/                 # session / evidence / worktree / index / changelog / context-bundle / compact-report / install-session-hook / run-tests
+└── tests/                   # 38 bats tests across 6 files (install-session-hook, context-bundle, compact-report, check-templates, validate-meta, changelog)
 ```
 
 ### Showcase — what this actually produces

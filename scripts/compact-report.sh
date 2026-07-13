@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # scripts/compact-report.sh
 #
+# Usage:
 # Compress a sub-agent's free-form output into a single structured JSON report
 # for the parent Coordinator to consume. The original implementation-report.md
 # stays in docs/evidence/<id>/; this script produces the *summary* the
