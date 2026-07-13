@@ -34,8 +34,9 @@ teardown() {
 @test "context-bundle parallel and sequential produce equivalent output" {
   bash "$REPO_ROOT/scripts/context-bundle.sh" --out "$TMPOUT/par.md" --quiet
   bash "$REPO_ROOT/scripts/context-bundle.sh" --out "$TMPOUT/seq.md" --quiet --no-parallel
-  # Diff ignores the timestamp line ("_Generated 2026-...")
-  diff <(grep -v '^_Generated' "$TMPOUT/par.md") <(grep -v '^_Generated' "$TMPOUT/seq.md")
+  # Diff ignores the timestamp line AND the .git directory entry
+  # (whose size changes between runs because git objects change).
+  diff <(grep -v -E "^_Generated|^  drwxr-xr-x.* \.git$" "$TMPOUT/par.md") <(grep -v -E "^_Generated|^  drwxr-xr-x.* \.git$" "$TMPOUT/seq.md")
 }
 
 @test "context-bundle --commits N controls depth" {

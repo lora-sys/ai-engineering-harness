@@ -63,10 +63,11 @@ MD
   run bash "$SCRIPT" --project-dir "$TMPDIR" --apply
   [ "$status" -eq 0 ]
   [ -f .harness-state.json ]
+  harness_v=$(python3 -c "import json; print(json.load(open('$REPO_ROOT/meta.json'))['version'])")
   python3 -c "
 import json
 d = json.load(open('.harness-state.json'))
-assert d['last_synced_to'] == '1.3.0', d['last_synced_to']
+assert d['last_synced_to'] == '$harness_v', d['last_synced_to']
 "
 }
 
@@ -154,8 +155,9 @@ JSON
 }
 
 @test "sync-project --status reports in-sync when current" {
+  harness_v=$(python3 -c "import json; print(json.load(open('$REPO_ROOT/meta.json'))['version'])")
   cat > .harness-state.json <<JSON
-{"version": "1.3.0", "bootstrapped_at": "2026-07-13", "last_synced_at": "2026-07-13", "last_synced_to": "1.3.0", "project_root": "$TMPDIR"}
+{"version": "$harness_v", "bootstrapped_at": "2026-07-13", "last_synced_at": "2026-07-13", "last_synced_to": "$harness_v", "project_root": "$TMPDIR"}
 JSON
   run bash "$SCRIPT" --project-dir "$TMPDIR" --status
   [ "$status" -eq 0 ]
