@@ -40,6 +40,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --uninstall) ACTION="uninstall" ;;
     --dry-run)   DRY_RUN=1 ;;
+    --status)    ACTION="status" ;;
     -h|--help)
       sed -n '2,18p' "$0"
       exit 0
@@ -186,6 +187,50 @@ build_command() {
   printf 'bash %q' "$hooks_dir_abs/session-start-read-session-md.sh"
 }
 
+# Report install status for one target. Exits 0 if installed, 1 if not.
+status_target() {
+  local settings_path="$1"
+  local hooks_dir="$2"
+  local rc=1
+
+  if [[ -f "$settings_path" ]]; then
+    if HOOK_MARKER="$HOOK_MARKER" python3 - "$settings_path" >/dev/null <<'PYEOF2'
+import json, sys, os
+marker = os.environ.get("HOOK_MARKER", "session-start-read-session-md")
+path = sys.argv[1]
+try:
+    with open(path) as f:
+        data = json.load(f)
+except Exception:
+    sys.exit(1)
+ss = data.get("hooks", {}).get("SessionStart", [])
+for entry in ss:
+    if marker in json.dumps(entry):
+        cmds = [h.get("command", "?") for h in entry.get("hooks", [])]
+        print("installed: " + (cmds[0] if cmds else "?"))
+        sys.exit(0)
+sys.exit(1)
+PYEOF2
+    then
+      echo "[install-session-hook] $settings_path -> installed"
+      rc=0
+    else
+      echo "[install-session-hook] $settings_path -> NOT installed (no SessionStart entry with marker)"
+    fi
+  else
+    echo "[install-session-hook] $settings_path -> NOT installed (file missing)"
+  fi
+
+  local hook_dest="$hooks_dir/session-start-read-session-md.sh"
+  if [[ -f "$hook_dest" ]]; then
+    echo "[install-session-hook] hook script present at $hook_dest"
+  else
+    echo "[install-session-hook] hook script MISSING at $hook_dest"
+  fi
+
+  return $rc
+}
+
 # Run a single install/uninstall cycle against one target.
 process_target() {
   local target="$1"
@@ -197,8 +242,10 @@ process_target() {
 
   log "target=$target settings=$settings_path hooks_dir=$hooks_dir"
 
-  # Ensure settings.json exists.
-  if [[ ! -f "$settings_path" ]]; then
+  # For --status, do NOT create settings.json — that would defeat the purpose of status.
+  if [[ "$ACTION" == "status" ]]; then
+    :  # fall through; status_target handles the missing-file case
+  elif [[ ! -f "$settings_path" ]]; then
     if [[ $DRY_RUN -eq 1 ]]; then
       log "DRY-RUN: would create $settings_path (empty {})"
       mkdir -p "$(dirname "$settings_path")"
@@ -211,6 +258,9 @@ process_target() {
   fi
 
   case "$ACTION" in
+    status)
+      status_target "$settings_path" "$hooks_dir"
+      ;;
     install)
       # Copy the hook script (or symlink in the future, but copy for now).
       if [[ ! -f "$HOOK_SRC" ]]; then
