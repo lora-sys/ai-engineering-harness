@@ -122,8 +122,32 @@ export default function App() {
 
   return (
     <main className="relative bg-bg text-ink overflow-x-hidden">
+      {/* ───── NAV (sticky) ───── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3 bg-bg/70 backdrop-blur-md border-b border-primary/20">
+        <a href="#top" className="flex items-center gap-2 font-display font-black text-sm uppercase tracking-tighter">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary">
+            <circle cx="12" cy="12" r="9" />
+            <circle cx="12" cy="12" r="3" className="text-accent" fill="currentColor" />
+          </svg>
+          <span className="gradient-text">AEH</span>
+          <span className="hidden md:inline text-muted text-[10px] uppercase tracking-[0.3em]">ai-engineering-harness</span>
+        </a>
+        <div className="flex items-center gap-1 md:gap-4 text-[10px] md:text-xs uppercase tracking-[0.2em]">
+          <a href="#loop" className="px-2 py-1 md:px-3 md:py-1.5 text-muted hover:text-primary transition-colors">Loop</a>
+          <a href="#install" className="px-2 py-1 md:px-3 md:py-1.5 text-muted hover:text-primary transition-colors">Install</a>
+          <a href="https://github.com/lora-sys/ai-engineering-harness/blob/main/QUICKSTART.md" target="_blank" rel="noreferrer" className="px-2 py-1 md:px-3 md:py-1.5 text-muted hover:text-primary transition-colors hidden sm:inline">Docs</a>
+          <a
+            href="https://github.com/lora-sys/ai-engineering-harness"
+            target="_blank" rel="noreferrer"
+            className="ml-2 px-3 py-1.5 md:px-4 md:py-2 border border-primary/50 text-primary font-mono font-bold hover:bg-primary hover:text-bg transition-all hover:shadow-neon flex items-center gap-2"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.7 1.4 2 1.6.1-.8.4-1.4.4-2.6 0 0 0-2.2 1.2 0 0 1 0-1.2 0-2.4-1.2-3.7 3.6-3.1 1.7-1 3.7-1 5.5 0 1.6.8 1 2.1.8 1.4-.8 1.2-2 2.2-2.4-.6 0-1.2-.2-2 .9.2-.3 1.4-.9 1.4-2.7 0-4.7-1.4-6.4-3.1 0-.8.3-1.7.3-3.5 0-2.3 1.5-4.3 1.5-7.7 0-.4 0-1-.1-1.4 0-3.6 2.2-7 6.4-7 1.8 0 3.4.6 4.6 1.3 1.2-.5 2.8-1.8 4.4-2.8-.1 0-.2 0-.3.1 0-1.9-.6-3 0-3.1 0-2.4 0-2.4 2.4 0 5.3 0 2.4 0 1.8 0 1.2-.1 1-.7 2-2.5 5.4-1.4 9.2 0 7.7 2.7 10.4 8 6.6-.2 12.2-1 12.9-1.4 0-1.2 0-2.3-.4-3.4.6-1.7.4-.4 1-.6.4-1.1 0-.7-.4-1.4-.7-2-.7-1.2-2.6-1.7-4.3-.2 0-1.5.1-1.9 1.2-1.4.7-.4 1.6-1.3 2.4-1.6 0-1-.1-1.3 0-1.8 0-2 0-1.4-.3-2.7-.7-4-1.4-1.7-3.6-1.5-3.4.4-1.4 2.6-.3 1.5 0 3-.3 1.6-1 2.7-1.5 1.3-1.6 1.7-1.7 0-3.3 0-4.3 0-4.3-1.4 0-2.7 0-3.6 0-2.7-.3-1.4-.6-3-.7-3.6-2-7.1 0-1.5 0-3.3-3.6-3.3 3.6-3.6 3.6-3.6 5 0 4.5 0 4.6-1.5 0-3.4 0-3.4-1.4 0-1.5 0-1.5-1-.1-2.7-1.7-3.4-1.7-3.5-1.7-1.6 0-2.3 0-2.3 0-1.5 0-1.5.1-.9.6-2.1 1.4-3.2 0-3.6 0-3.6-1.2 0-2.3-.1-2.5 0-2.4 0-1.4-1.5-3.4-1.7-3.5-1.7-1.5 0-2 0-2 0-1.7 0-1.7.3-.6 1.1-1.5 1.3-2.3 0-1.3 0-2.6-.8-1.5-.4-1.4-1.1-1.5z"/></svg>
+            <span>GitHub →</span>
+          </a>
+        </div>
+      </nav>
       {/* ───── HERO ───── */}
-      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center noise-bg overflow-hidden">
+      <section id="top" ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center noise-bg overflow-hidden">
         <ParticleField />
         {/* Top label */}
         <div className="absolute top-6 left-6 right-6 z-10 flex justify-between items-center text-[10px] uppercase tracking-[0.3em] text-muted">
@@ -171,7 +195,7 @@ export default function App() {
       </section>
 
       {/* ───── CLOSED LOOP ───── */}
-      <section ref={loopRef} className="relative py-32 md:py-48 px-6 grid-bg">
+      <section id="loop" ref={loopRef} className="relative py-32 md:py-48 px-6 grid-bg">
         <div className="max-w-5xl mx-auto text-center mb-16">
           <h2 className="font-display font-black uppercase tracking-tighter text-section gradient-text">
             The closed loop
@@ -228,7 +252,7 @@ export default function App() {
       </section>
 
       {/* ───── INSTALL ───── */}
-      <section className="relative py-32 md:py-48 px-6 noise-bg">
+      <section id="install" className="relative py-32 md:py-48 px-6 noise-bg">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-display font-black uppercase tracking-tighter text-section text-ink">
             Install in <span className="gradient-text">1 command</span>
