@@ -11,6 +11,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.8.6] - 2026-07-14
+
+Adds the official Awwwards-style poster (`assets/poster-harness.png`) to `README.md` and `README_EN.md`. The user-supplied visual: 18 agent silhouettes around a holographic central cube, with the closed loop (ISSUE → WORKTREE → PLAN → BUILD → REVIEW → EVIDENCE → MERGE → MEMORY) and the CI-red blocking gate. Tagline: "让每一行代码,都有证据" / "Let every line of code have evidence."
+
+### Added
+
+- **`assets/poster-harness.png`** (NEW, 972×1619, 2.1 MB) — the official visual identity. Used in:
+  - `README.md` (under the "海报 · Poster" section after the social preview)
+  - `README_EN.md` (under the "Poster" section)
+  - Can be re-used as a release banner, talk slide background, or a blog hero.
+
+### Files changed
+
+```
++ assets/poster-harness.png                       NEW (972×1619 PNG)
+M  README.md                              +poster section (zh tagline)
+M  README_EN.md                           +poster section (en tagline)
+M  meta.json                              version: 1.8.5 → 1.8.6
+M  skills/build-agent-app/meta.json       version: 1.8.5 → 1.8.6
+M  skills/frontend-creative/meta.json     version: 1.8.5 → 1.8.6
+M  CHANGELOG.md                          This entry
+```
+
+### Upgrade
+
+No install change. The asset is shipped in the repo; downstream consumers see it via `npx -y skills update`.
+
 ## [1.8.5] - 2026-07-14
 
 README split: the bilingual mix in `README.md` was getting hard to read (中文 + English sections interleaved with shared operational content). Now:

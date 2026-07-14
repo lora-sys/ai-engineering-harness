@@ -17,6 +17,12 @@
 
 **Social preview**:  [assets/social-preview.png](./assets/social-preview.png) (1200×630, for Twitter / GitHub social cards).
 
+### 海报 · Poster
+
+![AI Engineering Harness poster](assets/poster-harness.png)
+
+> 让每一行代码,都有证据。18 AGENTS · 9 WORKFLOWS · ONE CLOSED LOOP. ISSUE → WORKTREE → PLAN → BUILD → REVIEW → EVIDENCE → MERGE → MEMORY.
+
 ---
 
 ---

@@ -1,6 +1,6 @@
 {
   "id": "frontend-creative",
-  "version": "1.8.5",
+  "version": "1.8.6",
   "name": "Frontend Creative UI",
   "description": "Awwwards-grade creative web UI design + frontend engineering for AI agents. Generates non-Dashboard, asymmetric, motion-rich websites (Next.js + React + TS + Tailwind + Framer Motion + GSAP + React Three Fiber). Use when the user wants a creative landing page, design portfolio, or experimental product page — not a standard SaaS dashboard. Triggers: $frontend-creative. Adjacent to $build-agent-app and $ai-engineering-harness: hand off implementation to the harness after the design brief is approved.",
   "category": "creative-frontend",
