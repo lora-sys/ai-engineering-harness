@@ -11,6 +11,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.9.0] - 2026-07-14
+
+**Cross-version regression test (D-017)** — the first eval layer for the harness itself. Catches "upgrading the harness breaks user projects" regressions before they ship.
+
+### Added
+
+- **`tests/cross-version/`** (NEW) — cross-version regression infrastructure.
+  - `fixtures/project-alpha/` — a pre-v1.4 project (AGENTS.md + docs/evidence/ + user content, no `.harness-state.json`).
+  - `fixtures/project-beta/` — a post-v1.6 project (has `v1.6.0` state file, fenced block, user content).
+  - `fixtures/scripts/sync-project-v1.7.0.sh` — frozen copy of v1.7.0's `sync-project.sh`, extracted via `git show v1.7.0:scripts/sync-project.sh`.
+  - `run-test.sh` — runs v1.7 then HEAD on each fixture, asserts invariants.
+- **`tests/cross-version.bats`** (NEW, 1 test) — bats wrapper that runs `run-test.sh` and asserts exit 0.
+- **Cross-version test is automatically picked up by `scripts/run-tests.sh`** (the existing `tests/*.bats` glob includes it). Total bats: 81 (was 80).
+
+### Invariants checked (per fixture)
+
+1. **User content preserved** (the most important — catches "fence block ate user content" regressions). PASS for both fixtures.
+2. **HEAD fence block non-empty** (the capabilities list is there). PASS.
+3. **State file version == HEAD version** (`1.8.8`). PASS.
+4. **Both versions are idempotent** (re-run produces same output). PASS.
+5. **Initial state v1.6.0 → HEAD** (the upgrade path works). PASS for project-beta.
+
+### Why cross-version regression first (out of 6 eval layers)
+
+The harness has 6 eval layers (project-level, harness-self-test, cross-version, agent regression, Awwwards auto-scoring, skill benchmark). Cross-version is the **cheapest** (1 second, no LLM, no human) and catches a **class of bugs** the others can't (migration semantics change between versions). The other layers are listed as future work; this one ships now.
+
+### Files changed
+
+```
++ tests/cross-version/                          NEW (fixtures + run-test.sh)
++ tests/cross-version.bats                      NEW (1 bats test)
+M  meta.json                                    version: 1.8.8 → 1.9.0
+M  skills/build-agent-app/meta.json             version: 1.8.8 → 1.9.0
+M  skills/frontend-creative/meta.json           version: 1.8.8 → 1.9.0
+M  memory/notes-2026-07-12.md                   D-017 added
+M  CHANGELOG.md                                 This entry
+```
+
+### Roadmap for the other 5 eval layers (future work)
+
+- **v1.10.0**: Agent regression — `tests/agent-prompts/` with test scenarios per agent. Cheap-ish (LLM-as-judge or just hash compare on agent outputs).
+- **v1.11.0**: Awwwards auto-scoring — LLM-as-judge on rendered pages using `templates/review-checklist.md`. Medium effort.
+- **v1.12.0**: Skill-level benchmark — 5-10 golden projects with expected outputs. Higher effort.
+- **ongoing**: User study — real users, real projects, version-to-version comparison.
+
 ## [1.8.8] - 2026-07-14
 
 Adds sticky top nav to the landing page (logo + Loop / Install / Docs / GitHub-→-button). Sets the GitHub repo's `homepage` field to the GH Pages URL so the repo and site link to each other (SEO + social-card round-trip).
