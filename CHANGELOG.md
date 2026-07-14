@@ -11,6 +11,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.8.8] - 2026-07-14
+
+Adds sticky top nav to the landing page (logo + Loop / Install / Docs / GitHub-→-button). Sets the GitHub repo's `homepage` field to the GH Pages URL so the repo and site link to each other (SEO + social-card round-trip).
+
+### Added
+
+- **`examples/landing-page/src/App.tsx`** — sticky `<nav>` at the top of every viewport (fixed, backdrop-blur, neon bottom-border). Contents:
+  - Logo glyph (the project's circular brand mark) + gradient-text "AEH" + "ai-engineering-harness" wordmark (hidden on mobile)
+  - Anchor links: **Loop** → `#loop`, **Install** → `#install`
+  - **Docs** → `QUICKSTART.md` (hidden on small screens)
+  - **GitHub →** button — neon-bordered, opens repo in new tab
+- **`examples/landing-page/src/App.tsx`** — anchor IDs added to sections: `id="top"` (hero), `id="loop"` (closed loop), `id="install"` (install section). The nav uses these for smooth-scroll.
+- **GitHub repo SEO**: `homepage` field set to `https://lora-sys.github.io/ai-engineering-harness/`. The repo card on GitHub now shows a "Website" link, and the social-preview (when shared to Twitter/LinkedIn/etc.) references the site URL.
+- **GitHub repo description** — refreshed to mention "18 agents, 9 workflows, one closed loop. Issue → Worktree → Plan → Build → Review → Evidence → Merge → Memory."
+
+### Files changed
+
+```
+M  examples/landing-page/src/App.tsx                  +sticky nav + 3 anchor IDs (top, loop, install)
+M  meta.json                                          version: 1.8.7 → 1.8.8
+M  skills/build-agent-app/meta.json                   version: 1.8.7 → 1.8.8
+M  skills/frontend-creative/meta.json                 version: 1.8.7 → 1.8.8
+M  CHANGELOG.md                                      This entry
+# GitHub repo settings (API, not in repo):
+#   homepageUrl = "https://lora-sys.github.io/ai-engineering-harness/"
+#   description = refreshed (see above)
+```
+
+### Site SEO round-trip
+
+- GitHub repo → has Website link → social cards reference site
+- GH Pages site → has nav with GitHub button → drives traffic back
+- Repo description in social preview mentions the closed loop keywords → better discoverability
+
 ## [1.8.7] - 2026-07-14
 
 Adds an Awwwards-grade landing page for the project, built with `$frontend-creative` skill. Plus a GitHub Actions workflow that deploys it to GitHub Pages on every push to `main` (when `examples/landing-page/**` changes).
