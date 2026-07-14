@@ -1,0 +1,8 @@
+{
+  "state-file-version-matches-head": true,
+  "user-content-preserved-must-contain": [
+    "# User Content Project",
+    "## Another section",
+    "This is a fenced user block"
+  ]
+}

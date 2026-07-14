@@ -1,0 +1,5 @@
+{
+  "state-file-version-matches-head": true,
+  "fenced-block-content-must-contain": ["Closed loop with CI as a blocking gate"],
+  "compact-report-backfilled-in-issue-9": true
+}

@@ -56,6 +56,43 @@ M  CHANGELOG.md                                 This entry
 - **v1.12.0**: Skill-level benchmark — 5-10 golden projects with expected outputs. Higher effort.
 - **ongoing**: User study — real users, real projects, version-to-version comparison.
 
+## [1.12.0] - 2026-07-15
+
+Skill-level benchmark (eval layer 4). Tests the harness's automation scripts (sync-project.sh) against 5 fixture projects at different lifecycle stages.
+
+### Added
+
+- **`tests/skill-benchmark/`** (NEW) — 5 fixture projects (fresh, pre-v1.4, v1.6, user-content, needs-backfill) + 5 `expected.json` checkpoint files + `run-test.sh` (sandbox + run + verify).
+- **`tests/skill-benchmark.bats`** (NEW, 1 test, dry-run mode).
+- **Memory D-020** — design choices, cost analysis.
+
+### What it catches
+
+- A regression in `sync-project.sh` (e.g., a migration that overwrites user content)
+- A regression in the fenced-block patch logic (e.g., broken Python heredoc)
+- A regression in `compact-report.sh` back-fill (e.g., changed marker syntax)
+
+### Cost
+
+- **~Free** (no LLM calls). Just runs the bash scripts and validates JSON.
+- Run on every PR. No external dependency.
+
+### Files
+
+```
++ tests/skill-benchmark/                          NEW (5 fixtures + run-test.sh)
++ tests/skill-benchmark.bats                      NEW (1 bats test)
+M  memory/notes-2026-07-12.md                     D-020 added
+M  meta.json                                     version: 1.11.0 → 1.12.0
+M  skills/build-agent-app/meta.json              version: 1.11.0 → 1.12.0
+M  skills/frontend-creative/meta.json            version: 1.11.0 → 1.12.0
+M  CHANGELOG.md                                  This entry
+```
+
+### Roadmap for remaining eval layers
+
+- **ongoing**: User study (real users, real projects) + live eval (continuous LLM-as-judge on real usage)
+
 ## [1.11.0] - 2026-07-15
 
 Awwwards auto-scoring eval (layer 3). Uses headless chromium to render a page and an LLM to score on the 6-category review-checklist.
