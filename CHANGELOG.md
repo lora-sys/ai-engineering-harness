@@ -11,6 +11,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.8.5] - 2026-07-14
+
+README split: the bilingual mix in `README.md` was getting hard to read (中文 + English sections interleaved with shared operational content). Now:
+- `README.md` is the **Chinese-primary** version (was already mostly Chinese first, now cleanly delimited).
+- `README_EN.md` is the **English** version (extracted from the same source).
+- Both files have a cross-link at the top so navigation between them is one click.
+
+### Why
+
+The user reported "感觉有点混乱" (feels messy). Bilingual READMEs work for small projects; for one with 9 workflows + 18 agents + 11 principles, mixing two languages in one file makes the structure hard to scan. Splitting into two single-language files trades a small duplication cost for clarity.
+
+### Files changed
+
+```
+M  README.md                               Chinese-primary; cross-link to README_EN.md at top
++ README_EN.md                             NEW (800 lines, English version of the same content)
+M  meta.json                                version: 1.8.4 → 1.8.5
+M  skills/build-agent-app/meta.json         version: 1.8.4 → 1.8.5
+M  skills/frontend-creative/meta.json       version: 1.8.4 → 1.8.5
+M  CHANGELOG.md                            This entry
+```
+
+### Upgrade
+
+No install change. `npx -y skills update lora-sys/ai-engineering-harness -g` picks up the new README files automatically.
+
 ## [1.8.4] - 2026-07-14
 
 Critical fix: **`npx skills add` (thin canonical) only installs the main skill's `SKILL.md` + `meta.json` — the 2 sibling skills are NOT installed.** The user (using Codex) reported: "frontend-creative not exists" + "build-agent-app not exists" when invoking via `@frontend-creative` or via the main skill. This release fixes install discoverability so all 3 skills land in every agent dir.

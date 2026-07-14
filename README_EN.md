@@ -21,297 +21,277 @@
 
 ---
 
-## 中文 (Chinese)
+## English
 
-> **English version**: [README_EN.md](README_EN.md) · **中文版本**: 你正在看这个
+> **中文版本**: [README.md](README.md) · **English version**: you are here
 
-## 中文
+## English
 
-### 这是什么
+### What this is
 
-**3 个 skill 的家族**,可以单独或一起装:
+A **skill family of 3 skills**, installable separately or together:
 
-- **`$ai-engineering-harness`** (本 skill) — 工程协调(Issue → PR → Merge → Memory)
-- **`$build-agent-app`** — 设计 agent app(Agent + Harness 合约),交给本 skill 实现
-- **`$frontend-creative`** — Awwwards 级创意 web UI 生成
+- **`$ai-engineering-harness`** (this skill) — engineering coordination (Issue → PR → Merge → Memory)
+- **`$build-agent-app`** — design an agent app (Agent + Harness contracts); hands off to this skill for implementation
+- **`$frontend-creative`** — Awwwards-grade creative web UI generation
 
-`ai-engineering-harness` 不是单条 Prompt,而是一整套**软件工程组织操作系统**。你给一个想法、一份 PRD,或者一个需要接手的老项目,Harness 会代你组建一个由 18 类 Agent 组成的工程团队:
+`ai-engineering-harness` is **a software-engineering organization**, not a coding prompt. Hand it an idea, a PRD, or a messy legacy repo — it spins up a 18-role AI engineering org that delivers every change through a verifiable, adversarial, evidence-gated loop.
 
-| Agent 角色 | 职责 |
+The agent roster:
+
+| Role | Purpose |
 | --- | --- |
-| Coordinator(协调员) | 读文档、维护 Project Status、分派任务,自己不写业务代码 |
-| Explore / Plan | 探索代码库 / 编写可验收的实施计划 |
-| Frontend / Backend / Database | 按 Issue + 计划在独立 Worktree 里实现 |
-| QA | 跑测试、收集证据(截图、Playwright、API trace、DB 数据) |
-| Bug Hunter / Behavior / Architecture Reviewer | **冷启动对抗式审查**,默认"实现一定有 Bug",只读 PR diff 和证据 |
-| Security / UI Reviewer | 条件触发(权限/支付/隐私 → Security;UI → UI) |
-| Conflict Resolver / Release / Review Aggregator | 冲突仲裁、发布前体检、审查汇总 |
-| Context Assembly / Memory Curator | 按 L0–L3 控制上下文,沉淀阶段经验 |
+| **Coordinator** | Reads docs, owns the kanban, dispatches tasks — never writes feature code |
+| **Explore / Plan** | Read-only recon of the codebase / synthesize an Implementation Plan |
+| **Frontend / Backend / Database** | Implement on isolated Worktrees within their allow-lists |
+| **QA** | Run tests, capture screenshots / Playwright / API / DB evidence |
+| **Bug Hunter / Behavior Reviewer / Architecture Reviewer** | Cold-start adversarial reviewers — assume the implementation *has a bug*, only read the diff + evidence |
+| **Security Reviewer / UI Reviewer** | Conditional (auth/payments/PII/secrets → Security; UI change → UI) |
+| **Conflict Resolver / Release / Review Aggregator** | Merge disagreements, pre-release checks, fix-task dispatch |
+| **Context Assembly / Memory Curator** | L0–L3 context control, phase-graded memory |
 
-每一次特性、每一次重构、每一次修复都走同一条闭环:
+Every change goes through the same closed loop:
 
 ```
-Idea → PRD → Issue → Agent 认领 → Worktree → 实施计划
-     → 实现 → 自测 → Draft PR → CI → 对抗式审查 → 修 → 再审
-     → 证据闸门 → 必要时人工审批 → 合并 → 阶段总结 → 记忆沉淀 → 下一轮
+Idea → PRD → Issue → Agent claims → Worktree → Plan → Implement
+     → Self-test → Draft PR → CI → Adversarial Review → Fix → Re-review
+     → Evidence Gate → Human Approval (when needed) → Merge
+     → Phase summary → Memory update → next Issue
 ```
 
-代码只有在 **CI Pass + 至少 2 名冷启动审查员 Approved + 证据完整 + 必要时人工批准** 时才进入 `main`。没有"看起来跑通了"这种状态——只有"可验证地跑通了"。
+Code only reaches `main` when **CI is green**, **≥2 cold-start reviewers approve**, **Evidence is complete**, and **human approval is on file when required**. There is no "it kinda works". There is only **verified** working.
 
-### 一行安装(全局生效到所有 CLI Agent)
+### One-line install — every CLI agent, globally
 
 ```bash
 npx -y skills add lora-sys/ai-engineering-harness -g --all
 ```
 
-- `-g`:全局安装(写入用户级 skill 目录,而非当前项目)
-- `--all`:把仓库里的所有 skill 安装到 **所有** 受支持的 CLI 编码 Agent
-
-完成后,这套 Skill 会被放到 `~/.claude/skills/ai-engineering-harness/`、`~/.cursor/skills/ai-engineering-harness/`、`~/.gemini/skills/ai-engineering-harness/`、`~/.qwen/skills/ai-engineering-harness/`、`~/.grok/skills/ai-engineering-harness/`、`~/.codex/skills/ai-engineering-harness/`(默认直接 cp,可写就装)等 38 个 CLI Agent 的全局 Skill 目录。
+- `-g` → user-level / global install (instead of project-level)
+- `--all` → install every skill in the repo into every supported CLI agent
 
 
-
-> ⚠️ **`--all` 到底装什么**
+> ⚠️ **What `--all` actually does**
 >
-> `npx skills add lora-sys/ai-engineering-harness -g --all` 会把**本仓库所有 Skill** 一次性装到 **所有受支持的 Agent** — 全局生效。
+> `npx skills add lora-sys/ai-engineering-harness -g --all` installs **every skill in this repo** into **every supported agent** — globally.
 >
-> 当前仓库里只有 **1 个 Skill**(`ai-engineering-harness`),所以 `--all` 等价于只装它,**安全**。
+> Today, the repo contains **one skill** (`ai-engineering-harness`), so `--all` is equivalent to installing that one skill. Safe.
 >
-> 以后如果在这个仓库里加入姊妹 Skill,`--all` 会一并装,不再二次确认。这是 Vercel `skills` CLI 的设计意图(一行命令拿整套工具集),但也意味着:装第三方 fork 出来的多 skill 仓库时,**应该先预览再装**。下面三条命令用来限制范围:
+> If a sister skill is added to the repo later, `--all` will install it too — without an extra prompt. That's the design intent (one command gets the whole toolkit), but it does mean **you should preview before installing sister repos** you don't fully trust. Use these to limit scope:
 >
 > ```bash
-> # 装之前先看看里面有什么
+> # Preview what's inside before installing
 > npx -y skills add lora-sys/ai-engineering-harness --list
 >
-> # 只装这一个 skill
+> # Limit to one skill
 > npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness
 >
-> # 只装到指定 agent
+> # Limit to specific agents
 > npx -y skills add lora-sys/ai-engineering-harness -g -a claude-code codex grok
 >
-> # 同时限定:一个 skill 一个 agent
+> # Both: one skill, one agent
 > npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness -a claude-code
 > ```
 >
-> 索引器使用的完整元数据见仓库根目录的 [`meta.json`](./meta.json)。
+> For full metadata about this skill (used by indexes), see [`meta.json`](./meta.json) at the repo root.
 
-兼容性矩阵覆盖:Claude Code、Codex、Grok、Cursor、Gemini、Qwen、Cline、Hermes-Agent、Aider Desk、Amp、Antigravity、Continue、Cortex、Crush、Devin、Droid、Forgecode、Goose、Junie、Kilo、Kiro、Kode、Mar'sCode、Mistral Vibe、Mux、OpenCode、OpenHands、Pi、Qoder、Rovodev、Roo、Tabnine、Tinycloud、Trae、Warp、Windsurf、Zed、Zencoder、Zenflow、Neovate、Pochi、Adal 等 — `install.sh` 明确支持 40 个;`npx skills` CLI 生态系统涵盖 60+。
 
-### 手动安装(若你想要更多控制)
+After this runs, the skill lands in the global skill directory of every supported CLI agent:
+
+- `~/.claude/skills/ai-engineering-harness/`
+- `~/.cursor/skills/ai-engineering-harness/`
+- `~/.gemini/skills/ai-engineering-harness/`
+- `~/.qwen/skills/ai-engineering-harness/`
+- `~/.grok/skills/ai-engineering-harness/`
+- `~/.opencode/skills/ai-engineering-harness/` (in `~/.config/opencode/skills/`)
+- and 30+ more — see the full compatibility matrix below.
+
+**Supported agents**: Claude Code · Codex · Grok · Cursor · Gemini · Qwen · Cline · Hermes-Agent · Aider Desk · Amp · Antigravity · Continue · Cortex · Crush · Devin · Droid · Forgecode · Goose · Junie · Kilo · Kiro · Kode · Marscode · Mistral Vibe · Mux · OpenCode · OpenHands · Pi · Qoder · Rovodev · Roo · Tabnine · Tinycloud · Trae · Trae-CN · Warp · Windsurf · Zed · Zencoder · Zenflow · Neovate · Pochi · Adal · Bob · Codebuddy · Commandcode · KiloCode · Lingma · Loaf · Moxby · Vibe (40 explicitly listed in `install.sh`; 60+ covered by the npx skills CLI ecosystem; see install.sh --list for the exact set).
+
+### Manual install — more control
 
 ```bash
-# 克隆
+# Clone
 git clone https://github.com/lora-sys/ai-engineering-harness.git
 cd ai-engineering-harness
 
-# 安装到所有 Agent(交互式选择目标)
+# Interactive
 ./install.sh
 
-# 安装到指定 Agent
+# Specific target
 ./install.sh --target codex
 ./install.sh --target claude
+./install.sh --target cursor
 
-# 一次性铺到所有可写目录
+# Every writable location
 ./install.sh --all
 
-# 卸载
+# Uninstall
 ./install.sh --uninstall
 ```
 
-`install.sh` 支持的 target(完整列表 38 个):
-`codex` · `claude` · `agents` · `cursor` · `gemini` · `qwen` · `opencode` · `grok` · `hermes-agent` · `hermes` · `aider-desk` · `augment` · `bob` · `codebuddy` · `commandcode` · `continue` · `crush` · `devin` · `factory` · `forge` · `goose` · `iflow` · `junie` · `kilocode` · `kiro` · `kode` · `marscode` · `mux` · `neovate` · `openhands` · `pi` · `pochi` · `roo` · `snowflake` · `tabnine` · `trae` · `trae-cn` · `vibe` · `zencoder` · `adal`
+`install.sh` targets (full list):
 
-#### 一次性装齐 3 个 skill(推荐)
+`codex`, `claude`, `agents`, `cursor`, `gemini`, `qwen`, `opencode`, `grok`, `hermes-agent`, `hermes`, `aider-desk`, `augment`, `bob`, `codebuddy`, `commandcode`, `continue`, `crush`, `devin`, `factory`, `forge`, `goose`, `iflow`, `junie`, `kilocode`, `kiro`, `kode`, `marscode`, `mux`, `neovate`, `openhands`, `pi`, `pochi`, `roo`, `snowflake`, `tabnine`, `trae`, `trae-cn`, `vibe`, `zencoder`, `adal`.
 
-`install.sh` 只装你点名的 skill。要一次装齐 3 个兄弟:
+#### Bulk-install the whole family (recommended)
+
+`install.sh` only installs the skill you name. To install all 3 sibling skills in one go:
 
 ```bash
-# 精简装(只 SKILL.md + meta.json)
+# Thin install (SKILL.md + meta.json only — what npx skills does for the main skill):
 bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh
 
-# 完整装(workflows/ + references/ + templates/ 也复制)
+# Fat install (full bundle — workflows/, references/, templates/):
 bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh --fat
 
-# 14 个目标全检查
+# Status check across all 14 supported targets:
 bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh --status
 ```
 
-把 `ai-engineering-harness` + `build-agent-app` + `frontend-creative` 装到全部 14 个 agent 平台(Codex / Claude / Cursor / Gemini / Qwen / OpenCode / Grok / Hermes / AiderDesk / Augment / Trae 等),让 Codex 能 `@build-agent-app` 和 `@frontend-creative`(不只是 `@ai-engineering-harness`)。
+This installs `ai-engineering-harness` + `build-agent-app` + `frontend-creative` to **all 14 supported agent platforms** (Codex, Claude, Cursor, Gemini, Qwen, OpenCode, Grok, Hermes, AiderDesk, Augment, Trae, etc.). Use this when you want Codex to discover the siblings as `@build-agent-app` and `@frontend-creative` (not just `@ai-engineering-harness`).
 
-### 管理已有项目 · Managing existing projects
+### Managing existing projects (the upgrade flow)
 
-Harness 在不断演进 — v1.0 加了闭环,v1.4 加了 `sync-project.sh`,v1.7 加了 GHA + 4 套主题,v1.8 加了 `--auto` + `register-existing.sh`。**已经被这个 skill 接管的项目需要重跑 sync 才能拿到新功能。**
+The harness evolves — v1.0 added the closed loop, v1.4 added `sync-project.sh`, v1.7 added GHA + 4 theme variants, v1.8 added `--auto` + `register-existing.sh`. **Projects you've already taken over with the skill need to be re-synced to pick up the new features.**
 
-三条路径,全部幂等,全部非破坏性:
+Three paths, all idempotent and non-destructive:
 
 ```bash
-# 1. 更新 harness 自身
+# 1. Update the harness install (the skill itself).
 npx -y skills update lora-sys/ai-engineering-harness -g
 
-# 2. 更新单个已接管的项目
+# 2. Update a SINGLE project you already manage:
 bash /path/to/ai-engineering-harness/scripts/sync-project.sh --project-dir ~/projects/my-app --auto
 
-# 3. 一次性更新所有项目
+# 3. Update MANY projects at once (e.g. all your repos):
 bash /path/to/ai-engineering-harness/scripts/register-existing.sh ~/repos
+# Walks the tree, finds every AGENTS.md + docs/evidence/ project,
+# and runs #2 on the ones without .harness-state.json. One-shot.
 ```
 
-**设计上非破坏性** — 迁移从不覆盖用户内容:
-- `compact-report.json` 永不覆盖(只在缺失时创建)
-- AGENTS.md 的 fenced block(用 `<!-- HARNESS:START name -->` 标记)有边界 — harness 只管 block,其它都归用户
-- `.github/ISSUE_TEMPLATE/` 只在缺失时复制
-- `.harness-state.json` 重跑只改 `last_synced_at` 时间戳
+After syncing, verify:
 
-### 典型用法
+```bash
+bash /path/to/ai-engineering-harness/scripts/sync-project.sh --project-dir ~/projects/my-app --status
+# Output: "Status: in sync"
+```
 
-#### 1. 从 PRD 启动新项目
+**Non-destructive by design** — migrations never overwrite user content:
+- `compact-report.json` is never overwritten (only created when missing).
+- AGENTS.md fenced blocks (`<!-- HARNESS:START name -->`) are bounded — the harness owns the block, the user owns everything else.
+- `.github/ISSUE_TEMPLATE/` and `PULL_REQUEST_TEMPLATE.md` are copied only if missing.
+- `.harness-state.json` only changes the `last_synced_at` timestamp on re-runs.
+
+### Typical usage
+
+#### 1. Start a brand-new project from a PRD
 
 ```
 Use $ai-engineering-harness to bootstrap this repo from PRD.md.
 ```
 
-`workflows/00-project-bootstrap.md` 会接管:在 repo 里创建 `docs/`、`memory/`、`PROJECT_STATUS.md`、Issue / PR 模板、CI 配置、ADR 模板、Phase 总结模板与首批 Issue。
+The bootstrap workflow (`workflows/00-project-bootstrap.md`) will create `docs/`, `memory/`, `PROJECT_STATUS.md`, Issue / PR templates, CI configs, ADR / phase-summary templates, and a seed set of Issues.
 
-#### 2. 接手老项目并补齐工程基础设施
+#### 2. Resume or audit an existing project
 
 ```
 Use $ai-engineering-harness. Read PROJECT_STATUS.md and continue the next Todo.
 ```
 
-Harness 会先盘点代码、再决定是否需要 bootstrap,然后回到 Kanban 当前列。
+```
+Use $ai-engineering-harness to audit this repo: list open PRs older than 7 days,
+flag missing Evidence, and produce a recovery plan.
+```
 
-#### 3. 把一个 Issue 推到 merged
+#### 3. Take one Issue to merged
 
 ```
 Use $ai-engineering-harness to take Issue #17 from Planning to Done.
 ```
 
-包括:写实施计划 → 分派到前端/后端/数据库 Agent → 拉分支与 Worktree → 实现 → 自测 → Draft PR → CI → 冷启动审查 → 修循环 → Evidence 闸门 → 合并 → 阶段总结 → 记忆沉淀。
+That walks: write Plan → spawn Frontend/Backend/Database on Worktrees → implement → self-test → Draft PR → CI → adversarial review → fix loop → Evidence Gate → merge → phase summary → memory write.
 
-#### 4. 复盘一个失序的工程
+### How it works
 
-```
-Use $ai-engineering-harness to audit this repo: list open PRs older than 7 days, flag missing Evidence, and produce a recovery plan.
-```
+#### Required Issue fields
 
-### 工作机制
+Context / Goal / Scope / Non-Goal / Related Docs / Implementation Plan / Acceptance Criteria / Evidence Requirements / Reviewer Requirements / Owner / Estimate. The Coordinator refuses to start coding on an Issue missing any field.
 
-#### Issue 必须齐全以下字段
+#### L0–L3 context control
 
-Context / Goal / Scope / Non-Goal / Related Docs / Implementation Plan / Acceptance Criteria / Evidence Requirements / Reviewer Requirements / Owner / Estimate。Coordinator 不会在缺失字段的 Issue 上启动代码。
+- **L0** — always-on rules (sketch of `AGENTS.md`, `ENGINEERING.md`, `CONTRIBUTING.md`)
+- **L1** — task-local (Issue body, relevant module doc, ADR, ACs)
+- **L2** — adjacent modules, recent phase summaries, interface contracts
+- **L3** — deep context (only on explicit request); PDFs / images / long reports must be summarized, not loaded whole
 
-#### 上下文按 L0–L3 分层加载
+`agents/context-assembly.md` produces a `context-manifest.md` for every task, so reviewers can audit what each Agent saw.
 
-- **L0 全局规则**(`AGENTS.md`、`ENGINEERING.md`、`CONTRIBUTING.md` 摘要)— 始终加载
-- **L1 任务级**——当前 Issue、模块架构、相邻 ADR、验证标准
-- **L2 按需**——相邻模块、最近阶段总结、接口契约
-- **L3 深层**——只有在显式需要时才加载;PDF/图片/长报告必须先抽取结论
+#### Evidence Gate
 
-`agents/context-assembly.md` 会为每个 Agent 任务产出 `context-manifest.md`,审查员能审计"这个 Agent 看到了什么"。
+"Done" means `docs/evidence/<id>/` contains:
 
-#### 证据闸门
+- `change-summary.md`, `verification.md` (PASS/FAIL per AC)
+- Frontend: 6-state screenshots (desktop/tablet/mobile/empty/error/loading) + Playwright trace + console clean + a11y scan
+- Backend: API trace, exception coverage, auth negative cases, perf baseline
+- Database: migration + rollback, pre/post stats, sample rows
+- Reviewers: `review-<role>.md` × ≥ 2 + `fix-tasks.md` Aggregator ✅
+- CI: green, no Critical/High blocker
 
-Done 不是"PR 合进去了",而是 `docs/evidence/<id>/` 里齐了:
+#### Human Approval Gate
 
-- `change-summary.md` + `verification.md`(每条 AC 的 PASS/FAIL)
-- 前端:`screenshots/`(桌面/平板/手机/空/错/加载六态)+ Playwright trace + Console 干净 + a11y 扫描
-- 后端:API trace、异常覆盖、鉴权负面用例、性能基线
-- 数据库:migration + rollback、Pre/Post stats、Sample rows
-- 审查:`review-<role>.md` × ≥ 2 + `fix-tasks.md` Aggregator ✅
-- CI:绿;无 Critical/High 阻断
+Triggered for: auth/authz model · DB schema with data migration · production secrets or paid APIs · release/version. The Coordinator posts a `Waiting for Approval` note on `PROJECT_STATUS.md` and pauses.
 
-#### 人工审批闸门
+#### File-system message bus
 
-涉及 鉴权/授权模型 / 数据库 schema(含数据迁移) / 生产密钥或付费 API / 发布版本 时,Coordinator 会主动 `request_user_input` 或停在 PROJECT_STATUS 上等待 `Waiting for Approval`。
+Each Session has `sessions/<id>/{status,plan,execution,review,summary}.md`. Agents coordinate through files, not chat. New Sessions read `memory/` + the last `summary.md` to resume.
 
-#### 文件系统消息总线
+### When NOT to use this skill
 
-每个 Session 在 `sessions/<id>/` 下维护 `status.md`、`plan.md`、`execution.md`、`review.md`、`summary.md`。Agent 之间不靠聊天历史,只靠这些文件 + 各 Issue 的 Evidence 目录。新 Session 启动时 Coordinator 读取 `memory/` + 上一次 `summary.md` 恢复未完成工作。
+- One-file throwaway edits
+- Prototypes you don't intend to keep
+- You want to write the code yourself
 
-### 何时不要用这个 Skill
-
-- 单文件一次性修改
-- 不会落到仓库的原型
-- 你想自己写代码、不想 Agent 介入
-
-### 仓库结构
+### Repository layout
 
 ```
 .
-├── SKILL.md                    # Agent 加载入口
-├── README.md                   # 你看到的这份
+├── SKILL.md                 # entry point loaded by every Agent
+├── README.md                # this file
 ├── LICENSE
 ├── .gitignore
-├── install.sh                  # 全局安装脚本(支持 38 个 CLI Agent)
-├── agents/                     # 18 类 Agent 角色定义
-├── workflows/                  # 9 个工作流
-├── templates/                  # 16 套模板(Issue / Plan / PR / Review / Evidence / Phase / ADR 等)
-├── checklists/                 # 6 份验收清单
-├── references/                 # 6 份深化文档(L0–L3、索引、Worktree、Agent spawn)
-├── examples/                   # 6 份已填写示例
-└── scripts/                    # new-session / new-evidence / new-worktree / refresh-index / changelog
+├── install.sh               # multi-agent installer (38 targets)
+├── agents/                  # 18 agent personas
+├── workflows/               # 9 closed-loop procedures
+├── templates/               # 16 templates (Issue / Plan / PR / Review / Evidence / Phase / ADR ...)
+├── checklists/              # 6 acceptance checklists
+├── references/              # 11 deep-dive docs (L0–L3, indexing, worktree, spawning, CI, sessions, context, compact ...)
+├── hooks/                   # Claude Code SessionStart hook
+├── examples/                # 6 filled samples
+├── scripts/                 # session / evidence / worktree / index / changelog / context-bundle / compact-report / install-session-hook / sync-project / run-tests
+└── tests/                   # 38 bats tests across 6 files (install-session-hook, context-bundle, compact-report, check-templates, validate-meta, changelog)
 ```
 
-### 展示 · Showcase
+### Showcase — what this actually produces
 
-这一节是**真实 e2e 跑出来的产物**(`feature/15-install-status`,commit `4f311e2`,merge `f5b26d1`),不是为 README 编出来的。
+This section is filled with **real output** from a real end-to-end run (`feature/15-install-status`, commit `4f311e2`, merged via `f5b26d1`). Every artifact below was captured during the actual workflow, not fabricated for the README.
 
-#### 闭环 (v1.2.0)
+#### Closed loop (v1.2.0)
 
 ![Closed loop](assets/closed-loop-v1.2.svg)
 
-黄色高亮的是 v1.2.0 新增。红色 CI 闸门是 harness 最强的 gate —— 比对抗式审查还强,因为 red CI 是唯一机械可观察的失败。
+Phases highlighted yellow are new in v1.2.0. The CI gate (red) is the strongest gate in the harness — stronger than adversarial review, because a red CI is the only failure that is mechanical and observable.
 
-#### context bundle 真样
+#### Phase 3.0 — context bundle (real excerpt)
 
-`scripts/context-bundle.sh` 一次产出 18 KB / 281 行 markdown,子代理读它就不用各自 `git log / ls / find`。并行 ~5.6s,串行 ~8.0s。
+`scripts/context-bundle.sh --out docs/evidence/15/context-bundle.md` produces an 18 KB / 281-line markdown file. Sub-agents spawned in later phases read it instead of each running their own `git log` / `ls` / `find`:
 
-#### compact report 真样
+```markdown
+# Context bundle
 
-`scripts/compact-report.sh` 产出 374 字节 JSON,Coordinator 读这个比读 20 KB 实现叙事快两个数量级。Test 状态从 `test-results/*` 自动扫,任何 FAIL 标记胜出。
-
-#### 自审里说了哪些实话
-
-- `--status` 第一版有 bug:在空环境跑会把 `settings.json` 创建出来。是 7 个手动测试抓到的,删了文件创建那行才修好。
-- Adversarial review 我只做了一行自问自答。真生产里得 spawn `bug-hunter` + `behavior-reviewer`。
-- 没有真的开 GitHub Issue #15 —— 在自己仓库上很容易跳过这一步。
-
-完整自审:[docs/evidence/15/self-review.md](./docs/evidence/15/self-review.md)。
-
-### 路线图 · Roadmap
-
-三段:**Active**(本周在做的)、**Backlog**(计划中)、**Done**(已发布)。
-
-#### Active
-
-_(Roadmap Part 1 和 Part 2 已完成 — 见 Done 段。)_
-
-#### Backlog
-
-- frontend-creative: 4 套主题变体(Cyberpunk / Minimal Gallery / Retro Acid / Future 3D)
-- frontend-creative: iteration-log 模板(防"AI 越改越普通")
-- frontend-creative: Awwwards 风格自评清单
-- 主 harness: 给 `scripts/release-prep.sh` 加 `gh release` 自动化
-- 主 harness: GHA workflow 跑 `scripts/run-tests.sh`(目前只有本地)
-
-#### Done
-
-- **v1.7.0** — GHA workflow (`test.yml` runs harness tests on every PR) + `scripts/release.sh` (one-command release flow) + 4 frontend-creative theme variants + Awwwards / anti-drift gates wired into workflows; 69 bats tests
-- **v1.6.0** — `skills/frontend-creative/` sibling skill (Awwwards-grade creative web UIs) + 2 `install.sh` bug fixes; 66 bats tests
-- **v1.5.0** — PR intake flow (`workflows/09-pr-intake.md`) + Local-first principle (SKILL.md #9) + decision matrix; closes Roadmap Part 1
-- **v1.4.0** — `scripts/sync-project.sh` + 58 个 bats 测试
-- **v1.3.0** — bats 测试套件(38→58)+ 修 3 个 install-session-hook 回归
-- **v1.2.1** — `install-session-hook.sh --status` + README Showcase 真实 e2e 产物
-- **v1.2.0** — `context-bundle.sh` + `compact-report.sh`
-- **v1.1.0** — `.claude/SESSION.md` 的 SessionStart hook(只读)
-- **v1.0.x** — CI 作为阻塞闸门、validators、check-templates、install-session-hook、D-013 发版流程修复
-
-### 许可
-
-
-
-MIT — 见 [LICENSE](./LICENSE)。
-
----
+_Generated 2026-07-13T10:05:54+08:00 by scripts/context-bundle.sh_
+_Repo: git@github.com:lora-sys/ai-engineering-harness.git_
+_HEAD: 765ecd0_
 ## Repo identity
 
 - **origin**: `git@github.com:lora-sys/ai-engineering-harness.git`
