@@ -56,6 +56,41 @@ M  CHANGELOG.md                                 This entry
 - **v1.12.0**: Skill-level benchmark — 5-10 golden projects with expected outputs. Higher effort.
 - **ongoing**: User study — real users, real projects, version-to-version comparison.
 
+## [1.11.0] - 2026-07-15
+
+Awwwards auto-scoring eval (layer 3). Uses headless chromium to render a page and an LLM to score on the 6-category review-checklist.
+
+### Added
+
+- **`scripts/awwwards-judge.sh`** (NEW) — takes a URL or local HTML, renders via headless chromium (1280x800), sends the screenshot to an LLM, returns a JSON score: `{composition, type, color, motion, originality, performance, total, verdict}`. LLM CLI auto-detect (claude / codex / gemini / gh).
+- **`tests/awwwards-score/`** (NEW) — 2 fixtures (known-good, known-bad) + `run-test.sh` (dry-run + live modes). Heuristic: known-good >= 36/60, known-bad <= 30/60.
+- **`tests/awwwards-score.bats`** (NEW, 1 test) — bats wrapper.
+- **Memory D-019** — documents design choices, cost, what it catches / doesn't.
+
+### Cost & usage
+
+- **~$0.01-0.03 per fixture** (LLM call with one image at Sonnet rates)
+- **NOT in every-PR** — used pre-release or when a key design component changes
+- **Live URL mode**: `tests/awwwards-score/run-test.sh --live https://lora-sys.github.io/ai-engineering-harness/` judges the actual deployed landing page
+
+### Files changed
+
+```
++ scripts/awwwards-judge.sh                       NEW (~120 lines)
++ tests/awwwards-score/                          NEW (run-test.sh + 2 fixtures)
++ tests/awwwards-score.bats                      NEW (1 test, dry-run)
+M  memory/notes-2026-07-12.md                     D-019 added
+M  meta.json                                     version: 1.10.0 → 1.11.0
+M  skills/build-agent-app/meta.json              version: 1.10.0 → 1.11.0
+M  skills/frontend-creative/meta.json            version: 1.10.0 → 1.11.0
+M  CHANGELOG.md                                  This entry
+```
+
+### Roadmap for remaining eval layers
+
+- **v1.12.0**: Skill-level benchmark (5-10 golden projects with expected outputs) — builds on the LLM judge here
+- **ongoing**: User study (real users, real projects) + live eval (continuous LLM-as-judge on real usage)
+
 ## [1.10.0] - 2026-07-15
 
 Agent regression test (eval layer 2). 30 fixtures across 5 agents, structured-output parse markers, pre-release only.
