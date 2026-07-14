@@ -56,6 +56,29 @@ M  CHANGELOG.md                                 This entry
 - **v1.12.0**: Skill-level benchmark — 5-10 golden projects with expected outputs. Higher effort.
 - **ongoing**: User study — real users, real projects, version-to-version comparison.
 
+## [1.9.1] - 2026-07-14
+
+Cross-version regression test bugfixes found during full-suite runs on the local fat install.
+
+### Fixed
+
+- **`tests/cross-version/fixtures/scripts/sync-project-v1.8.0.sh`** — replaced the v1.7.0 frozen script (which didn't have the `--auto` flag, added in v1.8.0). v1.8.0 is closer to HEAD (1.9.0) → tighter regression detection.
+- **`tests/cross-version/fixtures/project-{alpha,beta}/docs/`** — added the missing `docs/evidence/.../test-results/` skeleton. `sync-project.sh` refuses to run on a project without `docs/`.
+- **`tests/cross-version/run-test.sh`** — reads `HEAD_VERSION` dynamically from `meta.json` (was hard-coded to "1.8.8"). Uses `${HARNESS_REPO:-$(cd "$SCRIPT_DIR/../..")}` fallback in the frozen v1.8 script (it's placed at `tests/cross-version/fixtures/scripts/`, not the repo root). The test runner forwards `HARNESS_REPO="$REPO_DIR"` env var.
+- **`tests/cross-version/fixtures/scripts/sync-project-v1.7.0.sh`** — REMOVED (replaced by v1.8.0).
+
+### Verified
+
+- Cross-version test: **5/5 invariants pass on both fixtures** (project-alpha, project-beta)
+- Full bats suite: **81/81 pass on dev repo + local fat install**
+
+### Upgrade
+
+```bash
+npx -y skills update lora-sys/ai-engineering-harness -g
+bash scripts/run-tests.sh   # should now show 81/81 pass on the local fat install
+```
+
 ## [1.8.8] - 2026-07-14
 
 Adds sticky top nav to the landing page (logo + Loop / Install / Docs / GitHub-→-button). Sets the GitHub repo's `homepage` field to the GH Pages URL so the repo and site link to each other (SEO + social-card round-trip).
