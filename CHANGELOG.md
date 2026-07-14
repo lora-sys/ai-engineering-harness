@@ -11,6 +11,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.8.4] - 2026-07-14
+
+Critical fix: **`npx skills add` (thin canonical) only installs the main skill's `SKILL.md` + `meta.json` — the 2 sibling skills are NOT installed.** The user (using Codex) reported: "frontend-creative not exists" + "build-agent-app not exists" when invoking via `@frontend-creative` or via the main skill. This release fixes install discoverability so all 3 skills land in every agent dir.
+
+### Added
+
+- **`scripts/install-all-skills.sh`** (NEW) — bulk-installs all 3 skills (ai-engineering-harness + build-agent-app + frontend-creative) to all 14 supported agent platforms (Codex, Claude, Cursor, Gemini, Qwen, OpenCode, Grok, Hermes, AiderDesk, Augment, Trae, Trae-CN, etc.). Flags: `--fat` (full bundle), `--status` (report what's installed where), `--uninstall`. Hardcodes a `path → install.sh-target-name` map (14 entries) so the script doesn't have to parse install.sh's TARGETS array dynamically.
+- **`tests/install-all-skills.bats`** (NEW, 3 tests) — covers `--help`, `--status` output, and the PATH_TO_NAME hardcoded map.
+- **`README.md`** — "What this is" section now lists the 3-skill family at the top. New "Bulk-install the whole family (recommended)" section in both EN and ZH halves, documenting `scripts/install-all-skills.sh`.
+- **`SKILL.md`** §2 — Adjacent skills section rewritten with explicit **trigger rules** ("when to suggest the sibling without being asked"). Lists keyword patterns that should route to `$build-agent-app` vs `$frontend-creative` vs this skill directly. Proactive, not passive.
+
+### Why this is a hotfix, not a feature
+
+The user reported: "Skills empty. frontend-creative not exists." when they tried to invoke via Codex's `@frontend-creative`. The root cause: `npx skills add lora-sys/ai-engineering-harness -g` (the standard thin install) carries only the main skill. The siblings (`skills/build-agent-app/`, `skills/frontend-creative/`) were never copied to `~/.codex/skills/` or `~/.agents/skills/`. The main skill's SKILL.md described the siblings but Codex couldn't discover them because the `SKILL.md` files for the siblings weren't in any of the agent's skills directories.
+
+### Files changed
+
+```
++ scripts/install-all-skills.sh                       NEW (~80 lines)
++ tests/install-all-skills.bats                       NEW (3 tests)
+M  README.md                              family list + bulk-install section (en + zh)
+M  SKILL.md                               Adjacent skills section rewritten with trigger rules
+M  meta.json                              version: 1.8.3 → 1.8.4
+M  skills/build-agent-app/meta.json       version: 1.8.3 → 1.8.4
+M  skills/frontend-creative/meta.json     version: 1.8.3 → 1.8.4
+M  CHANGELOG.md                          This entry
+```
+
+### Upgrade + fix
+
+```bash
+# Pull the fix.
+npx -y skills update lora-sys/ai-engineering-harness -g
+
+# Bulk-install the missing siblings across all 14 agent platforms.
+bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh
+# Or fat install (full bundle):
+bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh --fat
+
+# Verify.
+bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh --status
+```
+
+### Durability
+
+Future sibling skills must be added to `PATH_TO_NAME` in `install-all-skills.sh` at the same commit they're added to install.sh's TARGETS. Add a check in the install workflow to remind.
+
 ## [1.8.3] - 2026-07-13
 
 Adds QUICKSTART.md to the two other skills in the family (`build-agent-app` and the main `ai-engineering-harness`). Per the rule: "every skill in the family has a working tutorial users can read end-to-end."

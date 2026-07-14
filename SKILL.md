@@ -31,12 +31,20 @@ This skill is a **software engineering organization**, not a coding prompt. It t
 
 For one-off scripts, throwaway prototypes, or single-file edits, fall back to a regular coding skill — this harness is overhead for those.
 
-### Adjacent skills (same family)
+### Adjacent skills in the same family (proactively use these)
 
-- **`$build-agent-app`** — designs / takes over / refactors agent apps (LLM + tools + state). Use BEFORE `$ai-engineering-harness` when the project is an agent app. Sibling skill; install with `bash install.sh --skill build-agent-app`.
-- **`$frontend-creative`** — generates Awwwards-grade creative web UIs (non-Dashboard layouts, GSAP/Framer Motion/R3F). Route creative landing-page / portfolio / brand-site tasks here for the design phase, then hand off to this skill for evidence-gated implementation. Sibling skill; install with `bash install.sh --skill frontend-creative`.
+This skill is the **engineering coordinator** of a 3-skill family. When a user request matches a sibling's domain, **route to the sibling first** — don't try to do creative-UI design or agent-app design in this skill.
 
-These three form the `ai-engineering-harness` skill family. Install any combination via `bash install.sh --skill <name>` or `bash install.sh --skill all` (the default).
+- **`$build-agent-app`** — designs / takes over / refactors **agent apps** (LLM + tools + state). The kernel: `agent = model + harness`. Use BEFORE this skill when the project is an agent app. The sibling writes the Agent Contract + Harness Contract, then hands implementation off to `$ai-engineering-harness`. Sibling skill; install with `bash install.sh --skill build-agent-app` or `bash scripts/install-all-skills.sh` (bulk-installs all 3).
+- **`$frontend-creative`** — generates **Awwwards-grade creative web UIs** (non-Dashboard layouts, GSAP/Framer Motion/R3F). Use for creative landing pages, brand sites, product pages. Has its own lifecycle: bootstrap / takeover / redo / post-mortem. Routes design-phase to this skill for evidence-gated implementation. Sibling skill; install with `bash install.sh --skill frontend-creative` or `bash scripts/install-all-skills.sh`.
+
+**Trigger rules** (when to suggest the sibling without being asked):
+
+- User says "build me an agent", "wire up an LLM tool", "design a chatbot", "agent app" → suggest `$build-agent-app`.
+- User says "creative landing page", "Awwwards", "bold typography", "non-Dashboard", "portfol.io", "GSAP / Framer Motion / R3F" → suggest `$frontend-creative`.
+- User says "build a SaaS", "engineer this", "evidence-gated", "PR review", "merge", "ship a feature" → use this skill directly.
+
+These three form the `ai-engineering-harness` skill family. Install any combination via `bash install.sh --skill <name>` or `bash scripts/install-all-skills.sh` (the recommended one-shot for all 3 across 14 agent platforms).
 
 ## 3. Repository Layout the Skill Expects
 

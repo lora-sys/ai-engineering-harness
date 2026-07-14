@@ -25,6 +25,12 @@
 
 ### 这是什么
 
+**3 个 skill 的家族**,可以单独或一起装:
+
+- **`$ai-engineering-harness`** (本 skill) — 工程协调(Issue → PR → Merge → Memory)
+- **`$build-agent-app`** — 设计 agent app(Agent + Harness 合约),交给本 skill 实现
+- **`$frontend-creative`** — Awwwards 级创意 web UI 生成
+
 `ai-engineering-harness` 不是单条 Prompt,而是一整套**软件工程组织操作系统**。你给一个想法、一份 PRD,或者一个需要接手的老项目,Harness 会代你组建一个由 18 类 Agent 组成的工程团队:
 
 | Agent 角色 | 职责 |
@@ -110,6 +116,23 @@ cd ai-engineering-harness
 
 `install.sh` 支持的 target(完整列表 38 个):
 `codex` · `claude` · `agents` · `cursor` · `gemini` · `qwen` · `opencode` · `grok` · `hermes-agent` · `hermes` · `aider-desk` · `augment` · `bob` · `codebuddy` · `commandcode` · `continue` · `crush` · `devin` · `factory` · `forge` · `goose` · `iflow` · `junie` · `kilocode` · `kiro` · `kode` · `marscode` · `mux` · `neovate` · `openhands` · `pi` · `pochi` · `roo` · `snowflake` · `tabnine` · `trae` · `trae-cn` · `vibe` · `zencoder` · `adal`
+
+#### 一次性装齐 3 个 skill(推荐)
+
+`install.sh` 只装你点名的 skill。要一次装齐 3 个兄弟:
+
+```bash
+# 精简装(只 SKILL.md + meta.json)
+bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh
+
+# 完整装(workflows/ + references/ + templates/ 也复制)
+bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh --fat
+
+# 14 个目标全检查
+bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh --status
+```
+
+把 `ai-engineering-harness` + `build-agent-app` + `frontend-creative` 装到全部 14 个 agent 平台(Codex / Claude / Cursor / Gemini / Qwen / OpenCode / Grok / Hermes / AiderDesk / Augment / Trae 等),让 Codex 能 `@build-agent-app` 和 `@frontend-creative`(不只是 `@ai-engineering-harness`)。
 
 ### 管理已有项目 · Managing existing projects
 
@@ -290,6 +313,12 @@ MIT — 见 [LICENSE](./LICENSE)。
 
 ### What this is
 
+A **skill family of 3 skills**, installable separately or together:
+
+- **`$ai-engineering-harness`** (this skill) — engineering coordination (Issue → PR → Merge → Memory)
+- **`$build-agent-app`** — design an agent app (Agent + Harness contracts); hands off to this skill for implementation
+- **`$frontend-creative`** — Awwwards-grade creative web UI generation
+
 `ai-engineering-harness` is **a software-engineering organization**, not a coding prompt. Hand it an idea, a PRD, or a messy legacy repo — it spins up a 18-role AI engineering org that delivers every change through a verifiable, adversarial, evidence-gated loop.
 
 The agent roster:
@@ -388,6 +417,23 @@ cd ai-engineering-harness
 `install.sh` targets (full list):
 
 `codex`, `claude`, `agents`, `cursor`, `gemini`, `qwen`, `opencode`, `grok`, `hermes-agent`, `hermes`, `aider-desk`, `augment`, `bob`, `codebuddy`, `commandcode`, `continue`, `crush`, `devin`, `factory`, `forge`, `goose`, `iflow`, `junie`, `kilocode`, `kiro`, `kode`, `marscode`, `mux`, `neovate`, `openhands`, `pi`, `pochi`, `roo`, `snowflake`, `tabnine`, `trae`, `trae-cn`, `vibe`, `zencoder`, `adal`.
+
+#### Bulk-install the whole family (recommended)
+
+`install.sh` only installs the skill you name. To install all 3 sibling skills in one go:
+
+```bash
+# Thin install (SKILL.md + meta.json only — what npx skills does for the main skill):
+bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh
+
+# Fat install (full bundle — workflows/, references/, templates/):
+bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh --fat
+
+# Status check across all 14 supported targets:
+bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh --status
+```
+
+This installs `ai-engineering-harness` + `build-agent-app` + `frontend-creative` to **all 14 supported agent platforms** (Codex, Claude, Cursor, Gemini, Qwen, OpenCode, Grok, Hermes, AiderDesk, Augment, Trae, etc.). Use this when you want Codex to discover the siblings as `@build-agent-app` and `@frontend-creative` (not just `@ai-engineering-harness`).
 
 ### Managing existing projects (the upgrade flow)
 
