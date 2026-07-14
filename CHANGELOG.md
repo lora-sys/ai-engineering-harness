@@ -56,6 +56,69 @@ M  CHANGELOG.md                                 This entry
 - **v1.12.0**: Skill-level benchmark — 5-10 golden projects with expected outputs. Higher effort.
 - **ongoing**: User study — real users, real projects, version-to-version comparison.
 
+## [1.10.0] - 2026-07-15
+
+Agent regression test (eval layer 2). 30 fixtures across 5 agents, structured-output parse markers, pre-release only.
+
+### Added
+
+- **`tests/agent-regression/`** (NEW) — agent regression test infrastructure.
+  - `fixtures/<agent>.json` × 5 — 6 prompts per agent for coordinator, qa, bug-hunter, behavior-reviewer, architecture-reviewer (30 total).
+  - `run-test.sh` — invokes the LLM with the agent's system prompt + fixture input, parses the response for a JSON object matching the expected schema.
+  - `test.bats` — bats wrapper (--dry-run mode: validates fixtures without LLM calls).
+- **LLM CLI auto-detect**: prefers `claude`, falls back to `codex`, `gemini`, `gh`. The runner reads `agents/<name>.md` as the system prompt.
+- **Cost**: ~$0.17 per full run. Pre-release only (not every PR — too expensive).
+
+### Marker format (option C — structured output parse)
+
+Each fixture's `expect` block defines:
+- `required_keys`: list of keys that MUST be in the response
+- `enum_keys`: `{key: [allowed_values]}` — value must be in list
+- `boolean_keys`: must be `bool`
+- `integer_min_keys`: `{key: min}` — must be `int >= min`
+- `array_min_keys` / `array_max_keys`: list length constraints
+
+The LLM is instructed to respond with a single JSON object matching the schema. The test parses the JSON, validates the constraints, and reports pass/fail per (agent, prompt).
+
+### What it catches (and what it doesn't)
+
+| Catches | Doesn't catch |
+|---|---|
+| Agent prompt regressions (a change in `agents/bug-hunter.md` breaks null-deref detection) | LLM output quality (need LLM-as-judge = layer 3) |
+| LLM model version drift (new Sonnet version changes agent behavior) | Real-world behavior on real projects (user study = layer 5) |
+| Agent dispatch logic changes | Migration semantics (already covered by D-017 = layer 1) |
+
+### Files changed
+
+```
++ tests/agent-regression/                  NEW (5 fixtures + run-test.sh)
++ tests/agent-regression.bats              NEW (1 bats test, dry-run mode)
+M  memory/notes-2026-07-12.md              D-018 added
+M  meta.json                              version: 1.9.1 → 1.10.0
+M  skills/build-agent-app/meta.json       version: 1.9.1 → 1.10.0
+M  skills/frontend-creative/meta.json     version: 1.9.1 → 1.10.0
+M  CHANGELOG.md                           This entry
+```
+
+### Usage
+
+```bash
+# Dry-run (validates fixtures only, no LLM)
+bash tests/agent-regression/run-test.sh --dry-run
+
+# Full run (requires one of: claude, codex, gemini, gh)
+bash tests/agent-regression/run-test.sh
+
+# Just one agent
+bash tests/agent-regression/run-test.sh --agent coordinator
+```
+
+### Roadmap for the remaining eval layers
+
+- **v1.11.0**: Awwwards auto-scoring (LLM-as-judge on rendered pages) — medium effort
+- **v1.12.0**: Skill-level benchmark (5-10 golden projects with expected outputs) — higher effort
+- **ongoing**: User study (real users, real projects) + live eval (continuous LLM-as-judge on real usage)
+
 ## [1.9.1] - 2026-07-14
 
 Cross-version regression test bugfixes found during full-suite runs on the local fat install.

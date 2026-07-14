@@ -1,0 +1,56 @@
+{
+  "agent": "bug-hunter",
+  "system_prompt_path": "agents/bug-hunter.md",
+  "prompts": [
+    {
+      "id": "review-pr-typical",
+      "input": "PR #42 'Add login form'. Diff:\n+ const user = await db.users.findByEmail(email);\n+ return user.password === input.password;\nNo hashing. Other files unchanged.",
+      "expect": {
+        "required_keys": ["findings"],
+        "array_min_keys": {"findings": 1},
+        "nested_keys": {"findings": ["severity", "file", "description"]}
+      }
+    },
+    {
+      "id": "review-empty",
+      "input": "Empty PR. Just a typo fix in README. +1/-1.",
+      "expect": {
+        "required_keys": ["findings"],
+        "array_max_keys": {"findings": 1}
+      }
+    },
+    {
+      "id": "review-null-deref",
+      "input": "PR #45: + const result = obj.config.theme.colors[mode].primary;\nNo check that mode is valid. obj.config could be missing if config file failed to load.",
+      "expect": {
+        "required_keys": ["findings"],
+        "array_min_keys": {"findings": 1},
+        "nested_keys": {"findings": ["severity", "file", "line", "description"]}
+      }
+    },
+    {
+      "id": "review-error-handling",
+      "input": "PR #47: + const data = await fetch(url).then(r => r.json());\nNo try/catch. No .catch on the promise. JSON parse errors will crash.",
+      "expect": {
+        "required_keys": ["findings"],
+        "array_min_keys": {"findings": 1}
+      }
+    },
+    {
+      "id": "review-race",
+      "input": "PR #48: + if (!cache.has(key)) { cache.set(key, await load(key)); }\nConcurrent calls for same key → multiple loads. No memoization in flight.",
+      "expect": {
+        "required_keys": ["findings"],
+        "array_min_keys": {"findings": 1}
+      }
+    },
+    {
+      "id": "review-clean",
+      "input": "PR #49: 'Bump dep foo from 1.2.3 to 1.2.4'. Diff: package.json +1 line, lock +5. No code changes.",
+      "expect": {
+        "required_keys": ["findings", "next_action"],
+        "enum_keys": {"next_action": ["approve", "block", "comment"]}
+      }
+    }
+  ]
+}

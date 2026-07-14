@@ -1,0 +1,54 @@
+{
+  "agent": "architecture-reviewer",
+  "system_prompt_path": "agents/architecture-reviewer.md",
+  "prompts": [
+    {
+      "id": "new-pattern",
+      "input": "PR #55 introduces a 'StateMachine' class for order processing. Existing code uses simple enum-based states. PR is the first use.",
+      "expect": {
+        "required_keys": ["decisions", "abstraction_appropriate"],
+        "boolean_keys": ["abstraction_appropriate"]
+      }
+    },
+    {
+      "id": "abstraction-right",
+      "input": "PR #56: extracts a 1-method 'Helper' class with 1 caller. No other planned callers in the comments or roadmap.",
+      "expect": {
+        "required_keys": ["decisions", "abstraction_appropriate"],
+        "boolean_keys": ["abstraction_appropriate"]
+      }
+    },
+    {
+      "id": "new-deps",
+      "input": "PR #57 adds 'graphql' and 'apollo-client' as deps. No other changes. App already has REST + fetch.",
+      "expect": {
+        "required_keys": ["decisions", "concerns"],
+        "array_min_keys": {"concerns": 1}
+      }
+    },
+    {
+      "id": "api-break",
+      "input": "PR #58 'Refactor auth module'. Diff shows public API signature change: login(email, password) → login(credentials: {email, password}). External SDK consumers exist (per package.json 'exports').",
+      "expect": {
+        "required_keys": ["decisions", "compatibility_check"],
+        "boolean_keys": ["compatibility_check"]
+      }
+    },
+    {
+      "id": "db-schema",
+      "input": "PR #59: adds a new 'subscriptions' table with 4 indexes. Migration script included. No down-migration. No backup plan.",
+      "expect": {
+        "required_keys": ["decisions", "concerns"],
+        "array_min_keys": {"concerns": 1}
+      }
+    },
+    {
+      "id": "trivial",
+      "input": "PR #60: 'Update README'. Diff: +12 lines, all text. No code changes.",
+      "expect": {
+        "required_keys": ["decisions", "abstraction_appropriate"],
+        "boolean_keys": ["abstraction_appropriate"]
+      }
+    }
+  ]
+}

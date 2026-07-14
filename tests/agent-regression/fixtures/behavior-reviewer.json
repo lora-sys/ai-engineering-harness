@@ -1,0 +1,58 @@
+{
+  "agent": "behavior-reviewer",
+  "system_prompt_path": "agents/behavior-reviewer.md",
+  "prompts": [
+    {
+      "id": "verify-ac-met",
+      "input": "PR #50 implements Issue #45. Issue AC: 'Login button shows user's avatar after login.' Code change: src/ui/LoginButton.tsx renders <Avatar user={user}/> on success. Confirmed in tests/test_login.tsx.",
+      "expect": {
+        "required_keys": ["acs_verified", "deviations"],
+        "boolean_keys": ["acs_verified"],
+        "array_keys": {"deviations": []}
+      }
+    },
+    {
+      "id": "verify-ac-failed",
+      "input": "Issue AC: 'Save button is disabled while request in flight.' Code: button has onClick but no disabled prop binding. While request in flight, button still clickable.",
+      "expect": {
+        "required_keys": ["acs_verified", "deviations"],
+        "boolean_keys": ["acs_verified"],
+        "array_min_keys": {"deviations": 1},
+        "nested_keys": {"deviations": ["ac", "actual", "expected"]}
+      }
+    },
+    {
+      "id": "verify-ac-spec-ambiguous",
+      "input": "Issue AC: 'Fast page loads.' PR implements caching. No specific number given.",
+      "expect": {
+        "required_keys": ["acs_verified", "ambiguity_flags"],
+        "array_min_keys": {"ambiguity_flags": 1}
+      }
+    },
+    {
+      "id": "verify-multiple-acs",
+      "input": "Issue has 3 ACs: 'Search filters by date', 'Search results are paginated', 'Search shows 0 results gracefully'. PR implements 1 and 2, not 3.",
+      "expect": {
+        "required_keys": ["acs_verified", "deviations"],
+        "array_min_keys": {"deviations": 1}
+      }
+    },
+    {
+      "id": "verify-spec-contradicts-implementation",
+      "input": "Issue says 'API returns 200 on success, 400 on error'. PR returns 201 on success. Tests pass.",
+      "expect": {
+        "required_keys": ["acs_verified", "deviations"],
+        "boolean_keys": ["acs_verified"],
+        "array_min_keys": {"deviations": 1}
+      }
+    },
+    {
+      "id": "verify-spec-not-met-defer",
+      "input": "Issue AC: 'All tests pass.' PR: test coverage drops from 80% to 60%. New tests added but old ones deleted. CI green.",
+      "expect": {
+        "required_keys": ["acs_verified", "deviations"],
+        "boolean_keys": ["acs_verified"]
+      }
+    }
+  ]
+}

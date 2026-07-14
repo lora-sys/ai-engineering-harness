@@ -1,0 +1,57 @@
+{
+  "agent": "coordinator",
+  "system_prompt_path": "agents/coordinator.md",
+  "prompts": [
+    {
+      "id": "triage-new-issue",
+      "input": "Issue #1: Add OAuth2 user authentication. AC: login/logout/refresh-token. Currently no auth at all. Files: src/api/, src/ui/. No 'auth' or 'session' anywhere in the code.",
+      "expect": {
+        "required_keys": ["decision", "next_action", "blocker_count"],
+        "enum_keys": {"decision": ["continue", "reassign", "block", "close"]},
+        "integer_min_keys": {"blocker_count": 0}
+      }
+    },
+    {
+      "id": "review-incoming-pr",
+      "input": "PR #42 'Add login form' by frontend-bot. Description: 'Implements login UI.' Diff: +340/-12. CI green. Reviewer assigned: bug-hunter.",
+      "expect": {
+        "required_keys": ["decision", "next_action", "evidence_read"],
+        "enum_keys": {"decision": ["continue", "reassign", "block"]}
+      }
+    },
+    {
+      "id": "ci-red-escalate",
+      "input": "Workflow: deploy-prod-001. CI status: RED. Last 3 builds: 1 green, 2 red. Failure class: test (integration_test_auth.test_session_timeout). 4th consecutive red.",
+      "expect": {
+        "required_keys": ["decision", "blocker_count"],
+        "enum_keys": {"decision": ["block", "continue"]},
+        "integer_min_keys": {"blocker_count": 1}
+      }
+    },
+    {
+      "id": "out-of-scope-redirect",
+      "input": "Issue #3: Add cryptocurrency wallet integration. Project context: this is a B2B SaaS for invoice management. No crypto anywhere. User: 'I saw this on another product.'",
+      "expect": {
+        "required_keys": ["decision", "rationale"],
+        "enum_keys": {"decision": ["close", "reassign"]}
+      }
+    },
+    {
+      "id": "sequence-multiple-prs",
+      "input": "5 open PRs oldest to newest: #38 fix-bug, #41 refactor, #44 feature-x, #45 docs, #46 feature-y. CI status all green. Reviewers assigned.",
+      "expect": {
+        "required_keys": ["decision", "next_action", "ordered_prs"],
+        "array_min_keys": {"ordered_prs": 1}
+      }
+    },
+    {
+      "id": "blocker-ambiguous-spec",
+      "input": "Issue #5: 'Make the dashboard better.' AC: TBD. Owner: alice. No estimate. No implementation plan. Implementation plan doc is empty.",
+      "expect": {
+        "required_keys": ["decision", "blocker_count"],
+        "enum_keys": {"decision": ["block", "reassign"]},
+        "integer_min_keys": {"blocker_count": 1}
+      }
+    }
+  ]
+}

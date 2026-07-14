@@ -1,0 +1,55 @@
+{
+  "agent": "qa",
+  "system_prompt_path": "agents/qa.md",
+  "prompts": [
+    {
+      "id": "run-unit-tests",
+      "input": "Run unit tests for the latest commit on main. Report counts.",
+      "expect": {
+        "required_keys": ["tests_run", "tests_passed", "tests_failed", "evidence_files"],
+        "integer_min_keys": {"tests_run": 0, "tests_passed": 0},
+        "array_min_keys": {"evidence_files": 0}
+      }
+    },
+    {
+      "id": "run-e2e",
+      "input": "Run the e2e Playwright suite. Capture screenshots of the home page, login, and dashboard. Save to docs/evidence/issue-77/e2e/.",
+      "expect": {
+        "required_keys": ["tests_run", "evidence_files"],
+        "array_min_keys": {"evidence_files": 1}
+      }
+    },
+    {
+      "id": "ci-red-classify",
+      "input": "Build #42 is RED. Failure: 'TypeError: Cannot read property of undefined'. File: src/api/users.ts:23. Stack: 5 frames. Classify.",
+      "expect": {
+        "required_keys": ["failure_class", "next_action"],
+        "enum_keys": {"failure_class": ["test", "lint", "build", "integration", "infra"], "next_action": ["re_run", "escalate", "fix_now"]}
+      }
+    },
+    {
+      "id": "ci-red-second-time",
+      "input": "Build #43 is RED. Same class as build #42: 'test' (integration_test_auth.test_session_timeout). 2nd consecutive red. What now?",
+      "expect": {
+        "required_keys": ["next_action", "ci_issue_filed"],
+        "boolean_keys": ["ci_issue_filed"]
+      }
+    },
+    {
+      "id": "verify-lighthouse",
+      "input": "Run Lighthouse mobile on /. Report scores for Performance, A11y, Best Practices, SEO. Flag any below 90.",
+      "expect": {
+        "required_keys": ["performance", "a11y", "best_practices", "seo"],
+        "integer_min_keys": {"performance": 0, "a11y": 0, "best_practices": 0, "seo": 0}
+      }
+    },
+    {
+      "id": "ci-green-promote",
+      "input": "Build #44 is GREEN. All 47 tests pass, 0 lint warnings. Approve for merge?",
+      "expect": {
+        "required_keys": ["next_action"],
+        "enum_keys": {"next_action": ["promote", "wait"]}
+      }
+    }
+  ]
+}
