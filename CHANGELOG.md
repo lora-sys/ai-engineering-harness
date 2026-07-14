@@ -11,6 +11,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [1.8.7] - 2026-07-14
+
+Adds an Awwwards-grade landing page for the project, built with `$frontend-creative` skill. Plus a GitHub Actions workflow that deploys it to GitHub Pages on every push to `main` (when `examples/landing-page/**` changes).
+
+### Added
+
+- **`examples/landing-page/`** (NEW) — a single-page Awwwards-grade intro for the harness:
+  - Theme A (Cyberpunk Immersive Dark) — matches the existing project poster.
+  - Hero: massive gradient-text title "AI ENGINEERING HARNESS" + tagline "Let every line of code have evidence" + 1-command install CTA (click-to-copy).
+  - Closed-loop section: visual ISSUE → WORKTREE → PLAN → BUILD → REVIEW → EVIDENCE → MERGE → MEMORY with GSAP ScrollTrigger-driven node + arrow draw-in.
+  - Particle background: canvas-based, no R3F (~95 KB gzipped JS total).
+  - Install section: 1-command install + GitHub + QUICKSTART links.
+  - **Build size: 95 KB JS gzipped, 3 KB CSS gzipped, 1 KB HTML** (well under 200 KB budget).
+- **`DESIGN-BRIEF.md`** (NEW) — the design brief used to drive the work, per `$frontend-creative`'s `templates/design-brief.md` pattern.
+- **`.github/workflows/deploy-landing-page.yml`** (NEW) — GHA workflow. On push to `main` (when `examples/landing-page/**` changes), builds the Vite project and deploys to GitHub Pages via `actions/deploy-pages@v4`. Manual trigger via `workflow_dispatch` also supported.
+- **`examples/landing-page/.gitignore`** — ignores `dist/` and `node_modules/`.
+
+### Files changed
+
+```
++ examples/landing-page/                  NEW (Vite + React + TS + Tailwind + GSAP)
++ .github/workflows/deploy-landing-page.yml  NEW
+M  meta.json                              version: 1.8.6 → 1.8.7
+M  skills/build-agent-app/meta.json       version: 1.8.6 → 1.8.7
+M  skills/frontend-creative/meta.json     version: 1.8.6 → 1.8.7
+M  CHANGELOG.md                          This entry
+```
+
+### Deploy
+
+After this commit lands on `main`:
+1. The GHA workflow `deploy-landing-page` runs automatically.
+2. The site goes live at `https://lora-sys.github.io/ai-engineering-harness/`.
+3. To enable GH Pages for the first time, the user must go to Repo Settings → Pages → Source = "GitHub Actions".
+
 ## [1.8.6] - 2026-07-14
 
 Adds the official Awwwards-style poster (`assets/poster-harness.png`) to `README.md` and `README_EN.md`. The user-supplied visual: 18 agent silhouettes around a holographic central cube, with the closed loop (ISSUE → WORKTREE → PLAN → BUILD → REVIEW → EVIDENCE → MERGE → MEMORY) and the CI-red blocking gate. Tagline: "让每一行代码,都有证据" / "Let every line of code have evidence."
