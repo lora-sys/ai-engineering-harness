@@ -231,7 +231,7 @@ mig_agents_capabilities_apply() {
 This project uses **ai-engineering-harness v${HARNESS_VERSION}**. Key capabilities:
 
 - **Closed loop with CI as a blocking gate.** A red CI must BLOCK review, merge, and Issue-close. See workflows/04-ci-recovery.md.
-- **Adversarial review.** Every PR gets ≥2 cold-start reviewers (Bug Hunter + Behavior Reviewer).
+- **Adversarial review.** Every PR gets >=2 cold-start reviewers (Bug Hunter + Behavior Reviewer).
 - **Evidence pack per Issue.** docs/evidence/\`<id>\`/ holds change-summary, test-results, screenshots, review-report.md.
 - **Compact report (v1.2.0+).** After each Owner Agent finishes, a compact-report.json summarises the work for the Coordinator.
 - **Context bundle (v1.2.0+).** Coordinator dumps docs/evidence/\`<id>\`/context-bundle.md once per Issue so sub-agents don't each re-explore.
