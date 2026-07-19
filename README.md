@@ -73,17 +73,20 @@ npx -y skills add lora-sys/ai-engineering-harness -g --all
 - `-g`:全局安装(写入用户级 skill 目录,而非当前项目)
 - `--all`:把仓库里的所有 skill 安装到 **所有** 受支持的 CLI 编码 Agent
 
-完成后,这套 Skill 会被放到 `~/.claude/skills/ai-engineering-harness/`、`~/.cursor/skills/ai-engineering-harness/`、`~/.gemini/skills/ai-engineering-harness/`、`~/.qwen/skills/ai-engineering-harness/`、`~/.grok/skills/ai-engineering-harness/`、`~/.codex/skills/ai-engineering-harness/`(默认直接 cp,可写就装)等 38 个 CLI Agent 的全局 Skill 目录。
+完成后,这套 Skill 会被放到各 agent 的 skill 目录下,例如 `~/.claude/skills/ai-engineering-harness/`、`~/.claude/skills/build-agent-app/`、`~/.claude/skills/frontend-creative/`、`~/.cursor/skills/`、`~/.gemini/skills/`、`~/.qwen/skills/`、`~/.grok/skills/`、`~/.codex/skills/` 等 38 个 CLI Agent 的全局 Skill 目录。
 
 
 
 > ⚠️ **`--all` 到底装什么**
 >
-> `npx skills add lora-sys/ai-engineering-harness -g --all` 会把**本仓库所有 Skill** 一次性装到 **所有受支持的 Agent** — 全局生效。
+> `npx skills add lora-sys/ai-engineering-harness -g --all` 会把**本仓库所有 3 个 Skill** 一次性装到 **所有受支持的 Agent** — 全局生效。
 >
-> 当前仓库里只有 **1 个 Skill**(`ai-engineering-harness`),所以 `--all` 等价于只装它,**安全**。
+> 当前仓库里有 **3 个 Skill**:
+> - `ai-engineering-harness` — 工程协调 (Issue → PR → Merge → Memory)
+> - `build-agent-app` — 设计 agent app (Agent + Harness 合约)
+> - `frontend-creative` — Awwwards 级创意 web UI 生成
 >
-> 以后如果在这个仓库里加入姊妹 Skill,`--all` 会一并装,不再二次确认。这是 Vercel `skills` CLI 的设计意图(一行命令拿整套工具集),但也意味着:装第三方 fork 出来的多 skill 仓库时,**应该先预览再装**。下面三条命令用来限制范围:
+> `--all` 会把这三个全部装上。如果你想只装其中一个,用下面的限制命令:
 >
 > ```bash
 > # 装之前先看看里面有什么

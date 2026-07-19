@@ -79,11 +79,14 @@ npx -y skills add lora-sys/ai-engineering-harness -g --all
 
 > ⚠️ **What `--all` actually does**
 >
-> `npx skills add lora-sys/ai-engineering-harness -g --all` installs **every skill in this repo** into **every supported agent** — globally.
+> `npx skills add lora-sys/ai-engineering-harness -g --all` installs **all 3 skills in this repo** into **every supported agent** — globally.
 >
-> Today, the repo contains **one skill** (`ai-engineering-harness`), so `--all` is equivalent to installing that one skill. Safe.
+> Today, the repo contains **3 skills**:
+> - `ai-engineering-harness` — engineering coordination (Issue → PR → Merge → Memory)
+> - `build-agent-app` — design an agent app (Agent + Harness contracts)
+> - `frontend-creative` — Awwwards-grade creative web UI generation
 >
-> If a sister skill is added to the repo later, `--all` will install it too — without an extra prompt. That's the design intent (one command gets the whole toolkit), but it does mean **you should preview before installing sister repos** you don't fully trust. Use these to limit scope:
+> `--all` installs all three. If you only want one, use the scoping commands below:
 >
 > ```bash
 > # Preview what's inside before installing
@@ -102,15 +105,12 @@ npx -y skills add lora-sys/ai-engineering-harness -g --all
 > For full metadata about this skill (used by indexes), see [`meta.json`](./meta.json) at the repo root.
 
 
-After this runs, the skill lands in the global skill directory of every supported CLI agent:
+After this runs, all 3 skills land in each agent's global skill directory:
 
-- `~/.claude/skills/ai-engineering-harness/`
-- `~/.cursor/skills/ai-engineering-harness/`
-- `~/.gemini/skills/ai-engineering-harness/`
-- `~/.qwen/skills/ai-engineering-harness/`
-- `~/.grok/skills/ai-engineering-harness/`
-- `~/.opencode/skills/ai-engineering-harness/` (in `~/.config/opencode/skills/`)
-- and 30+ more — see the full compatibility matrix below.
+- `~/.claude/skills/ai-engineering-harness/` · `~/.claude/skills/build-agent-app/` · `~/.claude/skills/frontend-creative/`
+- `~/.cursor/skills/ai-engineering-harness/` · `~/.cursor/skills/build-agent-app/` · `~/.cursor/skills/frontend-creative/`
+- `~/.gemini/skills/` · `~/.qwen/skills/` · `~/.grok/skills/` · `~/.opencode/skills/` (all three skills in each)
+- and 30+ more agents — see the full compatibility matrix below.
 
 **Supported agents**: Claude Code · Codex · Grok · Cursor · Gemini · Qwen · Cline · Hermes-Agent · Aider Desk · Amp · Antigravity · Continue · Cortex · Crush · Devin · Droid · Forgecode · Goose · Junie · Kilo · Kiro · Kode · Marscode · Mistral Vibe · Mux · OpenCode · OpenHands · Pi · Qoder · Rovodev · Roo · Tabnine · Tinycloud · Trae · Trae-CN · Warp · Windsurf · Zed · Zencoder · Zenflow · Neovate · Pochi · Adal · Bob · Codebuddy · Commandcode · KiloCode · Lingma · Loaf · Moxby · Vibe (40 explicitly listed in `install.sh`; 60+ covered by the npx skills CLI ecosystem; see install.sh --list for the exact set).
 
