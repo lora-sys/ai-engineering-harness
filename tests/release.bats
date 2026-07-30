@@ -25,12 +25,12 @@ setup() {
 @test "release.sh CHANGELOG regex extracts the right section" {
   python3 -c "
 import re
-v = '1.6.0'
+v = '0.1.2'
 text = open('$REPO_ROOT/CHANGELOG.md').read()
 m = re.search(r'(##\\s*\\[' + re.escape(v) + r'\\][^\\n]*\\n.*?)(?=\\n##\\s*\\[|\\Z)', text, re.DOTALL)
-assert m, 'no match for v1.6.0'
+assert m, 'no match for v0.1.2'
 section = m.group(1).strip()
-assert 'frontend-creative' in section, 'v1.6.0 section should mention frontend-creative'
-print('OK v1.6.0 section found')
+assert 'dashboard' in section, 'v0.1.2 section should mention dashboard'
+print('OK v0.1.2 section found')
 "
 }
