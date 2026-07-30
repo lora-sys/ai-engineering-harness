@@ -8,7 +8,7 @@
 # Modes:
 #   --all                       install every family member to every TARGET
 #   --target <name>             install selected skill(s) to a single TARGET
-#   --skill <name>              ai-engineering-harness | build-agent-app | all (default)
+#   --skill <name>              ai-engineering-harness | build-agent-app | frontend-creative | dashboard | all (default)
 #   --uninstall                 remove everything
 #   --fat-install               git clone the repo + symlink per-agent-dir
 #   --list                      show every TARGET name + current state
@@ -21,6 +21,7 @@ declare -A SKILL_SOURCES=(
   ["ai-engineering-harness"]="$SCRIPT_DIR"
   ["build-agent-app"]="$SCRIPT_DIR/skills/build-agent-app"
   ["frontend-creative"]="$SCRIPT_DIR/skills/frontend-creative"
+  ["dashboard"]="$SCRIPT_DIR/skills/dashboard"
 )
 
 # Paths to exclude when copying a skill bundle
@@ -144,7 +145,7 @@ Usage: install.sh [--all] [--target <name>] [--skill <name>] [--fat-install] [--
 
   --all               install every family member to every TARGET
   --target <name>     install selected skill(s) to a single TARGET
-  --skill <name>      ai-engineering-harness | build-agent-app | frontend-creative | all (default: all)
+  --skill <name>      ai-engineering-harness | build-agent-app | frontend-creative | dashboard | all (default: all)
   --uninstall         remove installed copies
   --fat-install       git clone + symlink per-agent-dir (works around npx skills thin canonical)
   --fat-install --clonedir <path>
@@ -155,6 +156,7 @@ Examples:
   bash install.sh                                                   # everything, everywhere
   bash install.sh --skill build-agent-app                          # only build-agent-app
   bash install.sh --skill frontend-creative                        # only the creative-UI skill
+  bash install.sh --skill dashboard                                  # only the dashboard skill
   bash install.sh --all --target claude                           # one platform
 USAGE
       exit 0 ;;

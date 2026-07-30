@@ -4,14 +4,14 @@
 # This is the script to use when:
 #   - You installed via `npx skills add` (which only carries the main skill's
 #     SKILL.md + meta.json — the thin canonical install).
-#   - The sibling skills (build-agent-app, frontend-creative) are missing from
+#   - The sibling skills (build-agent-app, frontend-creative, dashboard) are missing from
 #     your agent dir.
 #   - You want the LLM to actually discover and use the siblings.
 #
 # What it does (idempotent):
 #   1. For each known TARGET dir (~/.codex/skills, ~/.agents/skills, etc.):
-#      a. For each of the 3 skills (ai-engineering-harness, build-agent-app,
-#         frontend-creative):
+#      a. For each of the 4 skills (ai-engineering-harness, build-agent-app,
+#         frontend-creative, dashboard):
 #         - If a fat install (full SKILL.md + workflows/ + ...) is wanted and
 #           the sibling's full directory exists in this repo: copy the full
 #           bundle. (Thin canonical: copy only SKILL.md + meta.json.)
@@ -24,7 +24,7 @@
 #   scripts/install-all-skills.sh                     # thin install everywhere
 #   scripts/install-all-skills.sh --fat              # fat install (full bundle)
 #   scripts/install-all-skills.sh --status          # report state, change nothing
-#   scripts/install-all-skills.sh --uninstall       # remove the 3 skills everywhere
+#   scripts/install-all-skills.sh --uninstall       # remove the 4 skills everywhere
 #
 # Exit code 0 on success.
 
@@ -52,8 +52,8 @@ done
 
 log()  { printf '[install-all] %s\n' "$*" >&2; }
 
-# All 3 skills in the family. Order matters: main first, siblings after.
-SKILLS=(ai-engineering-harness build-agent-app frontend-creative)
+# All 4 skills in the family. Order matters: main first, siblings after.
+SKILLS=(ai-engineering-harness build-agent-app frontend-creative dashboard)
 
 # TARGET paths to install into + the install.sh --target name each maps to.
 # Keep in sync with install.sh's TARGETS array. (We hardcode here for speed and
@@ -80,7 +80,7 @@ TARGETS=("${!PATH_TO_NAME[@]}")
 # install.sh already handles thin vs fat; we just iterate.
 case "$ACTION" in
   install)
-    log "installing 3 skills × ${#TARGETS[@]} targets (fat=$FAT)"
+    log "installing 4 skills × ${#TARGETS[@]} targets (fat=$FAT)"
     for target in "${TARGETS[@]}"; do
       [[ -d "$target" ]] || continue
       target_name="${PATH_TO_NAME[$target]:-}"
@@ -105,19 +105,20 @@ case "$ACTION" in
   status)
     log "skill family state across ${#TARGETS[@]} targets:"
     echo
-    printf "  %-30s | %-25s | %-25s | %-25s\n" "TARGET" "ai-engineering-harness" "build-agent-app" "frontend-creative"
-    printf "  %-30s-+-%-25s-+-%-25s-+-%-25s\n" "$(printf -- '%.0s-' {1..30})" "$(printf -- '%.0s-' {1..25})" "$(printf -- '%.0s-' {1..25})" "$(printf -- '%.0s-' {1..25})"
+    printf "  %-30s | %-25s | %-25s | %-25s | %-25s\n" "TARGET" "ai-engineering-harness" "build-agent-app" "frontend-creative" "dashboard"
+    printf "  %-30s-+-%-25s-+-%-25s-+-%-25s-+-%-25s\n" "$(printf -- '%.0s-' {1..30})" "$(printf -- '%.0s-' {1..25})" "$(printf -- '%.0s-' {1..25})" "$(printf -- '%.0s-' {1..25})" "$(printf -- '%.0s-' {1..25})"
     for target in "${TARGETS[@]}"; do
       [[ -d "$target" ]] || continue
-      printf "  %-30s | %-25s | %-25s | %-25s\n" \
+      printf "  %-30s | %-25s | %-25s | %-25s | %-25s\n" \
         "$target" \
         "$(test -f $target/ai-engineering-harness/SKILL.md && echo present || echo MISSING)" \
         "$(test -f $target/build-agent-app/SKILL.md && echo present || echo MISSING)" \
-        "$(test -f $target/frontend-creative/SKILL.md && echo present || echo MISSING)"
+        "$(test -f $target/frontend-creative/SKILL.md && echo present || echo MISSING)" \
+        "$(test -f $target/dashboard/SKILL.md && echo present || echo MISSING)"
     done
     ;;
   uninstall)
-    log "removing 3 skills from all targets"
+    log "removing 4 skills from all targets"
     bash "$INSTALL_SH" --uninstall 2>&1 | sed 's/^/    /'
     ;;
 esac

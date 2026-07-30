@@ -99,3 +99,4 @@ When the design brief + 3 macro rounds are approved, hand off implementation to 
   - `workflows/06-post-mortem.md` — 复盘 (after ship)
   - `workflows/07-redo.md` — 狗屎 → restart
 - `agents/creative-frontend.md` — the agent persona that drives this skill.
+- **`$dashboard`** — sibling skill for visualizing harness project state (dark-themed dashboard with health, evidence, kanban, chaos score). This skill does NOT do dashboards; use `$dashboard` for that.

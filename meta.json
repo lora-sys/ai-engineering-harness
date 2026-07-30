@@ -1,8 +1,8 @@
 {
   "id": "ai-engineering-harness",
-  "version": "1.12.0",
+  "version": "0.1.2",
   "name": "AI Engineering Harness",
-  "description": "Multi-agent engineering organization harness. Issue → Worktree → Plan → Implement → Adversarial Review → Evidence → Merge → Memory loop. 18 agent personas, 9 workflows, evidence-gated, cold-start review, dynamic L0–L3 context control. Use prompts: bootstrap / resume / drive / audit.",
+  "description": "Multi-agent engineering organization harness. Issue \u2192 Worktree \u2192 Plan \u2192 Implement \u2192 Adversarial Review \u2192 Evidence \u2192 Merge \u2192 Memory loop. 18 agent personas, 9 workflows, evidence-gated, cold-start review, dynamic L0\u2013L3 context control. Use prompts: bootstrap / resume / drive / audit.",
   "category": "engineering-orchestration",
   "priority": 20,
   "tags": [
@@ -16,7 +16,8 @@
     "memory-evolving",
     "skill-family:ai-engineering-harness",
     "sibling-skill:build-agent-app",
-    "sibling-skill:frontend-creative"
+    "sibling-skill:frontend-creative",
+    "sibling-skill:dashboard"
   ],
   "install": {
     "global": "npx -y skills add lora-sys/ai-engineering-harness -g --all",

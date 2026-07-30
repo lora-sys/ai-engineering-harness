@@ -134,5 +134,6 @@ npx -y skills add lora-sys/build-agent-app -g --all
 - `workflows/takeover-existing.md` — entry: reverse-engineer an existing agent → integrate
 - `workflows/refactor-broken.md` — entry: symptom → diagnosis → minimal rebuild
 - `scripts/scaffold-agent-spec.sh` — make a `docs/agent-spec/<name>.md` skeleton
+- `$dashboard` — sibling skill for visualizing harness project state (health, evidence, kanban, chaos score). Install: `bash install.sh --skill dashboard`
 
 Read on demand. Concise is a feature.
