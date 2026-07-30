@@ -162,6 +162,134 @@ Harness: Quick Scan 已完成。
 
 ---
 
+## 案例 4：测试通过 ≠ 测试有效（Harness 自身，issue #9）
+
+> **✅ 真实案例。** commits `9cbff11`、`1c9900f`。下面每个数字都注明出处。
+
+> Harness 自己的 dashboard skill。README 声称 Quick Scan"生成可追踪的 Issue"，
+> 而没有任何代码做这件事。修它的过程里，发现自己的测试套件有一部分是装饰。
+
+### 接手前
+
+| 维度 | 状态 | 可核对 |
+|------|------|--------|
+| vibe-signs 检测器 | 9 个，且第 9 个名字叫 "Intent mismatch" 而实现的是 dead-code-after-return | `9cbff11` commit 正文 |
+| "生成可追踪的 Issue" | README 这样写，没有任何实现 | `9cbff11` commit 正文 |
+| 接管时扫描 | 被问才答，且只给一个分数 | `9cbff11` commit 正文 |
+| dashboard 测试 | 24 个，"全绿" | `git show 9cbff11~1:skills/dashboard/tests/dashboard.bats \| grep -c '^@test'` |
+
+### Harness 做了什么
+
+1. **第 10 个检测器 `intent-loss`** —— 三条规则：doc 以函数动词的反义词开头（MEDIUM）、
+   `@param` 不在签名里（LOW）、`@returns` 但函数从不 return（LOW）。
+   在 12 MB 第三方语料上测得 **0.34% flag rate**，唯一存活的 flag 是真缺陷；
+   为两类真实假阳性加了 guard（doc 同时提到两个动词是在描述操作的两侧；
+   lodash 风格的 `@param {string} The string to inspect.` 捕获的是散文不是参数名）。
+2. **把第 9 个检测器改名成它实际做的事** —— dead-code-after-return。
+3. **让扫描主动开口** —— bootstrap 增加 existing-repo 分支，要求扫描**不经询问**就运行，
+   并且必须点名具体类别与最差位置。一个光秃秃的等级只是在告诉用户"你的仓库很差"，
+   没告诉他该做什么。
+4. **新增 `scan-to-issues.sh`** —— 按类别归并（一个类别一个 Issue；40 个 TODO 开 40 个
+   Issue 是噪音不是 backlog），验收标准带可验证的退出条件，干跑是默认行为。
+
+### 接手后
+
+| 维度 | 状态 | 可核对 |
+|------|------|--------|
+| 检测器 | 10 个 | `parser.js` 编号注释 1–10（L1070–1247） |
+| findings 归档 | 一条命令变成分类 Issue | `skills/dashboard/scripts/scan-to-issues.sh` |
+| dashboard 测试 | 39 个，仓库共 123（`1c9900f` 之后 124） | 两条 commit 正文 |
+| 验收方式 | 变异测试 | `9cbff11` commit 正文 |
+
+### 核心教训
+
+**这个案例的重点不是"多了一个检测器"，而是变异测试暴露了套件本身的缺陷。**
+
+bats 1.13 下只有**最后一条命令**的退出码决定测试成败。中途一条裸 `[[ ... ]]` 失败会被
+静默吞掉，`set -e` 也救不了 —— bats 在测试体内重置它。把 projectRoot 校验整段注释掉，
+套件依然全绿。更糟的是：有一条**已发布**的断言方向与 secret 检测器的设计相反，
+在本地"通过"，在 CI（bats 1.10）会失败。修法是引入会真正 exit 非零的
+`assert_has` / `assert_lacks` / `assert_eq`，并把这个约束写在文件顶部。
+
+另外两个 bug 都是**测出来的，不是读出来的**：
+
+- 另一个 repo 的 dashboard 在预期端口应答，它的 findings 被当作本项目的报了出来 ——
+  距离"把 Issue 开到错的仓库"只差一条命令。现在响应必须携带匹配的 `_meta.projectRoot`。
+- `$!` 并不可靠地等于 node 的 PID（bash 会为重定向再 fork 一次），cleanup 杀错了进程，
+  幸存者 reparent 到 init，然后用过期数据回答**后一次**运行。现在真实 PID 从端口持有者
+  解析，cleanup 等端口真的安静下来，而不是相信 `kill` 是同步的。
+
+一个月后 `1c9900f` 又修了同一类问题的另一面：`sync-project is idempotent` 把整个
+`.harness-state.json` 做全文比对，包括 `last_synced_at` —— 那个字段的**职责**就是每次
+sync 都变。它只在两次运行落在同一秒内才通过；实测 12 次里有 8 次跨秒失败。
+这是 CI 最坏的失败形态：看起来像真回归，重跑就"好了"，于是信号被训练成噪音。
+
+---
+
+## 案例 5：绿色的 CI 骗了我们（Harness 自身，issue #13）
+
+> **✅ 真实案例。** commit `f92fd53`，CI 配置见
+> [`.github/workflows/test.yml`](../../.github/workflows/test.yml)。
+
+> CI 全绿。本地 108 个测试里 23 个失败，而且套件永久挂住直到 15 分钟 job 超时。
+> 两个都是真的 —— 因为用户实际执行的 shell 不在 CI 矩阵里。
+
+### 接手前
+
+| 维度 | 状态 |
+|------|------|
+| CI | 全绿 |
+| 本地（macOS）| 85/108 通过，然后无限挂起 |
+| CI 矩阵 | 只有 Linux runner，bash 5.x |
+| 用户实际执行的 | macOS `/bin/bash` = **3.2.57** |
+
+### 6 个 bash 3.2-only bug
+
+每一个在 Linux bash 5.x 上都能正常解析并运行，所以 CI 一次也没看见过（编号同
+`f92fd53` commit 正文 1–6）：
+
+1. **`sync-project.sh` —— 在 macOS 上整个脚本无法运行**（exit 2）。bash 3.2 无法解析
+   `$( )` 里含撇号的 heredoc；第 237 行的 `don't` 打断 lexer，而报错出现在 **39 行之后**。
+   这**一个** bug 造成 23 个本地失败中的 **19** 个。
+2. **`changelog.sh`** —— `set -- "${POSITIONAL[@]}"` 在空数组 + `set -u` 下中止
+   （bash < 4.4）。任何无参调用都崩。
+3. **`register-existing.sh`** —— `mapfile` 是 bash 4 builtin，macOS 上不存在，
+   于是变量未设置、`set -u` 中止。
+4. **`changelog-auto.sh`** —— 同样的 `mapfile`，外加 GNU-only 的 `tac` 与 `declare -A`。
+5. **`scaffold-dashboard.sh`** —— 裸 `$1` 在 `set -u` 下无参崩溃；而显式路径**完全没有
+   校验**：指向任意空目录就会把 `.dashboard/` 和 `scripts/` 撒进去。
+6. **`dashboard.bats` —— CI hang 的根因**。`cd DIR && node parser.js &` 让 `$!` 拿到
+   **子 shell** 的 PID，`kill` 从未碰到 node。13 个孤儿 server 持有 bats 继承的 fd，
+   bats 就一直等下去 —— job 死在 15 分钟超时，**而那时每个测试都已经通过了**。
+
+### 接手后
+
+| 维度 | Before | After |
+|------|--------|-------|
+| 本地套件 | 85/108 + 无限挂起 | **108/108，75 秒，无孤儿进程** |
+| CI 矩阵 | 只有 Linux | 新增 `bash32-compat`（macos-latest），既 parse 又 smoke-run（`test.yml` L38–62） |
+| 语法检查 | 无 | 两个 bash 版本上全量 `bash -n` sweep |
+| 孤儿进程 | 静默烧掉 job 超时 | 后置断言，回归就大声失败（`test.yml` L76–87） |
+
+### 诚实备注
+
+#13 里报的第 7 个问题 ——「cross-version 在失败时返回 exit 0」—— 是**误诊**。
+那个脚本一直正确传播失败；它的 4 个失败是 bug 1 的下游，sync-project 修好后自动消失。
+`f92fd53` 的 commit 正文自己写明了这一点。所以这个案例是 6 个 bug，不是 7 个。
+
+### 核心教训
+
+**绿色的 CI 只证明「CI 配置里写了的那些环境」是绿的。**
+
+macOS 把 bash 3.2.57 装成 `/bin/bash`，那是 harness 的 macOS 用户实际执行的解释器。
+它不在矩阵里，于是 CI 一直在提供**自信**而不是**证据** —— 而这一类失败只有真的 3.x
+解析器能看见。
+
+第二条教训：**`bash -n` 不够**。`mapfile` / `declare -A` 只在**运行**时失败，
+语法检查全都通过。所以新的 `bash32-compat` job 既 parse 也 smoke-run。
+
+---
+
 ## 怎么用这些案例
 
 规则很简单：**对外说的每个数字，都要能指向一个 commit。** 示意案例可以用来解释
