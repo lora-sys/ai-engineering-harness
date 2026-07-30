@@ -162,7 +162,7 @@ teardown() {
 
 @test "parser.js starts and serves /api/health" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -177,7 +177,7 @@ teardown() {
 
 @test "parser.js serves dashboard.html on /" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -192,7 +192,7 @@ teardown() {
 
 @test "parser.js serves /api/project-status" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -207,7 +207,7 @@ teardown() {
 
 @test "parser.js serves /api/evidence" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -221,7 +221,7 @@ teardown() {
 
 @test "parser.js serves /api/evidence/1 with detail" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -236,7 +236,7 @@ teardown() {
 
 @test "parser.js serves /api/kanban" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -252,7 +252,7 @@ teardown() {
 
 @test "parser.js serves /api/takeover-audit" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -268,7 +268,7 @@ teardown() {
 
 @test "parser.js serves /api/memory" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -282,7 +282,7 @@ teardown() {
 
 @test "parser.js serves /api/quick-scan" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -299,7 +299,7 @@ teardown() {
 
 @test "parser.js quick-scan detects hardcoded secrets" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -313,7 +313,7 @@ teardown() {
 
 @test "parser.js quick-scan detects missing error handling" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -343,7 +343,7 @@ teardown() {
 EOF
 
   bash "$SCAFFOLD_SCRIPT" "$CLEAN_DIR" > /dev/null 2>&1
-  cd "$CLEAN_DIR/.dashboard" && node parser.js &
+  cd "$CLEAN_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 
@@ -368,7 +368,7 @@ EOF
 
 @test "parser.js returns 404 for non-existent evidence pack" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  cd "$PROJECT_DIR/.dashboard" && node parser.js >/dev/null 2>&1 &
   local PID=$!
   sleep 2
 

@@ -24,12 +24,12 @@ setup() {
 }
 
 @test "install-all-skills PATH_TO_NAME resolves common targets" {
-  # Source the script's hardcoded map (it's just a bash file with assignments)
-  grep -E 'PATH_TO_NAME\[' "$SCRIPT" | head -3 | while read -r line; do
-    [[ -n "$line" ]] || continue
-  done
-  # Quick check: known targets are in the map
-  grep -q 'PATH_TO_NAME\["\$HOME/.codex/skills"\]="codex"' "$SCRIPT"
-  grep -q 'PATH_TO_NAME\["\$HOME/.claude/skills"\]="claude"' "$SCRIPT"
-  grep -q 'PATH_TO_NAME\["\$HOME/.agents/skills"\]="agents"' "$SCRIPT"
+  # The map is a Bash 3.2-compatible indexed array of "path|name" entries
+  # (macOS ships bash 3.2, which has no `declare -A`).
+  grep -q 'PATH_TO_NAME_LIST=(' "$SCRIPT"
+  grep -q '"\$HOME/.codex/skills|codex"' "$SCRIPT"
+  grep -q '"\$HOME/.claude/skills|claude"' "$SCRIPT"
+  grep -q '"\$HOME/.agents/skills|agents"' "$SCRIPT"
+  # And the lookup helper that replaces associative-array indexing
+  grep -q 'path_to_name()' "$SCRIPT"
 }
