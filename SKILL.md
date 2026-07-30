@@ -121,29 +121,27 @@ The Coordinator **does not write business code**. It reads, plans, dispatches, v
 
 ## 5. Agent Roster
 
-Each agent is a tight-scope persona documented in `agents/`. Spawn them with explicit role, allowed files, input artifacts, output format, and acceptance criteria.
+17 agent personas, one per file in `agents/`. Spawn with explicit role, allowed files, input artifacts, output format, and acceptance criteria. Each agent is **scoped**: no modification outside allow-list, no bypassing review, no merging.
 
-| Agent                  | Purpose                                                                                |
-| ---------------------- | -------------------------------------------------------------------------------------- |
-| `coordinator`          | The you-of-this-skill. Reads docs, owns TaskList, orchestrates phases, never writes feature code. |
-| `explore`              | Fast read-only codebase discovery (CodeGraph/rep/grep). Pure output: facts, no opinions. |
-| `plan`                 | Synthesizes Implementation Plan from Issue + architecture + memory. No code yet.       |
-| `frontend`             | Implements UI per design + plan. Owns components, styles, a11y, motion.               |
-| `backend`              | Implements API/services per plan. Owns endpoints, business logic, integration tests.  |
-| `database`             | Owns schema, migration, seed, rollback, data safety review.                            |
-| `qa`                   | Executes tests, captures screenshots, runs agent-browser / Playwright, writes Evidence. |
-| `bug-hunter`           | Cold-start reviewer for runtime bugs, nulls, races, exceptions, edge cases.           |
-| `behavior-reviewer`    | Cold-start reviewer comparing expected vs actual behavior vs PRD/Issue.                |
-| `architecture-reviewer`| Cold-start reviewer for coupling, boundaries, repeated logic, tech debt.              |
-| `security-reviewer`    | Conditional: auth, PII, secrets, payments, supply chain, deps.                        |
-| `ui-reviewer`          | Conditional: visual + interaction + a11y + motion + responsive + empty/error states.  |
-| `conflict-resolver`    | When two agents/PRs/Worktrees want the same code, proposes a merge strategy.           |
-| `release`              | Pre-release checklist (PRs, CI, migrations, version, changelog, evidence).             |
-| `review-aggregator`    | Collects reviewer reports → ranked Fix Tasks → routes back to owners.                  |
-| `context-assembly`     | Builds `context-manifest.md` for an Agent task from L0–L3 index.                      |
-| `memory-curator`       | Promotes session findings into Source-of-Truth docs / ADRs / lessons.                 |
-
-All agents are **scoped**: they may not modify files outside their allow-list, may not bypass review, may not merge.
+| Agent | Purpose |
+|-------|---------|
+| `coordinator` | Reads docs, owns TaskList, orchestrates phases, never writes feature code. |
+| `explore` | Read-only codebase discovery. Output: facts, no opinions. |
+| `plan` | Synthesizes Implementation Plan from Issue + architecture + memory. No code. |
+| `frontend` | Implements UI per design + plan. Components, styles, a11y, motion. |
+| `backend` | Implements API/services per plan. Endpoints, business logic, integration tests. |
+| `database` | Schema, migration, seed, rollback, data safety review. |
+| `qa` | Executes tests, captures screenshots, writes Evidence. |
+| `bug-hunter` | Cold-start reviewer: runtime bugs, nulls, races, edges. |
+| `behavior-reviewer` | Cold-start reviewer: expected vs actual vs spec. |
+| `architecture-reviewer` | Cold-start reviewer: coupling, boundaries, debt. |
+| `security-reviewer` | Conditional: auth, PII, secrets, payments, deps, infra. |
+| `ui-reviewer` | Conditional: visual, interaction, a11y, motion, responsive. |
+| `conflict-resolver` | Proposes merge strategy when two agents want the same code. |
+| `release` | Pre-release checklist (PRs, CI, migrations, version, changelog). |
+| `review-aggregator` | Collects reviewer reports → ranked Fix Tasks → routes back. |
+| `context-assembly` | Builds `context-manifest.md` for an Agent task. |
+| `memory-curator` | Promotes session findings into Source-of-Truth docs / ADRs. |
 
 ## 6. Context Discipline (L0–L3)
 
@@ -160,19 +158,17 @@ L3 — Explicit only Full Evidence packs, old session logs, original PRD — nev
 
 ## 7. Evidence Gate
 
-No transition is "Done" without Evidence. The Coordinator checks the gate before advancing.
+No transition is "Done" without Evidence. Per-change requirements: `checklists/evidence-gate.md`. Quick reference:
 
-Minimum Evidence per change-type:
+| Type | Required |
+|------|----------|
+| Frontend | Screenshots + Playwright, console clean, a11y, UI Review |
+| Backend | Test results, API traces, exception coverage, security probe |
+| Database | Migration SQL, rollback, data-safety diff, seed impact |
+| Infra/DevOps | **CI green (mandatory)** + deploy dry-run, env diff, secret scan |
+| Cross-cut | Reviewer reports, change-summary.md, verification.md |
 
-| Type         | Required Evidence                                                                          |
-| ------------ | ------------------------------------------------------------------------------------------ |
-| Frontend     | Screenshots (desktop + mobile), Playwright JSON, browser console clean, a11y check, UI Review |
-| Backend      | Test results, API traces, exception coverage, security probe, perf baseline where relevant |
-| Database     | Migration SQL, data-safety diff, rollback plan & dry run, seed impact                       |
-| Infra/DevOps | **CI green (mandatory)** + deploy dry-run, environment diff, secret scan + rollback rehearsal |
-| Cross-cut    | Reviewer reports (each reviewer), change-summary.md, verification.md                       |
-
-Evidence goes to `docs/evidence/<feature-or-issue-id>/`. See `checklists/evidence-gate.md` and `templates/evidence-pack.md`.
+Evidence → `docs/evidence/<issue-id>/`.
 
 ## 8. Human Approval Gate
 
@@ -219,16 +215,16 @@ When invoked as `$ai-engineering-harness`:
 - `SKILL.md` — this file
 - `AGENTS.md` / `CLAUDE.md` — project contract
 
-**On demand (load only when a workflow references them):**
-- `agents/` — one file per agent persona (load the one you spawn, not all 18).
-- `workflows/` — step-by-step procedures (bootstrap, feature delivery, review, CI recovery, conflict, release, **PR intake** — `09-pr-intake.md`).
-- `templates/` — Issue, Implementation Plan, PR, Review Report, Evidence Pack, Phase Summary, ADR, session files.
-- `checklists/` — Evidence Gate, frontend/backend/database/security/PR-merge checklists.
-- `references/` — context levels (`context-levels.md`), document indexing, Worktree discipline, agent spawning patterns, **CI/CD monitoring** (`cd-monitoring.md`), **SessionStart hook** (`session-start-hook.md`), **context-bundle pattern** (`context-bundle.md`), **compact-report pattern** (`compact-report.md`), **PR intake decision matrix** (`pr-intake-decision-matrix.md`).
-- `examples/` — worked samples of filled templates.
-- `scripts/` — bash helpers (`context-bundle.sh`, `compact-report.sh`, `validate-meta.sh`, `check-templates.sh`, `run-tests.sh`, ...).
+**On demand (load only when referenced by a workflow):**
+- `agents/` — one file per persona (load the one you spawn)
+- `workflows/` — step-by-step procedures
+- `templates/` — Issue, Plan, PR, Review, Evidence, ADR, session files
+- `checklists/` — Evidence Gate, frontend/backend/database/security/PR-merge
+- `references/` — context levels, CI/CD monitoring, Worktree discipline, agent spawning, PR intake, context-bundle, compact-report
+- `scripts/` — bash helpers (context-bundle, compact-report, validate-meta, run-tests, sync-project, release)
+- `examples/` — filled template samples
 
-**Rule:** read the workflow file first; it tells you exactly which resource files to load for each phase. Never pre-load everything.
+**Never pre-load.** Read the workflow first; it tells you which resources to load per phase.
 
 ## 12. Quick Start
 
@@ -256,6 +252,5 @@ Use $ai-engineering-harness to audit open Issues, PRs, and CI; produce a recover
 - Auto-resolving multi-agent conflicts.
 - Treating chat history as project memory.
 - One agent implementing + reviewing the same PR.
-- **Calling an Issue "Done" while CI is red.** Merge is downstream of Phase 11; green CI is the gate at Phase 7. Red CI is a block, not a status.
-- **Calling an Issue "Done" while CI is red.** Merge is downstream of Phase 11; green CI is the gate at Phase 7. If CI is red, stay in `workflows/04-ci-recovery.md`.
-- **Merging a PR that duplicates local code.** Per Principle #9 (Local-first), the right answer is to comment on the PR with the local paths, not to merge. The local version stays as-is; the PR author can align with it or propose something genuinely additive.
+- **Red CI = blocked.** Calling an Issue "Done" while CI is red. Stay in `workflows/04-ci-recovery.md`.
+- **Merging a PR that duplicates local code.** Comment with local paths, don't merge. Local version stays as-is. See Principle #9.
