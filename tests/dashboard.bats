@@ -1,1 +1,0 @@
-/Users/lora/repos/ai-engineering-harness/skills/dashboard/tests/dashboard.bats

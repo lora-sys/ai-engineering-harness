@@ -1,6 +1,6 @@
 {
   "id": "ai-engineering-harness",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "name": "AI Engineering Harness",
   "description": "Multi-agent engineering organization harness. Issue \u2192 Worktree \u2192 Plan \u2192 Implement \u2192 Adversarial Review \u2192 Evidence \u2192 Merge \u2192 Memory loop. 18 agent personas, 9 workflows, evidence-gated, cold-start review, dynamic L0\u2013L3 context control. Use prompts: bootstrap / resume / drive / audit.",
   "category": "engineering-orchestration",

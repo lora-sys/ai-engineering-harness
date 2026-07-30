@@ -11,6 +11,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [0.2.0] - 2026-07-30
+
+Dashboard skill Quick Scan — one-click takeover entry experience.
+
+### Added
+
+- **`GET /api/quick-scan`** — new API endpoint scanning source files for vibe signs
+- **7 heuristic detectors**: hardcoded secrets (HIGH), missing error handling (MEDIUM), placeholder names (LOW), commented-out code (LOW), TODO without issue links (LOW), duplicate code blocks (MEDIUM), missing test files (MEDIUM)
+- **Quick Scan button** on Takeover Audit view in dashboard.html
+- **Inline results display**: chaos score gauge + severity bars + issue table + category breakdown
+- **Export Report** — download `takeover-report.md` via Blob API
+- **`workflows/03-quick-scan.md`** — one-click scan workflow documentation
+- **6 new BATS tests** for quick-scan functionality
+- Source file test fixtures (config.ts, api.ts, utils.ts with intentional issues)
+- `scripts/run-tests.sh` supports `skills/dashboard/tests/` directory
+
+### Changed
+
+- `skills/dashboard/meta.json` — version 0.1.0 → 0.2.0
+- `skills/dashboard/SKILL.md` — added `/api/quick-scan` to API table, added Quick Scan view, updated trigger rules and workflow list
+
+### Files changed
+
+```
++ skills/dashboard/workflows/03-quick-scan.md  NEW
+M skills/dashboard/templates/parser.js         +detectVibeSigns + /api/quick-scan
+M skills/dashboard/templates/dashboard.html    +Quick Scan button + result display
+M skills/dashboard/SKILL.md                    +quick-scan references
+M skills/dashboard/meta.json                   v0.1.0 → 0.2.0
+M skills/dashboard/tests/dashboard.bats        +6 tests + fixtures
+M scripts/run-tests.sh                         +dashboard tests dir support
+M meta.json                                    v0.1.2 → 0.2.0
+M CHANGELOG.md                                 This entry
+```
+
 ## [0.1.2] - 2026-07-29
 
 New sibling skill **`$dashboard`** — visual web dashboard for the harness. Dark-themed, zero-dependency, developer-friendly dashboard showing project health, evidence completeness, closed-loop progress, evidence detail with screenshots/code blocks, kanban, and Takeover Audit with Chaos Score.
