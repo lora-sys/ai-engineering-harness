@@ -5,7 +5,7 @@ The Takeover Audit view computes a **Chaos Score** from 0 to 100. Higher = more 
 There are **two scoring modes**:
 
 1. **Takeover Audit** — score from evidence, documentation, testing, CI, and blocked items
-2. **Quick Scan** — score from vibe-signs heuristics on source code (9 detectors)
+2. **Quick Scan** — score from vibe-signs heuristics on source code (10 detectors)
 
 ## Takeover Audit Scoring Rules
 

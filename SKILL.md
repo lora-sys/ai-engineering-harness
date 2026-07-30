@@ -1,6 +1,6 @@
 ---
 name: ai-engineering-harness
-description: "Multi-agent engineering org harness. Issue → Worktree → Plan → Implement → Adversarial Review → Evidence → Merge → Memory loop. 18 agent personas, 9 workflows, evidence-gated, cold-start review, L0–L3 context control. Use prompts: bootstrap / resume / drive / audit."
+description: "Multi-agent engineering org harness. Issue → Worktree → Plan → Implement → Adversarial Review → Evidence → Merge → Memory loop. 18 agent personas, 10 workflows, evidence-gated, cold-start review, L0–L3 context control. Use prompts: bootstrap / resume / drive / audit."
 ---
 
 # AI Autonomous Engineering Harness
@@ -21,7 +21,7 @@ This skill is a **software engineering organization**, not a coding prompt. It t
 
 ## 2. When to Use This Skill
 
-> **New to this skill? Read [`QUICKSTART.md`](QUICKSTART.md) first** — working tutorial covering the 9 workflows, the 9 operating principles, end-to-end examples, copy-paste prompt templates, and the upgrade flow for existing projects.
+> **New to this skill? Read [`QUICKSTART.md`](QUICKSTART.md) first** — working tutorial covering the 10 workflows, the 9 operating principles, end-to-end examples, copy-paste prompt templates, and the upgrade flow for existing projects.
 
 - The user wants to start, take over, or rescue a non-trivial product (MVP, internal tool, SaaS, feature set).
 - A repo has no operating system yet (no `docs/INDEX.md`, no issue template, no PR template, no ADR log, no evidence directory).

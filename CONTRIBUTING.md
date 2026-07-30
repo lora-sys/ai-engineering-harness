@@ -89,7 +89,7 @@ Stable lessons go into `memory/notes-<date>.md` with Status · Context · Decisi
 4. **`scripts/validate-meta.sh --strict` + `scripts/check-templates.sh --strict` + `scripts/run-tests.sh`** must all pass before commit. Together they catch:
    - schema + version + D-006 drift (`validate-meta.sh`)
    - missing required template headings like `## CI` in `templates/pr-description.md` (`check-templates.sh`)
-   - regressions in the harness's own bash scripts (38 bats tests across 6 files: `install-session-hook.bats`, `context-bundle.bats`, `compact-report.bats`, `check-templates.bats`, `validate-meta.bats`, `changelog.bats`)
+   - regressions in the harness's own bash scripts (124 bats tests across 19 files under `tests/` and `skills/*/tests/`)
    All three exit non-zero on failure. Install bats first: `npm install -g bats && ln -sf $(npm root -g)/bats/bin/bats ~/.local/bin/bats` (or `apt install bats` / `brew install bats-core`).
 5. **`scripts/changelog-auto.sh --append`** to preview the changelog entry your commits will produce; commit `CHANGELOG.md` separately if anything is off.
 6. **PR description uses `templates/pr-description.md`** with the relevant sections.
