@@ -1,8 +1,10 @@
 # AI Engineering Harness
 
-> 一个由 AI Agent 组成的软件工程组织,负责把你脑子里到生产环境的每一行代码变成可验证、可审查、可追溯的工程交付。
+> **Vibe 之后，正式接管。**
 >
-> A software-engineering organization of AI agents that turns every idea into verifiable, reviewable, shippable code — Issue → Worktree → Plan → Implement → Adversarial Review → Evidence → Merge → Memory.
+> 一个由 AI Agent 组成的软件工程组织，负责把你 AI 写完后不敢碰的仓库，变成可验证、可审查、可追溯的工程交付。
+>
+> A software-engineering organization of AI agents that turns vibe-coded repos into verifiable, reviewable, shippable code.
 
 <p align="left">
   <a href="#-one-line-install"><img alt="install" src="https://img.shields.io/badge/install-npx%20skills%20add%20lora--sys%2Fai--engineering--harness-111"></a>
@@ -12,105 +14,137 @@
 
 ![Architecture · AI Engineering Harness](./assets/architecture.svg)
 
-*Coordinator reads docs, owns the kanban, and spawns 18 Agent personas across 9 closed-loop workflows. Every cycle is evidence-gated: code reaches `main` only when CI is green, ≥2 cold-start reviewers approve, and the Evidence pack is complete. Memory is promoted every cycle so the project gets smarter without losing it to chat history.*
+### 你是不是也有这样的仓库？
 
+AI 写了 2000 行代码，能跑，但没人敢改。没有测试，没有 CI，没有文档。你知道里面有问题，但不知道从哪开始。
 
-**Social preview**:  [assets/social-preview.png](./assets/social-preview.png) (1200×630, for Twitter / GitHub social cards).
+**这就是 Harness 解决的问题。**
 
-### 海报 · Poster
-
-![AI Engineering Harness poster](assets/poster-harness.png)
-
-> 让每一行代码,都有证据。18 AGENTS · 9 WORKFLOWS · ONE CLOSED LOOP. ISSUE → WORKTREE → PLAN → BUILD → REVIEW → EVIDENCE → MERGE → MEMORY.
-
----
-
----
-
-## 中文 (Chinese)
-
-> **English version**: [README_EN.md](README_EN.md) · **中文版本**: 你正在看这个
-
-## 中文
-
-### 这是什么
-
-**3 个 skill 的家族**,可以单独或一起装:
-
-- **`$ai-engineering-harness`** (本 skill) — 工程协调(Issue → PR → Merge → Memory)
-- **`$build-agent-app`** — 设计 agent app(Agent + Harness 合约),交给本 skill 实现
-- **`$frontend-creative`** — Awwwards 级创意 web UI 生成
-
-`ai-engineering-harness` 不是单条 Prompt,而是一整套**软件工程组织操作系统**。你给一个想法、一份 PRD,或者一个需要接手的老项目,Harness 会代你组建一个由 18 类 Agent 组成的工程团队:
-
-| Agent 角色 | 职责 |
-| --- | --- |
-| Coordinator(协调员) | 读文档、维护 Project Status、分派任务,自己不写业务代码 |
-| Explore / Plan | 探索代码库 / 编写可验收的实施计划 |
-| Frontend / Backend / Database | 按 Issue + 计划在独立 Worktree 里实现 |
-| QA | 跑测试、收集证据(截图、Playwright、API trace、DB 数据) |
-| Bug Hunter / Behavior / Architecture Reviewer | **冷启动对抗式审查**,默认"实现一定有 Bug",只读 PR diff 和证据 |
-| Security / UI Reviewer | 条件触发(权限/支付/隐私 → Security;UI → UI) |
-| Conflict Resolver / Release / Review Aggregator | 冲突仲裁、发布前体检、审查汇总 |
-| Context Assembly / Memory Curator | 按 L0–L3 控制上下文,沉淀阶段经验 |
-
-每一次特性、每一次重构、每一次修复都走同一条闭环:
+`ai-engineering-harness` 不是一条 Prompt，而是一套**软件工程组织操作系统**。你给它一个失控的仓库，它代你组建一个由 18 类 Agent 组成的工程团队，走完整闭环：
 
 ```
 Idea → PRD → Issue → Agent 认领 → Worktree → 实施计划
      → 实现 → 自测 → Draft PR → CI → 对抗式审查 → 修 → 再审
-     → 证据闸门 → 必要时人工审批 → 合并 → 阶段总结 → 记忆沉淀 → 下一轮
+     → 证据闸门 → 人工审批 → 合并 → 阶段总结 → 记忆沉淀 → 下一轮
 ```
 
-代码只有在 **CI Pass + 至少 2 名冷启动审查员 Approved + 证据完整 + 必要时人工批准** 时才进入 `main`。没有"看起来跑通了"这种状态——只有"可验证地跑通了"。
+代码只有在 **CI Pass + 至少 2 名冷启动审查员 Approved + 证据完整** 时才进入 `main`。没有"看起来跑通了"这种状态——只有**"可验证地跑通了"**。
 
-### 一行安装(全局生效到所有 CLI Agent)
+### 3 个 skill，3 种能力
+
+这个仓库是一个 **skill 家族**，可以单独装，也可以一起装：
+
+| Skill | 能力 | 一句话 |
+|-------|------|--------|
+| **`$ai-engineering-harness`** | 工程接管与闭环交付 | 从 Issue 到 Merge 的全流程工程组织 |
+| **`$build-agent-app`** | Agent App 设计与合约 | 设计 AI Agent 应用，交给 harness 实现 |
+| **`$frontend-creative`** | Awwwards 级创意前端生成 | 用 AI 生成获奖级别的 Web UI |
+
+> AI 写得再快，也需要工程纪律。
+
+### 用户画像 · Who is this for
+
+- **你刚让 AI 写了一个项目**，能跑，但不敢改——不知道哪里埋了雷。
+- **你接手了一个老项目**，没有测试、没有 CI、没有文档，不知道从哪开始整理。
+- **你和团队用 AI 写代码**，但每次合并前都怕——不知道合进去的是什么。
+- **你想让 AI 帮你做一个产品**，而不只是一段代码——需要从 PRD 到部署的完整流程。
+
+### 解决什么问题 · What problems it solves
+
+| 痛点 | Harness 怎么解决 |
+|------|-----------------|
+| AI 写的代码能跑但不敢改 | 自动跑 Quick Scan 发现 vibe 残留，生成可追踪的 Issue |
+| 没有测试，改了怕炸 | 每个 Issue 强制产 Evidence（测试 + 截图 + API trace） |
+| CI 红了不知道谁炸的 | 阻塞式 CI Gate，红了就停在 recovery 流程，直到修好 |
+| 多人 / 多 Agent 改同一份代码 | Worktree 隔离 + Conflict Resolver |
+| 合入前不知道改了什么 | 冷启动对抗式审查（Bug Hunter + Behavior Reviewer） |
+| 知识丢在聊天历史里 | 每个 Phase 沉淀到 `memory/` + `docs/`，新 Agent 读这些再开工 |
+
+### 使用案例 · Use cases
+
+#### 从 PRD 启动新项目
+
+```bash
+Use $ai-engineering-harness to bootstrap this repo from PRD.md
+```
+
+Coordinator 会创建 `docs/`、`memory/`、`PROJECT_STATUS.md`、Issue/PR 模板，然后产出首批 Issue。
+
+#### 接手一个失控的老项目
+
+```bash
+Use $ai-engineering-harness to take over this repo
+```
+
+先 Quick Scan → 发现 chaos → 生成 Issue → 分派 Agent → 逐步修复。30 秒内知道从哪开始。
+
+#### 把一个 Issue 推到合并
+
+```bash
+Use $ai-engineering-harness to take Issue #17 from Planning to Done
+```
+
+走完整闭环：Plan → Worktree 分派 → 实现 → 自测 → Draft PR → CI → 对抗式审查 → 修循环 → Evidence Gate → 合并 → 记忆沉淀。
+
+### 安装 · Installation
+
+#### 一行安装（全局生效到所有 CLI Agent）
 
 ```bash
 npx -y skills add lora-sys/ai-engineering-harness -g --all
 ```
 
-- `-g`:全局安装(写入用户级 skill 目录,而非当前项目)
-- `--all`:把仓库里的所有 skill 安装到 **所有** 受支持的 CLI 编码 Agent
+- `-g`：全局安装（写入用户级 skill 目录）
+- `--all`：把 3 个 skill 全部装上，覆盖所有受支持的 CLI Agent
 
-完成后,这套 Skill 会被放到各 agent 的 skill 目录下,例如 `~/.claude/skills/ai-engineering-harness/`、`~/.claude/skills/build-agent-app/`、`~/.claude/skills/frontend-creative/`、`~/.cursor/skills/`、`~/.gemini/skills/`、`~/.qwen/skills/`、`~/.grok/skills/`、`~/.codex/skills/` 等 38 个 CLI Agent 的全局 Skill 目录。
+> ⚠️ **`--all` 装什么**：会把 `ai-engineering-harness` + `build-agent-app` + `frontend-creative` 三个 skill 一次性装到所有 40+ 个 CLI Agent。想只装一个，见下方"精确安装"。
 
+#### 精确安装
 
+```bash
+# 装之前先看看里面有什么
+npx -y skills add lora-sys/ai-engineering-harness --list
 
-> ⚠️ **`--all` 到底装什么**
->
-> `npx skills add lora-sys/ai-engineering-harness -g --all` 会把**本仓库所有 3 个 Skill** 一次性装到 **所有受支持的 Agent** — 全局生效。
->
-> 当前仓库里有 **3 个 Skill**:
-> - `ai-engineering-harness` — 工程协调 (Issue → PR → Merge → Memory)
-> - `build-agent-app` — 设计 agent app (Agent + Harness 合约)
-> - `frontend-creative` — Awwwards 级创意 web UI 生成
->
-> `--all` 会把这三个全部装上。如果你想只装其中一个,用下面的限制命令:
->
-> ```bash
-> # 装之前先看看里面有什么
-> npx -y skills add lora-sys/ai-engineering-harness --list
->
-> # 只装这一个 skill
-> npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness
->
-> # 只装到指定 agent
-> npx -y skills add lora-sys/ai-engineering-harness -g -a claude-code codex grok
->
-> # 同时限定:一个 skill 一个 agent
-> npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness -a claude-code
-> ```
->
-> 索引器使用的完整元数据见仓库根目录的 [`meta.json`](./meta.json)。
+# 只装这一个 skill
+npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness
 
-兼容性矩阵覆盖:Claude Code、Codex、Grok、Cursor、Gemini、Qwen、Cline、Hermes-Agent、Aider Desk、Amp、Antigravity、Continue、Cortex、Crush、Devin、Droid、Forgecode、Goose、Junie、Kilo、Kiro、Kode、Mar'sCode、Mistral Vibe、Mux、OpenCode、OpenHands、Pi、Qoder、Rovodev、Roo、Tabnine、Tinycloud、Trae、Warp、Windsurf、Zed、Zencoder、Zenflow、Neovate、Pochi、Adal 等 — `install.sh` 明确支持 40 个;`npx skills` CLI 生态系统涵盖 60+。
+# 只装到指定 agent
+npx -y skills add lora-sys/ai-engineering-harness -g -a claude-code codex grok
+```
 
-### 手动安装(若你想要更多控制)
+兼容 40+ CLI Agent：Claude Code、Codex、Grok、Cursor、Gemini、Qwen、Cline、Hermes-Agent、Continue、Devin、Roo、Tabnine、Trae、Warp、Windsurf、Zed 等。完整列表见 [`install.sh`](./install.sh)。
+
+#### 手动安装（若你想要更多控制）
 
 ```bash
 # 克隆
 git clone https://github.com/lora-sys/ai-engineering-harness.git
+cd ai-engineering-harness
+
+# 安装到所有 Agent（交互式选择目标）
+./install.sh
+
+# 安装到指定 Agent
+./install.sh --target claude
+
+# 一次性铺到所有可写目录
+./install.sh --all
+```
+
+`install.sh` 支持 40 个 target，详见下方兼容性表格。
+
+#### 一次性装齐 3 个 skill（推荐）
+
+```bash
+# 精简装（只 SKILL.md + meta.json）
+bash scripts/install-all-skills.sh
+
+# 完整装（workflows/ + references/ + templates/ 也复制）
+bash scripts/install-all-skills.sh --fat
+
+# 14 个目标全检查
+bash scripts/install-all-skills.sh --status
+```
 cd ai-engineering-harness
 
 # 安装到所有 Agent(交互式选择目标)
@@ -259,6 +293,16 @@ Done 不是"PR 合进去了",而是 `docs/evidence/<id>/` 里齐了:
 ├── examples/                   # 6 份已填写示例
 └── scripts/                    # new-session / new-evidence / new-worktree / refresh-index / changelog
 ```
+
+### 案例库 · Case Studies
+
+真实接管前后对比：[docs/case-studies/README.md](./docs/case-studies/README.md)
+
+| 案例 | Before → After | 关键数字 |
+|------|---------------|----------|
+| 内部工具项目（0 测试 → 47 测试） | Chaos 35 → 87 | F → B |
+| install-session-hook（Harness 自审） | 0 → 完整证据包 | 281 行 bundle + 374 字节 report |
+| Dashboard 一键接管 | 30 秒发现 23 个问题 | Chaos 42 → 目标 80+ |
 
 ### 展示 · Showcase
 

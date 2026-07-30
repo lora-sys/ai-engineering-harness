@@ -1,8 +1,8 @@
 # AI Engineering Harness
 
-> 一个由 AI Agent 组成的软件工程组织,负责把你脑子里到生产环境的每一行代码变成可验证、可审查、可追溯的工程交付。
+> **From "it kinda works" to verified.**
 >
-> A software-engineering organization of AI agents that turns every idea into verifiable, reviewable, shippable code — Issue → Worktree → Plan → Implement → Adversarial Review → Evidence → Merge → Memory.
+> A software-engineering organization of AI agents that turns vibe-coded repos into verifiable, reviewable, shippable code.
 
 <p align="left">
   <a href="#-one-line-install"><img alt="install" src="https://img.shields.io/badge/install-npx%20skills%20add%20lora--sys%2Fai--engineering--harness-111"></a>
@@ -12,51 +12,13 @@
 
 ![Architecture · AI Engineering Harness](./assets/architecture.svg)
 
-*Coordinator reads docs, owns the kanban, and spawns 18 Agent personas across 9 closed-loop workflows. Every cycle is evidence-gated: code reaches `main` only when CI is green, ≥2 cold-start reviewers approve, and the Evidence pack is complete. Memory is promoted every cycle so the project gets smarter without losing it to chat history.*
+### Do you have a repo like this?
 
+AI wrote 2,000 lines of code. It runs. But you're afraid to touch it. No tests. No CI. No docs. You know something is wrong, but you don't know where to start.
 
-**Social preview**:  [assets/social-preview.png](./assets/social-preview.png) (1200×630, for Twitter / GitHub social cards).
+**That's what Harness solves.**
 
-### Poster
-
-![AI Engineering Harness poster](assets/poster-harness.png)
-
-> Let every line of code have evidence. 18 AGENTS · 9 WORKFLOWS · ONE CLOSED LOOP. ISSUE → WORKTREE → PLAN → BUILD → REVIEW → EVIDENCE → MERGE → MEMORY.
-
----
-
----
-
-## English
-
-> **中文版本**: [README.md](README.md) · **English version**: you are here
-
-## English
-
-### What this is
-
-A **skill family of 3 skills**, installable separately or together:
-
-- **`$ai-engineering-harness`** (this skill) — engineering coordination (Issue → PR → Merge → Memory)
-- **`$build-agent-app`** — design an agent app (Agent + Harness contracts); hands off to this skill for implementation
-- **`$frontend-creative`** — Awwwards-grade creative web UI generation
-
-`ai-engineering-harness` is **a software-engineering organization**, not a coding prompt. Hand it an idea, a PRD, or a messy legacy repo — it spins up a 18-role AI engineering org that delivers every change through a verifiable, adversarial, evidence-gated loop.
-
-The agent roster:
-
-| Role | Purpose |
-| --- | --- |
-| **Coordinator** | Reads docs, owns the kanban, dispatches tasks — never writes feature code |
-| **Explore / Plan** | Read-only recon of the codebase / synthesize an Implementation Plan |
-| **Frontend / Backend / Database** | Implement on isolated Worktrees within their allow-lists |
-| **QA** | Run tests, capture screenshots / Playwright / API / DB evidence |
-| **Bug Hunter / Behavior Reviewer / Architecture Reviewer** | Cold-start adversarial reviewers — assume the implementation *has a bug*, only read the diff + evidence |
-| **Security Reviewer / UI Reviewer** | Conditional (auth/payments/PII/secrets → Security; UI change → UI) |
-| **Conflict Resolver / Release / Review Aggregator** | Merge disagreements, pre-release checks, fix-task dispatch |
-| **Context Assembly / Memory Curator** | L0–L3 context control, phase-graded memory |
-
-Every change goes through the same closed loop:
+`ai-engineering-harness` is **a software-engineering organization**, not a coding prompt. Hand it a mess, and it spins up an 18-role AI engineering team that walks a full closed loop:
 
 ```
 Idea → PRD → Issue → Agent claims → Worktree → Plan → Implement
@@ -65,59 +27,78 @@ Idea → PRD → Issue → Agent claims → Worktree → Plan → Implement
      → Phase summary → Memory update → next Issue
 ```
 
-Code only reaches `main` when **CI is green**, **≥2 cold-start reviewers approve**, **Evidence is complete**, and **human approval is on file when required**. There is no "it kinda works". There is only **verified** working.
+Code only reaches `main` when **CI is green**, **≥2 cold-start reviewers approve**, and **Evidence is complete**. There is no "it kinda works". There is only **verified** working.
 
-### One-line install — every CLI agent, globally
+### 3 Skills, 3 Capabilities
+
+This repo is a **skill family** — installable separately or together:
+
+| Skill | Capability | One-liner |
+|-------|-----------|-----------|
+| **`$ai-engineering-harness`** | Engineering takeover & closed-loop delivery | Full-stack engineering org from Issue to Merge |
+| **`$build-agent-app`** | Agent app design & contracts | Design an AI agent app, hand off to harness for implementation |
+| **`$frontend-creative`** | Awwwards-grade creative frontend | Generate award-winning Web UIs with AI |
+
+> AI can write fast. Engineering discipline makes it ship.
+
+---
+
+## English
+
+> **中文版本**: [README.md](README.md) · **English version**: you are here
+
+### How it works
+
+Hand it an idea, a PRD, or a messy repo — it spins up an 18-role AI engineering org and delivers every change through a verifiable, adversarial, evidence-gated loop.
+
+```
+Idea → PRD → Issue → Agent claims → Worktree → Plan → Implement
+     → Self-test → Draft PR → CI → Adversarial Review → Fix → Re-review
+     → Evidence Gate → Human Approval (when needed) → Merge
+     → Phase summary → Memory update → next Issue
+```
+
+Code only reaches `main` when **CI is green**, **≥2 cold-start reviewers approve**, and **Evidence is complete**. There is no "it kinda works". There is only **verified** working.
+
+**3 Skills, 3 Capabilities** — installable separately or together:
+
+| Skill | Capability | One-liner |
+|-------|-----------|-----------|
+| **`$ai-engineering-harness`** | Engineering takeover & closed-loop delivery | Full-stack engineering org from Issue to Merge |
+| **`$build-agent-app`** | Agent app design & contracts | Design an AI agent app, hand off to harness for implementation |
+| **`$frontend-creative`** | Awwwards-grade creative frontend | Generate award-winning Web UIs with AI |
+
+> AI can write fast. Engineering discipline makes it ship.
+
+#### One-line install — every CLI agent, globally
 
 ```bash
 npx -y skills add lora-sys/ai-engineering-harness -g --all
 ```
 
-- `-g` → user-level / global install (instead of project-level)
-- `--all` → install every skill in the repo into every supported CLI agent
+- `-g` → user-level / global install
+- `--all` → installs all 3 skills to every supported CLI agent
 
+> ⚠️ **What `--all` installs**: `ai-engineering-harness` + `build-agent-app` + `frontend-creative` to all 40+ CLI agents. See "Scoped install" below for fine control.
 
-> ⚠️ **What `--all` actually does**
->
-> `npx skills add lora-sys/ai-engineering-harness -g --all` installs **all 3 skills in this repo** into **every supported agent** — globally.
->
-> Today, the repo contains **3 skills**:
-> - `ai-engineering-harness` — engineering coordination (Issue → PR → Merge → Memory)
-> - `build-agent-app` — design an agent app (Agent + Harness contracts)
-> - `frontend-creative` — Awwwards-grade creative web UI generation
->
-> `--all` installs all three. If you only want one, use the scoping commands below:
->
-> ```bash
-> # Preview what's inside before installing
-> npx -y skills add lora-sys/ai-engineering-harness --list
->
-> # Limit to one skill
-> npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness
->
-> # Limit to specific agents
-> npx -y skills add lora-sys/ai-engineering-harness -g -a claude-code codex grok
->
-> # Both: one skill, one agent
-> npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness -a claude-code
-> ```
->
-> For full metadata about this skill (used by indexes), see [`meta.json`](./meta.json) at the repo root.
-
-
-After this runs, all 3 skills land in each agent's global skill directory:
-
-- `~/.claude/skills/ai-engineering-harness/` · `~/.claude/skills/build-agent-app/` · `~/.claude/skills/frontend-creative/`
-- `~/.cursor/skills/ai-engineering-harness/` · `~/.cursor/skills/build-agent-app/` · `~/.cursor/skills/frontend-creative/`
-- `~/.gemini/skills/` · `~/.qwen/skills/` · `~/.grok/skills/` · `~/.opencode/skills/` (all three skills in each)
-- and 30+ more agents — see the full compatibility matrix below.
-
-**Supported agents**: Claude Code · Codex · Grok · Cursor · Gemini · Qwen · Cline · Hermes-Agent · Aider Desk · Amp · Antigravity · Continue · Cortex · Crush · Devin · Droid · Forgecode · Goose · Junie · Kilo · Kiro · Kode · Marscode · Mistral Vibe · Mux · OpenCode · OpenHands · Pi · Qoder · Rovodev · Roo · Tabnine · Tinycloud · Trae · Trae-CN · Warp · Windsurf · Zed · Zencoder · Zenflow · Neovate · Pochi · Adal · Bob · Codebuddy · Commandcode · KiloCode · Lingma · Loaf · Moxby · Vibe (40 explicitly listed in `install.sh`; 60+ covered by the npx skills CLI ecosystem; see install.sh --list for the exact set).
-
-### Manual install — more control
+#### Scoped install
 
 ```bash
-# Clone
+# Preview before installing
+npx -y skills add lora-sys/ai-engineering-harness --list
+
+# One skill only
+npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness
+
+# Specific agents only
+npx -y skills add lora-sys/ai-engineering-harness -g -a claude-code codex grok
+```
+
+Compatible with 40+ CLI agents: Claude Code, Codex, Grok, Cursor, Gemini, Qwen, Cline, Hermes-Agent, Continue, Devin, Roo, Tabnine, Trae, Warp, Windsurf, Zed and more.
+
+#### Manual install — more control
+
+```bash
 git clone https://github.com/lora-sys/ai-engineering-harness.git
 cd ai-engineering-harness
 
@@ -125,69 +106,27 @@ cd ai-engineering-harness
 ./install.sh
 
 # Specific target
-./install.sh --target codex
 ./install.sh --target claude
 ./install.sh --target cursor
 
 # Every writable location
 ./install.sh --all
-
-# Uninstall
-./install.sh --uninstall
 ```
 
-`install.sh` targets (full list):
-
-`codex`, `claude`, `agents`, `cursor`, `gemini`, `qwen`, `opencode`, `grok`, `hermes-agent`, `hermes`, `aider-desk`, `augment`, `bob`, `codebuddy`, `commandcode`, `continue`, `crush`, `devin`, `factory`, `forge`, `goose`, `iflow`, `junie`, `kilocode`, `kiro`, `kode`, `marscode`, `mux`, `neovate`, `openhands`, `pi`, `pochi`, `roo`, `snowflake`, `tabnine`, `trae`, `trae-cn`, `vibe`, `zencoder`, `adal`.
+`install.sh` supports 40 targets. Full list: `codex`, `claude`, `agents`, `cursor`, `gemini`, `qwen`, `opencode`, `grok`, `hermes-agent`, `hermes`, `aider-desk`, `augment`, `bob`, `codebuddy`, `commandcode`, `continue`, `crush`, `devin`, `factory`, `forge`, `goose`, `iflow`, `junie`, `kilocode`, `kiro`, `kode`, `marscode`, `mux`, `neovate`, `openhands`, `pi`, `pochi`, `roo`, `snowflake`, `tabnine`, `trae`, `trae-cn`, `vibe`, `zencoder`, `adal`.
 
 #### Bulk-install the whole family (recommended)
 
-`install.sh` only installs the skill you name. To install all 3 sibling skills in one go:
-
 ```bash
-# Thin install (SKILL.md + meta.json only — what npx skills does for the main skill):
-bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh
+# Thin install (SKILL.md + meta.json only)
+bash scripts/install-all-skills.sh
 
-# Fat install (full bundle — workflows/, references/, templates/):
-bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh --fat
+# Fat install (full bundle — workflows/, references/, templates/)
+bash scripts/install-all-skills.sh --fat
 
-# Status check across all 14 supported targets:
-bash /path/to/ai-engineering-harness/scripts/install-all-skills.sh --status
+# Status check across 14 targets
+bash scripts/install-all-skills.sh --status
 ```
-
-This installs `ai-engineering-harness` + `build-agent-app` + `frontend-creative` to **all 14 supported agent platforms** (Codex, Claude, Cursor, Gemini, Qwen, OpenCode, Grok, Hermes, AiderDesk, Augment, Trae, etc.). Use this when you want Codex to discover the siblings as `@build-agent-app` and `@frontend-creative` (not just `@ai-engineering-harness`).
-
-### Managing existing projects (the upgrade flow)
-
-The harness evolves — v1.0 added the closed loop, v1.4 added `sync-project.sh`, v1.7 added GHA + 4 theme variants, v1.8 added `--auto` + `register-existing.sh`. **Projects you've already taken over with the skill need to be re-synced to pick up the new features.**
-
-Three paths, all idempotent and non-destructive:
-
-```bash
-# 1. Update the harness install (the skill itself).
-npx -y skills update lora-sys/ai-engineering-harness -g
-
-# 2. Update a SINGLE project you already manage:
-bash /path/to/ai-engineering-harness/scripts/sync-project.sh --project-dir ~/projects/my-app --auto
-
-# 3. Update MANY projects at once (e.g. all your repos):
-bash /path/to/ai-engineering-harness/scripts/register-existing.sh ~/repos
-# Walks the tree, finds every AGENTS.md + docs/evidence/ project,
-# and runs #2 on the ones without .harness-state.json. One-shot.
-```
-
-After syncing, verify:
-
-```bash
-bash /path/to/ai-engineering-harness/scripts/sync-project.sh --project-dir ~/projects/my-app --status
-# Output: "Status: in sync"
-```
-
-**Non-destructive by design** — migrations never overwrite user content:
-- `compact-report.json` is never overwritten (only created when missing).
-- AGENTS.md fenced blocks (`<!-- HARNESS:START name -->`) are bounded — the harness owns the block, the user owns everything else.
-- `.github/ISSUE_TEMPLATE/` and `PULL_REQUEST_TEMPLATE.md` are copied only if missing.
-- `.harness-state.json` only changes the `last_synced_at` timestamp on re-runs.
 
 ### Typical usage
 
