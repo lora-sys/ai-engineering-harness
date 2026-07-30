@@ -479,6 +479,57 @@ CI is red on PR #N. Use $ai-engineering-harness to recover.
 | install-session-hook（Harness 自审） | 0 → 完整证据包 | 281 行 bundle + 374 字节 report |
 | Dashboard 一键接管 | 30 秒发现 23 个问题 | Chaos 42 → 目标 80+ |
 
+## 快速上手 · Quickstart
+
+5 步跑通第一个闭环。完整教程（9 节，含逐 Phase 拆解与可复制的 prompt 模板）见
+**[QUICKSTART.md](./QUICKSTART.md)**。
+
+1. **装上** — `npx -y skills add lora-sys/ai-engineering-harness -g --all --full-depth`
+2. **接管** — 在你的仓库里说 `Use $ai-engineering-harness to take over this repo`
+3. **看清楚** — Quick Scan 报出类别 + 最差位置；`bash skills/dashboard/scripts/scan-to-issues.sh` 干跑看草稿，`--create` 才真的落库
+4. **推一个 Issue 到 merged** — `Use $ai-engineering-harness to take Issue #N from Planning to Done`
+5. **收尾** — 证据落在 `docs/evidence/<id>/`，结论落在 `memory/`；下一个 Session 的 Agent 读这些开工
+
+想深入哪一段，直接跳 QUICKSTART.md 对应的一节：
+
+| 想知道 | 去哪一节 |
+|--------|----------|
+| 这个 skill 该不该用在我的场景 | 1 · When to use this skill |
+| 9 条运行原则 | 2 · The 9 operating principles |
+| 10 个工作流怎么挑 | 3 · Pick the right workflow |
+| 从 bootstrap 到接外部 PR 的完整走一遍 | 4 · End-to-end example |
+| 已接管的项目怎么升级 | 5 · Managing existing projects |
+| 可复制的 prompt 模板 | 7 · Prompt templates |
+| 该做 / 不该做 | 8 · Cheat sheet |
+
+## 疑问解答 · FAQ
+
+**这和直接让 AI 写代码有什么区别？**
+AI 写代码是 `model`，这是 `harness`。区别在进 `main` 的条件不是"我觉得可以"，
+而是 CI 绿 + ≥ 2 名冷启动审查员 Approved + 证据齐全。三者缺一就不是 Done。
+
+**必须用 GitHub 吗？**
+不必须。Issue / PR 是工作单元的载体，`scan-to-issues.sh --create` 用 `gh`，
+但没有 `gh` 时干跑仍然可用；证据与状态全部落盘（`docs/evidence/`、`memory/`、
+`sessions/`），不依赖任何 SaaS。
+
+**会不会改我的东西？**
+迁移是非破坏性的：`compact-report.json` 只在缺失时创建；`AGENTS.md` 只动
+`<!-- HARNESS:START -->` 围栏内的内容，围栏外全归你；模板只在缺失时复制；
+重跑 `sync-project.sh` 只更新 `last_synced_at`。
+
+**只想要其中一个能力，能不装全家吗？**
+可以：`npx -y skills add lora-sys/ai-engineering-harness -g -s <skill>`，
+或 `bash install.sh --skill <name>`。
+
+**装完只看到 `SKILL.md`？**
+那是 `npx skills` 的 thin canonical 设计。用 `./install.sh --fat-install` 拿到完整
+bundle；成因详见 [README_EN.md 的 Troubleshooting](./README_EN.md#troubleshooting--安装常见问题)。
+
+**版本号为什么是 0.2.x，而 CHANGELOG 里有 1.x？**
+现行版本是 [`VERSION`](./VERSION) 与 `meta.json` 里的 **0.2.2**。1.x 是早期一段历史
+的编号，CHANGELOG 保留原样不改写。**以 0.2.x 为准**。
+
 ## 路线图 · Roadmap
 
 三段：**Active**（本周在做的）、**Backlog**（计划中）、**Done**（已发布）。
