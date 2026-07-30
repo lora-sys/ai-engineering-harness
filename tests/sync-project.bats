@@ -134,15 +134,37 @@ MD
 @test "sync-project is idempotent (running twice produces same state)" {
   fake_project_with_evidence
   bash "$SCRIPT" --project-dir "$TMPDIR" --apply >/dev/null 2>&1
-  # Capture state file content + fenced block content
-  state1=$(cat .harness-state.json)
+  # Compare everything EXCEPT last_synced_at, which is supposed to move on every
+  # sync -- that is what it records. Comparing the whole file made this test a
+  # coin flip: `date -Iseconds` is second-resolution, so it passed only when both
+  # runs landed inside the same second (measured: 8 of 12 straddled a boundary
+  # and failed). bootstrapped_at is in scope here -- it must be *preserved*.
+  state1=$(python3 -c 'import json,sys; d=json.load(open(".harness-state.json")); d.pop("last_synced_at",None); print(json.dumps(d,sort_keys=True))')
   agents1=$(awk "/HARNESS:START harness-capabilities/{p=1;next} p&&/HARNESS:END/{exit} p" AGENTS.md | md5sum | cut -c1-32)
   # Run again
   bash "$SCRIPT" --project-dir "$TMPDIR" --apply >/dev/null 2>&1
-  state2=$(cat .harness-state.json)
+  state2=$(python3 -c 'import json,sys; d=json.load(open(".harness-state.json")); d.pop("last_synced_at",None); print(json.dumps(d,sort_keys=True))')
   agents2=$(awk "/HARNESS:START harness-capabilities/{p=1;next} p&&/HARNESS:END/{exit} p" AGENTS.md | md5sum | cut -c1-32)
-  [ "$state1" = "$state2" ]
-  [ "$agents1" = "$agents2" ]
+  [ "$state1" = "$state2" ] || { echo "state drifted: $state1 != $state2" >&2; false; }
+  [ "$agents1" = "$agents2" ] || { echo "AGENTS.md block drifted" >&2; false; }
+}
+
+@test "sync-project preserves bootstrapped_at but advances last_synced_at" {
+  # The other half of idempotency, and the reason last_synced_at is excluded
+  # from the comparison above: it is *meant* to move. Excluding a field without
+  # asserting its behavior somewhere would let a bug that stops updating it --
+  # or one that resets bootstrapped_at on every sync -- pass unnoticed.
+  fake_project_with_evidence
+  bash "$SCRIPT" --project-dir "$TMPDIR" --apply >/dev/null 2>&1
+  read -r boot1 sync1 <<<"$(python3 -c 'import json; d=json.load(open(".harness-state.json")); print(d["bootstrapped_at"], d["last_synced_at"])')"
+
+  # Force a distinct second so the comparison is meaningful either way.
+  sleep 1.1
+  bash "$SCRIPT" --project-dir "$TMPDIR" --apply >/dev/null 2>&1
+  read -r boot2 sync2 <<<"$(python3 -c 'import json; d=json.load(open(".harness-state.json")); print(d["bootstrapped_at"], d["last_synced_at"])')"
+
+  [ "$boot1" = "$boot2" ] || { echo "bootstrapped_at was overwritten: $boot1 -> $boot2" >&2; false; }
+  [ "$sync1" != "$sync2" ] || { echo "last_synced_at did not advance: $sync1" >&2; false; }
 }
 
 @test "sync-project --status reports drift when out of date" {
