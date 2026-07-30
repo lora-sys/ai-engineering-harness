@@ -1,6 +1,6 @@
 {
   "id": "dashboard",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "name": "Dashboard",
   "description": "Visual dashboard for ai-engineering-harness. Dark-themed, zero-dep. Triggers: $dashboard, show dashboard, project health, evidence, kanban, chaos score, quick scan, vibe signs. Run: bash scripts/dashboard.sh → :4321",
   "category": "observability",

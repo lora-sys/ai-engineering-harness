@@ -11,6 +11,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > safety, or onboarding therefore bump the patch number. See `memory/notes-2026-07-11.md`
 > for the rationale (decision D-006).
 
+## [0.2.1] - 2026-07-29
+
+Trigger-routing optimization: concise descriptions + keyword table + dashboard auto-start.
+
+### Changed
+
+- **`SKILL.md`** — rewritten trigger rules: keyword→skill routing table (3 rows), dashboard auto-start rule, §10 activation steps include keyword routing + dashboard check
+- **`SKILL.md` frontmatter description** — trimmed from ~500 to 266 chars (removed agent name list, kept route verbs)
+- **`meta.json` description** — trimmed to match frontmatter
+- **`skills/frontend-creative/SKILL.md`** — 102 → 75 lines; moved workflow table, reference list, examples to compact format
+- **`skills/frontend-creative/meta.json`** — description trimmed to 285 chars with trigger keywords
+- **`skills/build-agent-app/SKILL.md`** — 139 → 84 lines; collapsed principle list + workflow section
+- **`skills/build-agent-app/meta.json`** — description trimmed to 289 chars with trigger keywords
+- **`skills/dashboard/SKILL.md`** — 126 → 75 lines; moved API table to compact format, merged architecture into run section
+- **`skills/dashboard/meta.json`** — description trimmed to 215 chars with trigger keywords + port
+
+### Files changed
+
+```
+M SKILL.md                                       trigger rules + dashboard auto-start
+M meta.json                                      v0.2.0 → v0.2.1 + trimmed description
+M skills/frontend-creative/SKILL.md              102 → 75 lines
+M skills/frontend-creative/meta.json              trimmed description
+M skills/build-agent-app/SKILL.md                139 → 84 lines
+M skills/build-agent-app/meta.json                trimmed description
+M skills/dashboard/SKILL.md                      126 → 75 lines
+M skills/dashboard/meta.json                      trimmed description
+```
+
 ## [0.2.0] - 2026-07-30
 
 Dashboard skill Quick Scan — one-click takeover entry experience.
