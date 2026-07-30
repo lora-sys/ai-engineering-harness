@@ -91,11 +91,12 @@ Use $ai-engineering-harness to take Issue #17 from Planning to Done
 #### 一行安装（全局生效到所有 CLI Agent）
 
 ```bash
-npx -y skills add lora-sys/ai-engineering-harness -g --all
+npx -y skills add lora-sys/ai-engineering-harness -g --all --full-depth
 ```
 
 - `-g`：全局安装（写入用户级 skill 目录）
-- `--all`：把 3 个 skill 全部装上，覆盖所有受支持的 CLI Agent
+- `--all`：安装到所有受支持的 CLI Agent
+- `--full-depth`：发现并安装所有 skill（包括 `build-agent-app`、`frontend-creative`、`dashboard`）
 
 > ⚠️ **`--all` 装什么**：会把 `ai-engineering-harness` + `build-agent-app` + `frontend-creative` 三个 skill 一次性装到所有 40+ 个 CLI Agent。想只装一个，见下方"精确安装"。
 

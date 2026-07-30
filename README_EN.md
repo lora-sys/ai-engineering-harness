@@ -73,13 +73,12 @@ Code only reaches `main` when **CI is green**, **≥2 cold-start reviewers appro
 #### One-line install — every CLI agent, globally
 
 ```bash
-npx -y skills add lora-sys/ai-engineering-harness -g --all
+npx -y skills add lora-sys/ai-engineering-harness -g --all --full-depth
 ```
 
-- `-g` → user-level / global install
-- `--all` → installs all 3 skills to every supported CLI agent
-
-> ⚠️ **What `--all` installs**: `ai-engineering-harness` + `build-agent-app` + `frontend-creative` to all 40+ CLI agents. See "Scoped install" below for fine control.
+- `-g` → global install
+- `--all` → installs to every supported CLI agent
+- `--full-depth` → discovers all skills in subdirectories (build-agent-app, frontend-creative, dashboard)
 
 #### Scoped install
 
