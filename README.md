@@ -100,8 +100,8 @@ Done 不是"PR 合进去了"，而是 `docs/evidence/<id>/` 里齐了：
 | [`hooks/`](./hooks/) | — | Claude Code SessionStart hook |
 | [`scripts/`](./scripts/) | — | 维护脚本，见 [CONTRIBUTING.md](./CONTRIBUTING.md) |
 
-入口是 [`SKILL.md`]（./SKILL.md）（Agent 加载的第一份文件）与
-[`install.sh`]（./install.sh）（支持 40 个 CLI Agent target）。
+入口是 [`SKILL.md`](./SKILL.md)（Agent 加载的第一份文件）与
+[`install.sh`](./install.sh)（支持 40 个 CLI Agent target）。
 
 ## 安装 · Installation
 
@@ -131,7 +131,7 @@ npx -y skills add lora-sys/ai-engineering-harness -g -s ai-engineering-harness
 npx -y skills add lora-sys/ai-engineering-harness -g -a claude-code codex grok
 ```
 
-兼容 40 个 CLI Agent：Claude Code、Codex、Grok、Cursor、Gemini、Qwen、Cline、Hermes-Agent、Continue、Devin、Roo、Tabnine、Trae、Warp、Windsurf、Zed 等。完整列表见 [`install.sh`]（./install.sh）。
+兼容 40 个 CLI Agent：Claude Code、Codex、Grok、Cursor、Gemini、Qwen、Cline、Hermes-Agent、Continue、Devin、Roo、Tabnine、Trae、Warp、Windsurf、Zed 等。完整列表见 [`install.sh`](./install.sh)。
 
 ### 手动安装（若你想要更多控制）
 
@@ -173,7 +173,7 @@ bash scripts/install-all-skills.sh --status
 
 `install.sh` 支持 40 个 target，覆盖 Claude Code、Codex、Cursor、Gemini、Qwen、
 Grok、OpenCode、Continue、Roo、Tabnine、Trae、Zed 等。完整列表与各自的安装路径
-见下表，或直接读 [`install.sh`]（./install.sh）。
+见下表，或直接读 [`install.sh`](./install.sh)。
 
 <details>
 <summary><b>40 个 target 与安装路径（点开）</b></summary>
@@ -467,17 +467,22 @@ CI is red on PR #N. Use $ai-engineering-harness to recover.
 - Adversarial review 我只做了一行自问自答。真生产里得 spawn `bug-hunter` + `behavior-reviewer`。
 - 没有真的开 GitHub Issue #15 —— 在自己仓库上很容易跳过这一步。
 
-完整自审：[docs/evidence/15/self-review.md]（./docs/evidence/15/self-review.md）。
+完整自审：[docs/evidence/15/self-review.md](./docs/evidence/15/self-review.md)。
 
 ### 案例库 · Case Studies
 
-真实接管前后对比：[docs/case-studies/README.md](./docs/case-studies/README.md)
+接管前后对比：[docs/case-studies/README.md](./docs/case-studies/README.md)
 
-| 案例 | Before → After | 关键数字 |
-|------|---------------|----------|
-| 内部工具项目（0 测试 → 47 测试） | Chaos 35 → 87 | F → B |
-| install-session-hook（Harness 自审） | 0 → 完整证据包 | 281 行 bundle + 374 字节 report |
-| Dashboard 一键接管 | 30 秒发现 23 个问题 | Chaos 42 → 目标 80+ |
+**真实**案例的每个数字都能追到一个 commit；**示意**案例展示的是接管应该长什么样，
+数字是设计目标。分界写在表里，而不是留给读者猜：
+
+| 案例 | Before → After | 类型 · 证据 |
+|------|---------------|-------------|
+| 内部工具项目（0 测试 → 47 测试） | Chaos 35 → 87 | 示意 · 无公开仓库可核对 |
+| install-session-hook（Harness 自审） | 0 → 完整证据包 | **真实** · [`docs/evidence/15/`](./docs/evidence/15/) |
+| Dashboard 一键接管 | 30 秒发现 23 个问题 | 示意 · 输出形态真实，findings 构造 |
+| 测试通过 ≠ 测试有效（issue #9） | 9 个检测器、24 个装饰性测试 → 10 个检测器、39 个真断言 | **真实** · commits `9cbff11`、`1c9900f` |
+| 绿色的 CI 骗了我们（issue #13） | CI 全绿而本地 85/108 + 无限挂起 → 108/108、75 秒 | **真实** · commit `f92fd53` |
 
 ## 快速上手 · Quickstart
 
@@ -591,6 +596,6 @@ After each Phase, the Coordinator automatically runs `workflows/06-phase-summary
 
 ## 许可 · License
 
-MIT — 见 [LICENSE]（./LICENSE）。
+MIT — 见 [LICENSE](./LICENSE)。
 
 > 让每一行代码，都有证据。

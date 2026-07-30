@@ -565,6 +565,22 @@ Full self-review: [docs/evidence/15/self-review.md](./docs/evidence/15/self-revi
 - Not a green-tick theatre. The honest self-review section above names real gaps.
 - Not a replacement for adversarial review. The e2e ran with solo self-review; in production you'd run `bug-hunter` + `behavior-reviewer` per the harness's closed loop.
 
+### Case studies
+
+Before/after takeovers: [docs/case-studies/README.md](./docs/case-studies/README.md)
+
+Every number in an **evidenced** case traces to a commit. **Illustrative** cases
+show what a takeover should look like; their numbers are design targets. The line
+between the two is in the table, not left to the reader:
+
+| Case | Before → After | Type · Evidence |
+|------|----------------|-----------------|
+| Internal tool project (0 → 47 tests) | Chaos 35 → 87 | Illustrative · no public repo to check |
+| install-session-hook (harness self-audit) | 0 → full evidence pack | **Evidenced** · [`docs/evidence/15/`](./docs/evidence/15/) |
+| Dashboard one-click takeover | 23 findings in 30s | Illustrative · output shape real, findings constructed |
+| Passing tests ≠ effective tests (#9) | 9 detectors, 24 decorative tests → 10 detectors, 39 real assertions | **Evidenced** · commits `9cbff11`, `1c9900f` |
+| The green CI lied to us (#13) | CI green while local was 85/108 + infinite hang → 108/108 in 75s | **Evidenced** · commit `f92fd53` |
+
 ## Roadmap
 
 Three lanes: **Active** (in progress this week), **Backlog** (planned, queued), **Done** (shipped).
