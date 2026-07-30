@@ -5,12 +5,14 @@
 > A software-engineering organization of AI agents that turns vibe-coded repos into verifiable, reviewable, shippable code.
 
 <p align="left">
-  <a href="#-one-line-install"><img alt="install" src="https://img.shields.io/badge/install-npx%20skills%20add%20lora--sys%2Fai--engineering--harness-111"></a>
+  <a href="#one-line-install--every-cli-agent-globally"><img alt="install" src="https://img.shields.io/badge/install-npx%20skills%20add%20lora--sys%2Fai--engineering--harness-111"></a>
   <a href="./LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-blue"></a>
   <a href="https://github.com/lora-sys/ai-engineering-harness"><img alt="stars" src="https://img.shields.io/badge/stars-%E2%AD%90%EF%B8%8F-yellow"></a>
 </p>
 
 ![Architecture · AI Engineering Harness](./assets/architecture.svg)
+
+## Positioning
 
 ### Do you have a repo like this?
 
@@ -29,7 +31,9 @@ Idea → PRD → Issue → Agent claims → Worktree → Plan → Implement
 
 Code only reaches `main` when **CI is green**, **≥2 cold-start reviewers approve**, and **Evidence is complete**. There is no "it kinda works". There is only **verified** working.
 
-### 3 Skills, 3 Capabilities
+## What's inside
+
+### 3 Capabilities + 1 Observability Panel
 
 This repo is a **skill family** — installable separately or together:
 
@@ -38,39 +42,77 @@ This repo is a **skill family** — installable separately or together:
 | **`$ai-engineering-harness`** | Engineering takeover & closed-loop delivery | Full-stack engineering org from Issue to Merge |
 | **`$build-agent-app`** | Agent app design & contracts | Design an AI agent app, hand off to harness for implementation |
 | **`$frontend-creative`** | Awwwards-grade creative frontend | Generate award-winning Web UIs with AI |
+| **`$dashboard`** | _Optional · observability panel_ | Quick Scan + kanban, scaffolded into a project and auto-started |
+
+The first three are **delivery** capabilities you invoke to produce work. `dashboard`
+is different: it gets scaffolded into a project (`.dashboard/` + `localhost:4321`)
+and only activates once that directory exists.
 
 > AI can write fast. Engineering discipline makes it ship.
-
----
-
-## English
 
 > **中文版本**: [README.md](README.md) · **English version**: you are here
 
-### How it works
+## How it works
 
-Hand it an idea, a PRD, or a messy repo — it spins up an 18-role AI engineering org and delivers every change through a verifiable, adversarial, evidence-gated loop.
+#### Required Issue fields
 
-```
-Idea → PRD → Issue → Agent claims → Worktree → Plan → Implement
-     → Self-test → Draft PR → CI → Adversarial Review → Fix → Re-review
-     → Evidence Gate → Human Approval (when needed) → Merge
-     → Phase summary → Memory update → next Issue
-```
+Context / Goal / Scope / Non-Goal / Related Docs / Implementation Plan / Acceptance Criteria / Evidence Requirements / Reviewer Requirements / Owner / Estimate. The Coordinator refuses to start coding on an Issue missing any field.
 
-Code only reaches `main` when **CI is green**, **≥2 cold-start reviewers approve**, and **Evidence is complete**. There is no "it kinda works". There is only **verified** working.
+#### L0–L3 context control
 
-**3 Skills, 3 Capabilities** — installable separately or together:
+- **L0** — always-on rules (sketch of `AGENTS.md`, `ENGINEERING.md`, `CONTRIBUTING.md`)
+- **L1** — task-local (Issue body, relevant module doc, ADR, ACs)
+- **L2** — adjacent modules, recent phase summaries, interface contracts
+- **L3** — deep context (only on explicit request); PDFs / images / long reports must be summarized, not loaded whole
 
-| Skill | Capability | One-liner |
-|-------|-----------|-----------|
-| **`$ai-engineering-harness`** | Engineering takeover & closed-loop delivery | Full-stack engineering org from Issue to Merge |
-| **`$build-agent-app`** | Agent app design & contracts | Design an AI agent app, hand off to harness for implementation |
-| **`$frontend-creative`** | Awwwards-grade creative frontend | Generate award-winning Web UIs with AI |
+`agents/context-assembly.md` produces a `context-manifest.md` for every task, so reviewers can audit what each Agent saw.
 
-> AI can write fast. Engineering discipline makes it ship.
+#### Evidence Gate
 
-#### One-line install — every CLI agent, globally
+"Done" means `docs/evidence/<id>/` contains:
+
+- `change-summary.md`, `verification.md` (PASS/FAIL per AC)
+- Frontend: 6-state screenshots (desktop/tablet/mobile/empty/error/loading) + Playwright trace + console clean + a11y scan
+- Backend: API trace, exception coverage, auth negative cases, perf baseline
+- Database: migration + rollback, pre/post stats, sample rows
+- Reviewers: `review-<role>.md` × ≥ 2 + `fix-tasks.md` Aggregator ✅
+- CI: green, no Critical/High blocker
+
+#### Human Approval Gate
+
+Triggered for: auth/authz model · DB schema with data migration · production secrets or paid APIs · release/version. The Coordinator posts a `Waiting for Approval` note on `PROJECT_STATUS.md` and pauses.
+
+#### File-system message bus
+
+Each Session has `sessions/<id>/{status,plan,execution,review,summary}.md`. Agents coordinate through files, not chat. New Sessions read `memory/` + the last `summary.md` to resume.
+
+### When NOT to use this skill
+
+- One-file throwaway edits
+- Prototypes you don't intend to keep
+- You want to write the code yourself
+
+### Repository layout
+
+| Directory | Count | What it holds |
+|-----------|------:|---------------|
+| [`agents/`](./agents/) | 18 <!-- count:agents --> | Agent personas |
+| [`workflows/`](./workflows/) | 10 <!-- count:workflows --> | Closed-loop procedures (incl. `09-pr-intake.md`) |
+| [`templates/`](./templates/) | 16 <!-- count:templates --> | Issue / Plan / PR / Review / Evidence / Phase / ADR |
+| [`checklists/`](./checklists/) | 6 <!-- count:checklists --> | Acceptance checklists |
+| [`references/`](./references/) | 11 <!-- count:references --> | Deep-dive docs (L0–L3, indexing, worktree, spawning, CI, sessions) |
+| [`examples/`](./examples/) | 7 <!-- count:examples --> | Filled samples |
+| [`skills/`](./skills/) | 3 <!-- count:skills --> | Sibling skills (`build-agent-app` / `frontend-creative` / `dashboard`) |
+| [`tests/`](./tests/) | — | bats regression suite |
+| [`hooks/`](./hooks/) | — | Claude Code SessionStart hook |
+| [`scripts/`](./scripts/) | — | Maintenance scripts, see [CONTRIBUTING.md](./CONTRIBUTING.md) |
+
+Entry points are [`SKILL.md`](./SKILL.md) (the first file every Agent loads) and
+[`install.sh`](./install.sh) (40 CLI-agent targets).
+
+## Installation
+
+### One-line install — every CLI agent, globally
 
 ```bash
 npx -y skills add lora-sys/ai-engineering-harness -g --all --full-depth
@@ -127,6 +169,63 @@ bash scripts/install-all-skills.sh --fat
 bash scripts/install-all-skills.sh --status
 ```
 
+## Compatible CLI agents
+
+`install.sh` supports 40 targets, covering Claude Code, Codex, Cursor, Gemini,
+Qwen, Grok, OpenCode, Continue, Roo, Tabnine, Trae, Zed and more. Full list with
+install paths below, or read [`install.sh`](./install.sh) directly.
+
+<details>
+<summary><b>40 targets and their install paths (click to expand)</b></summary>
+
+| Compatibility / 兼容性 | Install path / 安装路径 | Status after one-liner / 一行安装后状态 |
+| --- | --- | --- |
+| Claude Code | `~/.claude/skills/` | ✅ |
+| Codex | `~/.codex/skills/` | ✅ |
+| Cursor | `~/.cursor/skills/` | ✅ |
+| Gemini CLI | `~/.gemini/skills/` | ✅ |
+| Qwen / Qoder | `~/.qwen/skills/` | ✅ |
+| Grok CLI | `~/.grok/skills/` | ✅ |
+| OpenCode | `~/.config/opencode/skills/` | ✅ |
+| Hermes-Agent | `~/.hermes/hermes-agent/skills/` | ✅ |
+| Hermes | `~/.hermes/skills/` | ✅ |
+| Aider Desk | `~/.aider-desk/skills/` | ✅ |
+| Augment | `~/.augment/skills/` | ✅ |
+| Bob | `~/.bob/skills/` | ✅ |
+| Codebuddy | `~/.codebuddy/skills/` | ✅ |
+| Commandcode | `~/.commandcode/skills/` | ✅ |
+| Continue | `~/.continue/skills/` | ✅ |
+| Crush | `~/.config/crush/skills/` | ✅ |
+| Devin | `~/.config/devin/skills/` | ✅ |
+| Factory | `~/.factory/skills/` | ✅ |
+| Forge | `~/.forge/skills/` | ✅ |
+| Goose | `~/.config/goose/skills/` | ✅ |
+| iFlow | `~/.iflow/skills/` | ✅ |
+| Junie | `~/.junie/skills/` | ✅ |
+| KiloCode | `~/.kilocode/skills/` | ✅ |
+| Kiro | `~/.kiro/skills/` | ✅ |
+| Kode | `~/.kode/skills/` | ✅ |
+| Marscode | `~/.marscode/skills/` | ✅ |
+| Mux | `~/.mux/skills/` | ✅ |
+| Neovate | `~/.neovate/skills/` | ✅ |
+| OpenHands | `~/.openhands/skills/` | ✅ |
+| Pi | `~/.pi/agent/skills/` | ✅ |
+| Pochi | `~/.pochi/skills/` | ✅ |
+| Roo | `~/.roo/skills/` | ✅ |
+| Snowflake Cortex | `~/.snowflake/cortex/skills/` | ✅ |
+| Tabnine | `~/.tabnine/skills/` | ✅ |
+| Trae | `~/.trae/skills/` | ✅ |
+| Trae-CN | `~/.trae-cn/skills/` | ✅ |
+| Vibe | `~/.vibe/skills/` | ✅ |
+| Zencoder | `~/.zencoder/skills/` | ✅ |
+| Adal | `~/.adal/skills/` | ✅ |
+| `.agents/` (unified) | `~/.agents/skills/` | ⏳ pending OS-level mount-RW on this system |
+---
+
+</details>
+
+## Use cases
+
 ### Typical usage
 
 #### 1. Start a brand-new project from a PRD
@@ -156,67 +255,215 @@ Use $ai-engineering-harness to take Issue #17 from Planning to Done.
 
 That walks: write Plan → spawn Frontend/Backend/Database on Worktrees → implement → self-test → Draft PR → CI → adversarial review → fix loop → Evidence Gate → merge → phase summary → memory write.
 
-### How it works
+## Usage Guide
 
-#### Required Issue fields
+> This section makes "how to actually use it" concrete. Read the 4 high-frequency
+> invocations first, then the operating principles, then advanced usage and anti-patterns.
 
-Context / Goal / Scope / Non-Goal / Related Docs / Implementation Plan / Acceptance Criteria / Evidence Requirements / Reviewer Requirements / Owner / Estimate. The Coordinator refuses to start coding on an Issue missing any field.
+### Top 4 invocations
 
-#### L0–L3 context control
-
-- **L0** — always-on rules (sketch of `AGENTS.md`, `ENGINEERING.md`, `CONTRIBUTING.md`)
-- **L1** — task-local (Issue body, relevant module doc, ADR, ACs)
-- **L2** — adjacent modules, recent phase summaries, interface contracts
-- **L3** — deep context (only on explicit request); PDFs / images / long reports must be summarized, not loaded whole
-
-`agents/context-assembly.md` produces a `context-manifest.md` for every task, so reviewers can audit what each Agent saw.
-
-#### Evidence Gate
-
-"Done" means `docs/evidence/<id>/` contains:
-
-- `change-summary.md`, `verification.md` (PASS/FAIL per AC)
-- Frontend: 6-state screenshots (desktop/tablet/mobile/empty/error/loading) + Playwright trace + console clean + a11y scan
-- Backend: API trace, exception coverage, auth negative cases, perf baseline
-- Database: migration + rollback, pre/post stats, sample rows
-- Reviewers: `review-<role>.md` × ≥ 2 + `fix-tasks.md` Aggregator ✅
-- CI: green, no Critical/High blocker
-
-#### Human Approval Gate
-
-Triggered for: auth/authz model · DB schema with data migration · production secrets or paid APIs · release/version. The Coordinator posts a `Waiting for Approval` note on `PROJECT_STATUS.md` and pauses.
-
-#### File-system message bus
-
-Each Session has `sessions/<id>/{status,plan,execution,review,summary}.md`. Agents coordinate through files, not chat. New Sessions read `memory/` + the last `summary.md` to resume.
-
-### When NOT to use this skill
-
-- One-file throwaway edits
-- Prototypes you don't intend to keep
-- You want to write the code yourself
-
-### Repository layout
+#### ① Bootstrap a new project from a PRD
 
 ```
-.
-├── SKILL.md                 # entry point loaded by every Agent
-├── README.md                # this file
-├── LICENSE
-├── .gitignore
-├── install.sh               # multi-agent installer (38 targets)
-├── agents/                  # 18 agent personas
-├── workflows/               # 9 closed-loop procedures
-├── templates/               # 16 templates (Issue / Plan / PR / Review / Evidence / Phase / ADR ...)
-├── checklists/              # 6 acceptance checklists
-├── references/              # 11 deep-dive docs (L0–L3, indexing, worktree, spawning, CI, sessions, context, compact ...)
-├── hooks/                   # Claude Code SessionStart hook
-├── examples/                # 6 filled samples
-├── scripts/                 # session / evidence / worktree / index / changelog / context-bundle / compact-report / install-session-hook / sync-project / run-tests
-└── tests/                   # 38 bats tests across 6 files (install-session-hook, context-bundle, compact-report, check-templates, validate-meta, changelog)
+Use $ai-engineering-harness to bootstrap this repo from PRD.md.
 ```
 
-### Showcase — what this actually produces
+The Coordinator follows `workflows/00-project-bootstrap.md` and creates, in one pass:
+`docs/{product,architecture,design,decisions}`, `memory/`, `PROJECT_STATUS.md`,
+`AGENTS.md` / `CLAUDE.md`, `DESIGN.md`, `ENGINEERING.md`, `TESTING.md`,
+`CONTRIBUTING.md`, `.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`,
+the phase-summary template, and the first round of Issues.
+
+#### ② Resume interrupted work
+
+```
+Use $ai-engineering-harness. Read PROJECT_STATUS.md and continue the next Todo.
+```
+
+Reads `memory/` plus the previous Session's `summary.md` and picks up where it stopped.
+
+#### ③ Take one Issue to merged
+
+```
+Use $ai-engineering-harness to take Issue #17 from Planning to Done.
+```
+
+Walks the full closed loop: write the Plan → dispatch Frontend/Backend/Database
+Agents on isolated Worktrees → Implement → Self-test → Draft PR → CI → cold-start
+adversarial review (Bug Hunter + Behavior Reviewer, plus Architecture/Security/UI
+when warranted) → Fix loop → Evidence Gate → Merge → Phase summary → Memory write.
+
+#### ④ Audit or rescue
+
+```
+Use $ai-engineering-harness to audit this repo: list open PRs older than 7 days,
+flag missing Evidence, and produce a recovery plan.
+```
+
+It inventories the gap from "current" to "expected", turns it into a batch of
+auto-triaged Issues, and names the first three actions in the order to do them.
+
+### Operating principles
+
+| # | Principle | Why |
+|---|---|---|
+| 1 | **Trust evidence, not vibes** | The Coordinator will not merge because "it passed locally". It needs every AC line in `docs/evidence/<id>/verification.md` marked PASS, CI green, ≥ 2 reviewers ✅, and the Aggregator ✅. Missing one → not Done. |
+| 2 | **Cold-start reviews** | A Reviewer reads only Issue + Plan + PR diff + Evidence — **never the implementer's chat or explanation**. This is what prevents talking yourself into it. |
+| 3 | **Issues are the unit of work** | No Issue, no work. An Issue must carry Context / Goal / Scope / Non-Goal / Related Docs / Plan / AC / Evidence Reqs / Reviewer Reqs / Owner / Estimate. |
+| 4 | **Worktree isolation** | One Issue = one Owner = one Worktree = one branch. Parallel Owners never interfere; they meet only in the Conflict Resolver. |
+| 5 | **L0–L3 context control** | `docs/` is not loaded whole by default. `agents/context-assembly.md` emits a per-task `context-manifest.md` carrying the minimum trusted context that task needs. |
+| 6 | **Human Approval Gate** | For auth / database schema / production secrets / paid APIs / release versions, the Coordinator calls `request_user_input` and stops. It does not make those calls for you. |
+| 7 | **Memory is project state, not chat** | Stable conclusions go to `docs/` and `memory/`; chat history is not retained. After each Phase the Coordinator runs `workflows/06-phase-summary.md`. |
+| 8 | **CI/CD is a blocking gate, not a checklist item** | The Owner watches CI from the first commit; the Coordinator blocks Phase 8 / merge / Done until it is green. Red CI ⇒ `workflows/04-ci-recovery.md`; the same class of failure twice ⇒ a `ci`-tagged Issue + one line in `memory/lessons.md`. See `references/cd-monitoring.md`. |
+| 9 | **Local-first** | When a PR proposes code that already has a local equivalent, **do not merge it**: comment with the local paths and let the author align with the local version or propose something genuinely incremental. The local version stays. See `workflows/09-pr-intake.md` Step 2. |
+
+### Canonical invocations
+
+```text
+# Bootstrap
+Use $ai-engineering-harness to bootstrap this repo from PRD.md.
+
+# Resume
+Use $ai-engineering-harness. Read PROJECT_STATUS.md and continue the next Todo.
+
+# Drive a single Issue
+Use $ai-engineering-harness to take Issue #17 from Planning to Done.
+
+# Audit / rescue
+Use $ai-engineering-harness to audit this repo and produce a recovery plan.
+
+# Hand off across CLIs (Claude → Grok: chat history is useless, on-disk state is not)
+Use $ai-engineering-harness. I'm continuing from another agent. Read
+memory/project-memory.md and sessions/<last-id>/summary.md, then continue.
+
+# Read one phase summary without opening all of docs/
+Use $ai-engineering-harness. Summarize the latest phase.
+
+# Dispatch several Issues to frontend / backend / database Agents in parallel
+Use $ai-engineering-harness to spawn parallel Owners for Issue #20, #21, #22.
+```
+
+### Advanced usage
+
+#### Stand up a new project in 30 seconds
+
+```bash
+mkdir my-saas && cd my-saas
+git init
+echo "# My SaaS" > README.md
+git add . && git commit -m "feat: init"
+
+# Then, in any CLI (Codex / Claude / Grok / Cursor / Gemini ...):
+# Use $ai-engineering-harness to bootstrap this repo from PRD.md
+```
+
+The Coordinator generates the directory skeleton, the first round of Issues, the ADR
+template and a CI workflow placeholder, then writes "Phase 0 / Bootstrap — Done" to
+`PROJECT_STATUS.md`.
+
+#### Take over an old project and backfill the engineering basics
+
+```
+Use $ai-engineering-harness to take over this repo. Inventory the gap
+between current state and harness layout; file Issues for the missing
+pieces; do not edit code yet.
+```
+
+It inventories first, files the gaps as Issues, then works through them;
+**it does not touch business code up front**.
+
+#### Hand off across CLIs
+
+All harness state is on disk, so **nothing is lost with the chat history**.
+Switching from Claude to Grok:
+
+```
+Use $ai-engineering-harness. I'm continuing from another agent. Read
+memory/project-memory.md and the latest sessions/<id>/summary.md.
+```
+
+#### Run several things in parallel
+
+```
+Use $ai-engineering-harness to plan and dispatch Issue #18 (frontend),
+#19 (backend), #20 (database) in parallel Worktrees.
+```
+
+The Coordinator creates three Worktrees — `feature/18-...`, `feature/19-...`,
+`feature/20-...` — and each Owner drives its own PR. Conflicts go to the Conflict
+Resolver; **nothing is overwritten automatically**.
+
+#### Let it heal a red CI
+
+```
+CI is red on PR #N. Use $ai-engineering-harness to recover.
+```
+
+Runs `workflows/04-ci-recovery.md`: classify in 60 seconds (flaky / real defect /
+lint / integration / infra) → dispatch an Owner Agent to fix → re-run CI → back
+through the Reviewers.
+
+### Anti-patterns
+
+| Anti-pattern | Why it fails | Do this instead |
+|---|---|---|
+| "Just start on it" with an Issue missing fields | The Coordinator won't start. | Fill the fields in (the template is in `.github/ISSUE_TEMPLATE/`). |
+| Committing straight to `main` / `master` | Refused. Worktrees are a hard requirement. | `git worktree add ../proj-issue-<id> -b feature/<id>-<slug> main` |
+| Letting the implementer "self-review" | Reviewers **must** cold-start. | Have it spawn an independent Reviewer Agent fed only Issue + Diff + Evidence. |
+| Feeding a 100-page PDF as the whole spec | The context fills with noise. | Extract the relevant sections with `agents/context-assembly.md` first. |
+| "I think this is fine to merge" | It won't merge. The Evidence Gate must be green and the Aggregator ✅. | Wait for the Coordinator to report Ready. |
+| Interrupting mid-run to hurry it | Interrupting = inconsistent state. | Read `PROJECT_STATUS.md` / the task list instead of grabbing the wheel. |
+| Treating it as a one-shot coding prompt | It isn't a prompt, it's a harness. | Use it to run a product, not to write one line. |
+
+### When (not) to use it
+
+| Scenario | Use Harness? |
+|---|:---:|
+| Turning a PRD into an MVP | ✅ Mandatory |
+| Several Issues in flight at once | ✅ Mandatory |
+| Taking over an old project, paying down debt | ✅ Strongly recommended |
+| Auditing a repo that has lost the thread | ✅ Strongly recommended |
+| Cross-team / cross-CLI collaboration | ✅ Recommended |
+| A one-line typo / copy / config change | ❌ Skip |
+| A throwaway script or prototype | ❌ Skip |
+| Just talking through an architecture idea | ❌ Skip |
+
+### Maintenance
+
+```bash
+# Upgrade to the latest version
+npx -y skills update lora-sys/ai-engineering-harness -g
+
+# Check which version is installed
+npx skills list -g
+
+# Add a git commit hook that keeps the docs/ index fresh
+cat > .githooks/post-commit <<'HOOK'
+#!/usr/bin/env bash
+bash <(curl -fsSL https://raw.githubusercontent.com/lora-sys/ai-engineering-harness/main/scripts/refresh-index.sh)
+HOOK
+chmod +x .githooks/post-commit
+git config core.hooksPath .githooks
+```
+
+After each Phase, the Coordinator automatically runs `workflows/06-phase-summary.md`
+and `workflows/08-memory-evolution.md`, promoting what was actually learned into
+`memory/<role>-memory.md`. Next Session, new Agents read these before starting work.
+
+### Further reading
+
+- [`SKILL.md`](./SKILL.md) — the entry document every agent loads
+- [`QUICKSTART.md`](./QUICKSTART.md) — 9-section tutorial with copy-paste prompt templates
+- [`agents/`](./agents/) — 18 agent personas
+- [`workflows/`](./workflows/) — 10 closed-loop workflows
+- [`templates/`](./templates/) — 16 templates (Issue / Plan / PR / Review / Evidence / Phase / ADR / ...)
+- [`checklists/`](./checklists/) — 6 acceptance checklists
+- [`references/`](./references/) — 11 deep-dive docs
+- [`examples/`](./examples/) — 7 filled samples
+- [`docs/case-studies/README.md`](./docs/case-studies/README.md) — before/after takeover cases
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — maintenance scripts and the contribution process
+
+## Showcase — what this actually produces
 
 This section is filled with **real output** from a real end-to-end run (`feature/15-install-status`, commit `4f311e2`, merged via `f5b26d1`). Every artifact below was captured during the actual workflow, not fabricated for the README.
 
@@ -229,6 +476,8 @@ Phases highlighted yellow are new in v1.2.0. The CI gate (red) is the strongest 
 #### Phase 3.0 — context bundle (real excerpt)
 
 `scripts/context-bundle.sh --out docs/evidence/15/context-bundle.md` produces an 18 KB / 281-line markdown file. Sub-agents spawned in later phases read it instead of each running their own `git log` / `ls` / `find`:
+
+_(Captured at `765ecd0` / `v1.2.0` — this is the frozen output of that run, not current HEAD. Its value is that it is a real capture, so it is not re-dated.)_
 
 ```markdown
 # Context bundle
@@ -316,7 +565,7 @@ Full self-review: [docs/evidence/15/self-review.md](./docs/evidence/15/self-revi
 - Not a green-tick theatre. The honest self-review section above names real gaps.
 - Not a replacement for adversarial review. The e2e ran with solo self-review; in production you'd run `bug-hunter` + `behavior-reviewer` per the harness's closed loop.
 
-### Roadmap
+## Roadmap
 
 Three lanes: **Active** (in progress this week), **Backlog** (planned, queued), **Done** (shipped).
 
@@ -343,260 +592,6 @@ _(Roadmap Part 1 and Part 2 done — see Done section.)_
 - **v1.2.0** — `context-bundle.sh` + `compact-report.sh` (parallel dump + structured JSON summary)
 - **v1.1.0** — SessionStart hook for `.claude/SESSION.md` (read-only)
 - **v1.0.x** — CI as a blocking gate, validators, check-templates, install-session-hook, D-013 release-process fix
-
-### License
-
-MIT — see [LICENSE](./LICENSE).
-
----
-
-
-## 使用指南 · Usage Guide
-
-> 这一节把"装上后怎么用"讲透。先看 4 个最高频的指令,再看心法,最后看进阶与反模式。
->
-> This section makes "how to actually use it" concrete. Read the 4 high-frequency invocations first, then principles, then advanced usage and anti-patterns.
-
-### 4 个最高频指令 · Top 4 invocations
-
-#### ① 从 PRD 启动新项目 · Bootstrap a new project from a PRD
-
-```
-Use $ai-engineering-harness to bootstrap this repo from PRD.md.
-```
-
-Coordinator 会按 `workflows/00-project-bootstrap.md` 一次创建 `docs/{product,architecture,design,decisions}`、`memory/`、`PROJECT_STATUS.md`、`AGENTS.md` / `CLAUDE.md`、`DESIGN.md`、`ENGINEERING.md`、`TESTING.md`、`CONTRIBUTING.md`、`.github/ISSUE_TEMPLATE/`、`.github/PULL_REQUEST_TEMPLATE.md`、Phase 总结模板与首批 Issue。
-
-The Coordinator runs `workflows/00-project-bootstrap.md`, creating the full doc tree, memory, status, project meta-docs, GitHub Issue / PR templates, and the first round of Issues.
-
-#### ② 接续已存在的工作 · Resume interrupted work
-
-```
-Use $ai-engineering-harness. Read PROJECT_STATUS.md and continue the next Todo.
-```
-
-它会读 `memory/` + 上一次 Session 的 `summary.md`,从中断处继续。
-
-Reads `memory/` + the last Session's `summary.md` and picks up where you left off.
-
-#### ③ 把单个 Issue 推到合并 · Take one Issue to merged
-
-```
-Use $ai-engineering-harness to take Issue #17 from Planning to Done.
-```
-
-走完整闭环:写 Plan → 在 Worktree 里分派 Frontend/Backend/Database Agent → 实现 → 自测 → Draft PR → CI → 冷启动对抗式审查(Bug Hunter + Behavior Reviewer + 必要时 Architecture/Security/UI Reviewer)→ 修循环 → Evidence Gate → 合入 → 阶段总结 → 记忆沉淀。
-
-Walks the full closed loop: Plan → spawn Frontend/Backend/Database on isolated Worktrees → Implement → Self-test → Draft PR → CI → cold-start adversarial review (Bug Hunter + Behavior Reviewer, plus Architecture/Security/UI when warranted) → Fix loop → Evidence Gate → Merge → Phase summary → Memory write.
-
-#### ④ 复盘 / 救火 · Audit or rescue
-
-```
-Use $ai-engineering-harness to audit this repo: list open PRs older than 7 days,
-flag missing Evidence, and produce a recovery plan.
-```
-
-它盘点"现状 → 期望"的 Gap,转成一批自动归列的 Issue,并给出先做的 3 件事与执行顺序。
-
-The Coordinator inventories the gap from "current" to "expected", files a batch of Issues on the kanban, and surfaces the first three actions with sequencing.
-
-### 使用心法 · Operating principles
-
-| # | 原则 · Principle | 为什么 · Why |
-|---|---|---|
-| 1 | **信任证据,不信任"看起来好了" · Trust evidence, not vibes** | Coordinator 不会因为"本地测试过了"就合并。它要看到 `docs/evidence/<id>/` 里所有 `verification.md` 的 AC 行 PASS,且 CI 绿、≥ 2 名审查员 ✅、Aggregator ✅。Missing one → not Done. |
-| 2 | **冷启动审查 · Cold-start reviews** | Reviewer 只读 Issue + Plan + PR diff + Evidence,**不读实现者的聊天或解释**。这避免了"自己说服自己"。 |
-| 3 | **Issue 是工作单元 · Issues are the unit of work** | 没有 Issue 不开工。Issue 必须有 Context / Goal / Scope / Non-Goal / Related Docs / Plan / AC / Evidence Reqs / Reviewer Reqs / Owner / Estimate。 |
-| 4 | **Worktree 隔离 · Worktree isolation** | 一个 Issue = 一个 Owner = 一个 Worktree = 一个分支。多个并行 Owner 互不干扰,只在冲突时进 Conflict Resolver。 |
-| 5 | **上下文按 L0–L3 加载 · L0–L3 context control** | 默认不加载 `docs/` 全文。让 `agents/context-assembly.md` 按任务产出 `context-manifest.md`,只给 Agent 当前必需的最小可信上下文。 |
-| 6 | **人工审批闸门 · Human Approval Gate** | 涉及 鉴权 / 数据库 schema / 生产密钥 / 付费 API / 发布版本 时,Coordinator 会主动 `request_user_input` 并暂停。它不会代你做这些判断。 |
-| 7 | **记忆是项目状态,不是聊天 · Memory is project state, not chat** | 稳定结论写到 `docs/` 与 `memory/`;对话历史不留。每个 Phase 结束后 Coordinator 跑 `workflows/06-phase-summary.md` 沉淀。 |
-| 8 | **CI/CD 是阻塞闸门,不是检查项 · CI/CD is a blocking gate** | Owner 自首个 commit 起盯 CI;Coordinator 阻止进入 Phase 8 / 合并 / Done,直到 CI 绿。Red CI ⇒ `workflows/04-ci-recovery.md`,同一类失败 ≥2 次 ⇒ `ci`-tagged Issue + `memory/lessons.md` 一行。详见 `references/cd-monitoring.md`。 |
-| 9 | **本地优先 · Local-first** | PR 提议的代码本地已有等价实现时,**不要直接合并**:留评论指路本地路径,让作者对齐本地版本或提议真正增量的东西。本地版本不动。对应 `workflows/09-pr-intake.md` Step 2。 |
-
-### 典型指令清单 · Canonical invocations
-
-```text
-# 启动
-Use $ai-engineering-harness to bootstrap this repo from PRD.md.
-
-# 接续
-Use $ai-engineering-harness. Read PROJECT_STATUS.md and continue the next Todo.
-
-# 单 Issue 推动
-Use $ai-engineering-harness to take Issue #17 from Planning to Done.
-
-# 复盘 / 救火
-Use $ai-engineering-harness to audit this repo and produce a recovery plan.
-
-# 跨 CLI 接力(从 Claude 切到 Grok,聊天历史没用,落盘状态才行)
-Use $ai-engineering-harness. I'm continuing from another agent. Read
-memory/project-memory.md and sessions/<last-id>/summary.md, then continue.
-
-# 只取一个 Phase 总结,而不打开所有 docs/
-Use $ai-engineering-harness. Summarize the latest phase.
-
-# 把多个 Issue 并行分派给前端 / 后端 / 数据库 Agent
-Use $ai-engineering-harness to spawn parallel Owners for Issue #20, #21, #22.
-```
-
-### 进阶用法 · Advanced usage
-
-#### 30 秒拉起一个新项目
-
-```bash
-mkdir my-saas && cd my-saas
-git init
-echo "# My SaaS" > README.md
-git add . && git commit -m "feat: init"
-
-# 进入任意 CLI(Codex / Claude / Grok / Cursor / Gemini ...)
-# Use $ai-engineering-harness to bootstrap this repo from PRD.md
-```
-
-Coordinator 会生成目录骨架、首轮 Issue、ADR 模板、CI 工作流占位,然后在 `PROJECT_STATUS.md` 上写 "Phase 0 / Bootstrap — Done"。
-
-#### 接手老项目,补齐工程基础设施
-
-```
-Use $ai-engineering-harness to take over this repo. Inventory the gap
-between current state and harness layout; file Issues for the missing
-pieces; do not edit code yet.
-```
-
-它先盘点 → 把差距落 Issue,再按 Issue 推进;**不会先去动业务代码**。
-
-#### 跨 CLI 接力
-
-Harness 的所有状态都落盘,**聊天历史不会丢**。从 Claude 切到 Grok 时:
-
-```
-Use $ai-engineering-harness. I'm continuing from another agent. Read
-memory/project-memory.md and the latest sessions/<id>/summary.md.
-```
-
-#### 让 Agent 并行做多件事
-
-```
-Use $ai-engineering-harness to plan and dispatch Issue #18 (frontend),
-#19 (backend), #20 (database) in parallel Worktrees.
-```
-
-Coordinator 会分别拉 `feature/18-...`、`feature/19-...`、`feature/20-...` 三个 Worktree,每个 Owner 独立推到 PR。冲突时由 Conflict Resolver 处理,**不会自动覆盖**。
-
-#### 在 CI 出错时让它自愈
-
-```
-CI is red on PR #N. Use $ai-engineering-harness to recover.
-```
-
-走 `workflows/04-ci-recovery.md`:60 秒分类(flaky / 真缺陷 / lint / 集成 / infra)→ 派 Owner Agent 修复 → 重新跑 CI → 重新走 Reviewer。
-
-### 不要这样用 · Anti-patterns
-
-| 反模式 · Anti-pattern | 为什么不行 · Why it fails | 应该做 · Do this instead |
-|---|---|---|
-| 缺字段的 Issue 上让它"先做着" | Coordinator 不会启动。 | 补齐字段(模板就在 `.github/ISSUE_TEMPLATE/`)。 |
-| 直接改 `main` / `master` | 拒绝。Worktree 是硬要求。 | `git worktree add ../proj-issue-<id> -b feature/<id>-<slug> main` |
-| 让实现者同时"自审" | 审查员**必须冷启动**。 | 让它 spawn 一个独立 Reviewer Agent,只喂 Issue + Diff + Evidence。 |
-| 把 100 页 PDF 当成整个 Spec 直接喂 | 上下文会被垃圾塞满。 | 用 `agents/context-assembly.md` 抽出相关章节再喂。 |
-| "我觉得可以合并" | 不会合并。要 Evidence Gate 全绿 + Aggregator ✅。 | 等 Coordinator 自己报 Ready。 |
-| 在它做事的中间打断催 | 打断 = 状态不一致。 | 看 PROJECT_STATUS.md / TaskList,不要直接抢方向盘。 |
-| 把它当一次性 coding prompt | 它不是 Prompt,是 Harness。 | 用它管产品,不是写一行代码。 |
-
-### 适用 / 不适用 速查 · When (not) to use
-
-| 场景 · Scenario | 用 Harness? · Use it? |
-|---|:---:|
-| 把一个 PRD 落地成 MVP | ✅ 必须 · Mandatory |
-| 多 Issue 并行开发 | ✅ 必须 · Mandatory |
-| 接手老项目、清理技术债 | ✅ 强烈推荐 · Strongly recommended |
-| 复盘一个失序的 repo | ✅ 强烈推荐 · Strongly recommended |
-| 跨团队 / 跨 CLI 协作 | ✅ 推荐 · Recommended |
-| 改一行 typo / 文案 / 配置 | ❌ 不要 · Skip |
-| 一次性脚本 / 一次性原型 | ❌ 不要 · Skip |
-| 只是想聊架构想法 / 解释概念 | ❌ 不要 · Skip |
-
-### 维护 · Maintenance
-
-```bash
-# 升级到最新版本
-npx -y skills update lora-sys/ai-engineering-harness -g
-
-# 查看当前装的版本
-npx skills list -g
-
-# 在项目仓库里加 git commit hook,自动维护 docs/ 的索引
-cat > .githooks/post-commit <<'HOOK'
-#!/usr/bin/env bash
-bash <(curl -fsSL https://raw.githubusercontent.com/lora-sys/ai-engineering-harness/main/scripts/refresh-index.sh)
-HOOK
-chmod +x .githooks/post-commit
-git config core.hooksPath .githooks
-```
-
-每个 Phase 完成后,Coordinator 会自动跑 `workflows/06-phase-summary.md` + `workflows/08-memory-evolution.md`,把"什么是真的学到的"沉淀进 `memory/<role>-memory.md`。下次有新 Session 启动,新 Agent 会先读这些再开工。
-
-After each Phase, the Coordinator automatically runs `workflows/06-phase-summary.md` and `workflows/08-memory-evolution.md`, promoting stable lessons into `memory/<role>-memory.md`. Next Session, new Agents read these before starting work.
-
-### 进阶阅读 · Further reading
-
-- [`SKILL.md`](./SKILL.md) — Agent 加载的入口全文 · Entry document loaded by every agent
-- [`agents/`](./agents/) — 18 类 Agent 角色 · 18 agent personas
-- [`workflows/`](./workflows/) — 9 个工作流 · 9 closed-loop workflows
-- [`templates/`](./templates/) — 16 套模板 · 16 templates (Issue / Plan / PR / Review / Evidence / Phase / ADR / ...)
-- [`checklists/`](./checklists/) — 6 份验收清单 · 6 acceptance checklists
-- [`examples/`](./examples/) — 6 份已填写示例 · 6 filled samples
-
-## Tables / 表格
-
-| Compatibility / 兼容性 | Install path / 安装路径 | Status after one-liner / 一行安装后状态 |
-| --- | --- | --- |
-| Claude Code | `~/.claude/skills/` | ✅ |
-| Codex | `~/.codex/skills/` | ✅ |
-| Cursor | `~/.cursor/skills/` | ✅ |
-| Gemini CLI | `~/.gemini/skills/` | ✅ |
-| Qwen / Qoder | `~/.qwen/skills/` | ✅ |
-| Grok CLI | `~/.grok/skills/` | ✅ |
-| OpenCode | `~/.config/opencode/skills/` | ✅ |
-| Hermes-Agent | `~/.hermes/hermes-agent/skills/` | ✅ |
-| Hermes | `~/.hermes/skills/` | ✅ |
-| Aider Desk | `~/.aider-desk/skills/` | ✅ |
-| Augment | `~/.augment/skills/` | ✅ |
-| Bob | `~/.bob/skills/` | ✅ |
-| Codebuddy | `~/.codebuddy/skills/` | ✅ |
-| Commandcode | `~/.commandcode/skills/` | ✅ |
-| Continue | `~/.continue/skills/` | ✅ |
-| Crush | `~/.config/crush/skills/` | ✅ |
-| Devin | `~/.config/devin/skills/` | ✅ |
-| Factory | `~/.factory/skills/` | ✅ |
-| Forge | `~/.forge/skills/` | ✅ |
-| Goose | `~/.config/goose/skills/` | ✅ |
-| iFlow | `~/.iflow/skills/` | ✅ |
-| Junie | `~/.junie/skills/` | ✅ |
-| KiloCode | `~/.kilocode/skills/` | ✅ |
-| Kiro | `~/.kiro/skills/` | ✅ |
-| Kode | `~/.kode/skills/` | ✅ |
-| Marscode | `~/.marscode/skills/` | ✅ |
-| Mux | `~/.mux/skills/` | ✅ |
-| Neovate | `~/.neovate/skills/` | ✅ |
-| OpenHands | `~/.openhands/skills/` | ✅ |
-| Pi | `~/.pi/agent/skills/` | ✅ |
-| Pochi | `~/.pochi/skills/` | ✅ |
-| Roo | `~/.roo/skills/` | ✅ |
-| Snowflake Cortex | `~/.snowflake/cortex/skills/` | ✅ |
-| Tabnine | `~/.tabnine/skills/` | ✅ |
-| Trae | `~/.trae/skills/` | ✅ |
-| Trae-CN | `~/.trae-cn/skills/` | ✅ |
-| Vibe | `~/.vibe/skills/` | ✅ |
-| Zencoder | `~/.zencoder/skills/` | ✅ |
-| Adal | `~/.adal/skills/` | ✅ |
-| `.agents/` (unified) | `~/.agents/skills/` | ⏳ pending OS-level mount-RW on this system |
-
-
----
-
-
 
 ## Troubleshooting · 安装常见问题
 
@@ -643,102 +638,30 @@ proper `SKILL.md` frontmatter), but the canonical install under
 the Vercel CLI's design. We're tracking a fix at
 <https://github.com/vercel-labs/skills/issues/1630>.
 
+## Maintainer docs
 
-## Scripts and tooling · 工具脚本
+Maintenance scripts (`validate-meta.sh`, `changelog-auto.sh`, `new-session.sh`,
+`new-evidence.sh`, `new-worktree.sh`, `refresh-index.sh`), the contribution process,
+and the discoverability notes all live in **[CONTRIBUTING.md](./CONTRIBUTING.md)**.
 
-The repo ships with three helper scripts. All are safe to run from anywhere; they're the bones of every maintenance step.
-
-### `scripts/validate-meta.sh` — schema check for `meta.json`
-
-```bash
-scripts/validate-meta.sh                # default: ./meta.json, exit 0/1/2
-scripts/validate-meta.sh --strict       # also fail on warnings
-scripts/validate-meta.sh --json        # one-line JSON for CI
-```
-
-Validates `meta.json` against the embedded schema (id, name, description, category, priority, tags, install map, agents_supported, license, repository, entry). Returns exit 0 on success, 1 on errors, 2 on missing/invalid JSON. Designed to plug into PR pre-commit and CI.
-
-### `scripts/changelog-auto.sh` — half-automated CHANGELOG from git + `gh`
+The skill family — `$ai-engineering-harness`, `$build-agent-app`,
+`$frontend-creative`, plus the optional `$dashboard` panel — is described in
+[What's inside](#whats-inside) above. To install a sibling on its own:
 
 ```bash
-scripts/changelog-auto.sh                  # preview to stdout (default)
-scripts/changelog-auto.sh --write         # write to ./CHANGELOG.md
-scripts/changelog-auto.sh --append        # emit only versions newer than the latest documented
-scripts/changelog-auto.sh --since-tag v0.1.3   # filter to versions ≥ tag
-```
-
-Categorizes conventional-commit subjects into Keep-a-Changelog sections (Added / Changed / Fixed / Docs / Performance / Tests / Maintenance / CI / Build / Style), fetches the **What's new** intro from each GitHub Release via `gh release view`, and emits an index. `--append` is the safe default for ongoing maintenance — it preserves human-curated entries and only auto-fills new versions.
-
-### Existing tools
-
-- `scripts/new-session.sh` — `sessions/<id>/{status,plan,execution,review,summary}.md`
-- `scripts/new-evidence.sh` — `docs/evidence/<id>/{change-summary,verification,…}`
-- `scripts/new-worktree.sh` — `git worktree add ../<repo>-issue-<id>`
-- `scripts/refresh-index.sh` — `docs/.index/{manifest,freshness,relations}.json`
-
-
-
-## Companion skills
-
-This repo ships a small skill family, not just one skill. Both skills install
-into the same per-CLI-agent directory under different folder names and are
-independently invokable.
-
-### `build-agent-app` (sibling · at `skills/build-agent-app/`)
-
-The **Agent App Architect**. Trigger when the user wants to design an agent app
-(greenfield from a PRD), integrate an existing one, or fix a broken one.
-
-```text
-Use $build-agent-app to design a code-review agent from PRD.md
-Use $build-agent-app to integrate /path/to/agent-app into my project
-Use $build-agent-app to diagnose why /path/to/agent is misbehaving
-```
-
-Workflow: `references/decision-0.md` ("is this even an agent?") →
-Agent Contract → Harness Spec → hand off back to `$ai-engineering-harness` for
-implementation. Pairs with this skill; both share the kernel **agent = model + harness**.
-
-### Install (covers the family)
-
-```bash
-bash install.sh                                  # both skills to every TARGET (default)
 bash install.sh --skill build-agent-app          # only the sibling
-bash install.sh --fat-install --skill all        # git clone + symlink both skills
+bash install.sh --fat-install --skill all        # git clone + symlink everything
 ```
-
-The `npx skills add lora-sys/ai-engineering-harness -g --all` command still
-installs only the primary skill (its own canonical). For the sibling, run the
-above `bash install.sh --skill build-agent-app` after.
-
-### When to call which skill
 
 | Want to … | Trigger |
 | --- | --- |
 | Build a software product (engineering org) | `$ai-engineering-harness` |
 | Design / take over / refactor an **agent app** | `$build-agent-app` |
-| Both — agent app with engineering-grade evidence gates | `$build-agent-app` designs, then hands off to `$ai-engineering-harness` |
+| Generate an Awwwards-grade web UI | `$frontend-creative` |
+| Scan a repo for vibe residue and watch a kanban | `$dashboard` |
 
+## License
 
-## Discoverability · 收录与发现
+MIT — see [LICENSE](./LICENSE).
 
-This skill is automatically aggregated by [Vercel's `skills.sh`](https://skills.sh/) index — a public registry for AI agent skills. Once GitHub's crawler picks up the topics + SKILL.md metadata here, the install command shows up in skill search results.
-
-To help the crawler (or anyone running the `npx skills find` CLI on the user machine):
-
-```bash
-# Tag-related search (works locally)
-npx -y skills find ai-engineering-harness --owner lora-sys
-
-# Browse by topic (when on the skills.sh web UI)
-# Search: multi-agent, code-review, evidence, skills
-```
-
-If you fork or extend this skill, keep these GitHub fields intact:
-
-| Field         | Why                                                              |
-| ------------- | ---------------------------------------------------------------- |
-| Topics        | `ai-engineering`, `multi-agent`, `skills`, `code-review`, etc.    |
-| Description   | Begins with "AI-native software engineering organization harness… |
-| License       | MIT — keeps it redistribution-friendly                            |
-| `SKILL.md`    | YAML frontmatter `name` + `description` is what the indexer reads|
+---
