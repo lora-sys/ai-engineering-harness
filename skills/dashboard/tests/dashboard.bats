@@ -10,15 +10,19 @@
 # 6. quick-scan detectors fire on planted findings and stay quiet on clean code
 # 7. scan-to-issues.sh groups findings into Issues (never against a real repo)
 #
-# NOTE on assertions: bats changed behavior here between versions, so write
-# assertions that fail under BOTH. Under bats 1.13 (local dev) only the LAST
-# command's status fails a test -- a bare `[[ ... ]]` mid-body is silently
-# ignored, and `set -e` does not change it (bats resets it inside test bodies).
-# Under bats 1.10 (what CI installs from apt) a failing `[[ ... ]]` DOES fail
-# the test. So a wrong assertion can pass locally and red CI: that is exactly
-# how `detects hardcoded secrets` shipped asserting the opposite of the secret
-# detector's design. Use the assert_* helpers below -- they exit non-zero, which
-# fails the test on every version.
+# NOTE on assertions: a failing `[[ ... ]]` aborts the test body, so anything
+# after it never runs -- which means a long run of bare `[[ ]]` lines tells a
+# reader nothing about which conditions actually carry weight, and a test that
+# only checks `[ "$status" -ne 0 ]` passes on a non-zero exit for ANY reason,
+# including an unrelated crash. Prefer the assert_* helpers below: they print
+# what was actually seen, which turns a bare "assertion failed" into a diagnosis.
+#
+# Verified, since an earlier version of this comment claimed otherwise: mid-body
+# `[[ ]]` failures are NOT swallowed by any version this repo runs. A
+# guaranteed-false mid-body `[[ ]]` fails the test under bash 3.2.57 and 5.3.15,
+# with bats 1.10.0 and 1.13.0 -- all four combinations. If you are chasing a
+# test that passes locally but fails in CI, check first that the local run
+# actually included this file; that was the real cause last time.
 
 set -uo pipefail
 
@@ -28,10 +32,11 @@ SCAFFOLD_SCRIPT="$REPO_ROOT/scripts/scaffold-dashboard.sh"
 SERVE_SCRIPT="$REPO_ROOT/scripts/serve.sh"
 S2I_SCRIPT="$REPO_ROOT/scripts/scan-to-issues.sh"
 
-# Assertion helpers. A bare `[[ ... ]]` mid-body does not fail a bats 1.13 test
-# (see the note at the top of this file); these `exit 1`, which does. Taking the
-# haystack as an argument rather than eval'ing a string keeps arbitrary scan
-# output from being re-parsed as shell.
+# Assertion helpers. A bare `[[ ... ]]` says only "assertion failed"; these print
+# the value that was actually seen, which is the difference between a failure you
+# can diagnose and one you have to re-run by hand. Taking the haystack as an
+# argument rather than eval'ing a string keeps arbitrary scan output from being
+# re-parsed as shell.
 assert_has() {   # assert_has <haystack> <substring>
   case "$1" in
     *"$2"*) return 0 ;;
@@ -387,10 +392,9 @@ EOF
 
   run curl -s http://localhost:4321/api/quick-scan
   # The fixture plants keys in src/config.ts. That file used to be exempt from
-  # secret scanning entirely, so these two assertions were unsatisfiable from the
-  # day they were written -- they only "passed" because bats 1.13 swallows a
-  # failing bare `[[ ]]` mid-body. assert_has exits non-zero, so it fails on
-  # every bats version.
+  # secret scanning entirely, so these assertions were unsatisfiable from the day
+  # they were written -- detector and test contradicted each other in the same
+  # commit (e9f9c3a). assert_has reports which string was missing.
   assert_eq "$status" 0 status
   assert_has "$output" "security"
   assert_has "$output" "hardcoded secret"

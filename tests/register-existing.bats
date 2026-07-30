@@ -27,8 +27,9 @@ make_harness_project() {
   make_harness_project "$ROOT/projB"
   run bash "$SCRIPT" --dry-run "$ROOT"
   [ "$status" -eq 0 ]
-  # Chained: a mid-body bare `[[ ]]` is swallowed under bats 1.13, so the projA
-  # check was decoration -- only projB could fail the test.
+  # Chained so both projects are required. Written as two separate lines the
+  # projB check is only reached when projA already matched, which reads as if
+  # both were verified independently when they are not.
   [[ "$output" =~ "projA" ]] && [[ "$output" =~ "projB" ]]
 }
 
