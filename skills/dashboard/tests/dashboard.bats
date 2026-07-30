@@ -11,9 +11,9 @@
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
-TEMPLATE_DIR="$REPO_ROOT/skills/dashboard/templates"
-SCAFFOLD_SCRIPT="$REPO_ROOT/skills/dashboard/scripts/scaffold-dashboard.sh"
-SERVE_SCRIPT="$REPO_ROOT/skills/dashboard/scripts/serve.sh"
+TEMPLATE_DIR="$REPO_ROOT/templates"
+SCAFFOLD_SCRIPT="$REPO_ROOT/scripts/scaffold-dashboard.sh"
+SERVE_SCRIPT="$REPO_ROOT/scripts/serve.sh"
 
 setup() {
   TMPDIR="$(mktemp -d)"
