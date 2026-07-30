@@ -1,6 +1,6 @@
 ---
 name: frontend-creative
-description: Awwwards-grade creative web UI (non-Dashboard). Triggers: landing page, portfolio, brand site, Awwwards, GSAP, Framer Motion, R3F. Stack: Next.js + TS + Tailwind + Framer Motion + GSAP + R3F. Hands off impl to $ai-engineering-harness. Install: bash install.sh --skill frontend-creative
+description: "Awwwards-grade creative web UI (non-Dashboard). Triggers: landing page, portfolio, brand site, Awwwards, GSAP, Framer Motion, R3F. Stack: Next.js + TS + Tailwind + Framer Motion + GSAP + R3F. Hands off impl to $ai-engineering-harness. Install: bash install.sh --skill frontend-creative"
 ---
 
 # Frontend Creative UI

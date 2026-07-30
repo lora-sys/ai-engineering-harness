@@ -1,6 +1,6 @@
 ---
 name: build-agent-app
-description: Design/take over/refactor an agent app (LLM + tools + state). Triggers: build an agent, wire up LLM tool, chatbot, agent is broken, agent app. Writes Agent + Harness Contract, hands off to $ai-engineering-harness. Workflows: new / takeover / refactor. Install: bash install.sh --skill build-agent-app
+description: "Design/take over/refactor an agent app (LLM + tools + state). Triggers: build an agent, wire up LLM tool, chatbot, agent is broken, agent app. Writes Agent + Harness Contract, hands off to $ai-engineering-harness. Workflows: new / takeover / refactor. Install: bash install.sh --skill build-agent-app"
 ---
 
 # build-agent-app

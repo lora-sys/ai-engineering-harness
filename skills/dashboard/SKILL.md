@@ -1,6 +1,6 @@
 ---
 name: dashboard
-description: Visual dashboard for ai-engineering-harness. Dark-themed, zero-dep. Triggers: $dashboard, show dashboard, project health, evidence completeness, kanban, chaos score, quick scan, vibe signs. Run: bash scripts/dashboard.sh → :4321
+description: "Visual dashboard for ai-engineering-harness. Dark-themed, zero-dep. Triggers: $dashboard, show dashboard, project health, evidence completeness, kanban, chaos score, quick scan, vibe signs. Run: bash scripts/dashboard.sh → :4321"
 ---
 
 # Dashboard

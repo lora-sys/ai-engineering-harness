@@ -1,6 +1,6 @@
 ---
 name: ai-engineering-harness
-description: Multi-agent engineering org harness. Issue → Worktree → Plan → Implement → Adversarial Review → Evidence → Merge → Memory loop. 18 agent personas, 9 workflows, evidence-gated, cold-start review, L0–L3 context control. Use prompts: bootstrap / resume / drive / audit.
+description: "Multi-agent engineering org harness. Issue → Worktree → Plan → Implement → Adversarial Review → Evidence → Merge → Memory loop. 18 agent personas, 9 workflows, evidence-gated, cold-start review, L0–L3 context control. Use prompts: bootstrap / resume / drive / audit."
 ---
 
 # AI Autonomous Engineering Harness
