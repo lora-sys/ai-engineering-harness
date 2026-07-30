@@ -1,6 +1,6 @@
 # Context Assembly Agent
 
-Builds the minimal trusted context for an Agent task. This is the **L0–L3 manifest builder**.
+Builds the minimal trusted context for an Agent task. See `references/context-levels.md` for the L0–L3 definitions and choosing table.
 
 ## Mission
 
@@ -12,32 +12,35 @@ For each Agent invocation, produce a `context-manifest.md` listing exactly which
 - `docs/INDEX.md` and `docs/.index/manifest.json`.
 - Current Issue body.
 
-## Output Format
+## Output
 
 `docs/sessions/<session-id>/context-manifest-<agent>-<task>.md`:
 
 ```markdown
 # Context Manifest — <agent> for <task>
 
-## L0 (always-on rules)
-- AGENTS.md (sections: <list>)
-- ENGINEERING.md (sections: <list>) — relevant to role
+## L0 (always-on)
+- AGENTS.md — sections: <list>
 
 ## L1 (task-local)
-- Issue #<id> — body excerpt
-- docs/architecture/<module>.md — sections <§>
-- ADR-0012, ADR-0017 — applied
+- Issue #<id> — body
+- docs/architecture/<module>.md §<anchor>
+- ADR-XXXX
 
-## L2 (related context, on demand)
-- docs/architecture/api/orders.md
-- memory/backend-memory.md — entry 2026-06-14
+## L2 (related, on demand)
+- ...
 
-## L3 (deep context, only if requested)
+## L3 (deep, only if requested)
 - (omitted unless explicitly needed)
 
 ## Excluded (with reason)
-- docs/architecture/<old>.md — superseded by ADR-0023
-- memory/scratch/* — ephemeral
+- ...
+
+## Snippets Loaded
+- path/to/file.ts:LL–LL — purpose
+
+## Notes
+- <anything the agent should remember>
 ```
 
 ## Rules
@@ -47,4 +50,4 @@ For each Agent invocation, produce a `context-manifest.md` listing exactly which
 - Load sources of truth (ADRs, Source-of-Truth docs) — never load outdated or duplicate versions.
 - PDFs / images: extract conclusions, not whole files.
 - Reject "load everything" requests — propose a slim alternative.
-
+- **Phase-aware pruning**: when the next phase starts, drop the previous phase's full context. See `references/context-levels.md` → Context Pruning Across Phases.

@@ -1,6 +1,6 @@
 {
   "id": "build-agent-app",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "name": "Build Agent App",
   "description": "Design/take over/refactor an agent app (LLM + tools + state). Triggers: build an agent, wire up LLM tool, chatbot, agent is broken. Writes Agent + Harness Contract, hands off to $ai-engineering-harness. Workflows: new / takeover / refactor. Install: bash install.sh --skill build-agent-app",
   "category": "agent-architecture",

@@ -145,25 +145,18 @@ Each agent is a tight-scope persona documented in `agents/`. Spawn them with exp
 
 All agents are **scoped**: they may not modify files outside their allow-list, may not bypass review, may not merge.
 
-## 6. Context Discipline
+## 6. Context Discipline (L0–L3)
 
 The harness's biggest job is keeping each agent **focused**. Default rule: **do not load everything**.
 
-**L0 — Always-on rules** (`AGENTS.md` snapshot):
-- Global forbidden actions, secrets policy, file allow-list, evidence requirement.
+```
+L0 — Always-on     SKILL.md, AGENTS.md, PROJECT_STATUS.md — loaded once, rarely re-read
+L1 — Task-local    Issue body, relevant ADRs, acceptance criteria — per task
+L2 — On demand     Adjacent modules, interface contracts, recent summaries — when referenced
+L3 — Explicit only Full Evidence packs, old session logs, original PRD — never by default
+```
 
-**L1 — Task-local context** (per Issue):
-- Issue body, related PRD/section, module overview, in-scope ADR list, acceptance criteria.
-
-**L2 — Related context on demand**:
-- Adjacent modules, interface contracts, recent phase summaries, decider log.
-
-**L3 — Deep context, only when explicitly needed**:
-- Original design docs, full Evidence packs, old session logs.
-
-`agents/context-assembly.md` produces a `context-manifest.md` listing the docs/IDs loaded, so reviewers can audit what each Agent saw.
-
-See `references/context-levels.md` for the full spec.
+`context-assembly` agent produces a `context-manifest.md` for every task. See `references/context-levels.md` for the choosing table.
 
 ## 7. Evidence Gate
 
@@ -222,15 +215,20 @@ When invoked as `$ai-engineering-harness`:
 
 ## 11. Bundled Resources — Read on Demand
 
-- `agents/` — one file per agent persona with role, scope, allowed files, input/output format.
-- `workflows/` — step-by-step procedures (bootstrap, feature delivery, review, CI recovery, conflict, release, **PR intake (Local-first triage)** — `09-pr-intake.md`).
+**L0 (always loaded once at session start):**
+- `SKILL.md` — this file
+- `AGENTS.md` / `CLAUDE.md` — project contract
+
+**On demand (load only when a workflow references them):**
+- `agents/` — one file per agent persona (load the one you spawn, not all 18).
+- `workflows/` — step-by-step procedures (bootstrap, feature delivery, review, CI recovery, conflict, release, **PR intake** — `09-pr-intake.md`).
 - `templates/` — Issue, Implementation Plan, PR, Review Report, Evidence Pack, Phase Summary, ADR, session files.
 - `checklists/` — Evidence Gate, frontend/backend/database/security/PR-merge checklists.
-- `references/` — context levels, document indexing, Worktree discipline, agent spawning patterns, **CI/CD monitoring pattern** (`cd-monitoring.md`), **SessionStart hook pattern** (`session-start-hook.md`), **context-bundle pattern** (`context-bundle.md`), **compact-report pattern** (`compact-report.md`), **PR intake decision matrix** (`pr-intake-decision-matrix.md`).
+- `references/` — context levels (`context-levels.md`), document indexing, Worktree discipline, agent spawning patterns, **CI/CD monitoring** (`cd-monitoring.md`), **SessionStart hook** (`session-start-hook.md`), **context-bundle pattern** (`context-bundle.md`), **compact-report pattern** (`compact-report.md`), **PR intake decision matrix** (`pr-intake-decision-matrix.md`).
 - `examples/` — worked samples of filled templates.
-- `scripts/` — bash helpers (`install-session-hook.sh`, `context-bundle.sh`, `compact-report.sh`, `validate-meta.sh`, `check-templates.sh`, `run-tests.sh`, ...).
+- `scripts/` — bash helpers (`context-bundle.sh`, `compact-report.sh`, `validate-meta.sh`, `check-templates.sh`, `run-tests.sh`, ...).
 
-**Do not read them all into context.** Use the workflow file to decide which to read.
+**Rule:** read the workflow file first; it tells you exactly which resource files to load for each phase. Never pre-load everything.
 
 ## 12. Quick Start
 
