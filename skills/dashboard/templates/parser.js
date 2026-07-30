@@ -20,7 +20,7 @@
  *   GET /api/kanban           → issues grouped by closed-loop stage
  *   GET /api/takeover-audit   → Chaos Score + categorized issues
  *   GET /api/screenshots/:id/:file → serve image from evidence pack
- *   GET /api/quick-scan          → vibe-signs heuristic scan (Issue #8)
+ *   GET /api/quick-scan          → vibe-signs heuristic scan (9 detectors, Issue #8 + #9)
  */
 
 'use strict';
@@ -987,6 +987,52 @@ function detectVibeSigns() {
   }
   if (untested > 0 && sourceFiles.length > 0) {
     addIssue('medium', 'testing', `${untested} source file${untested !== 1 ? 's' : ''} without corresponding test file(s)`, null, null);
+  }
+
+  // 8. Style drift — mixed indentation within a file (MEDIUM)
+  for (const filePath of allFiles) {
+    const relPath = path.relative(PROJECT_ROOT, filePath);
+    const content = readFileSafe(filePath);
+    if (!content || content.split('\n').length < 5) continue;
+    const lines = content.split('\n');
+    let hasTab = false, hasSpace = false;
+    for (const ln of lines) {
+      if (ln.length === 0) continue;
+      const leading = ln.match(/^[\s]+/);
+      if (leading && leading[0].length > 0) {
+        if (/\t/.test(leading[0])) hasTab = true;
+        if (/[ ]{2,}/.test(leading[0])) hasSpace = true;
+      }
+      if (hasTab && hasSpace) break;
+    }
+    if (hasTab && hasSpace) {
+      addIssue('medium', 'style-drift', 'Mixed tabs and spaces for indentation', relPath, 1);
+    }
+  }
+
+  // 9. Intent mismatch — dead code after early return (LOW)
+  for (const filePath of allFiles) {
+    const relPath = path.relative(PROJECT_ROOT, filePath);
+    const content = readFileSafe(filePath);
+    if (!content) continue;
+    const lines = content.split('\n');
+    // Find returns/throws and check for significant code after
+    for (let i = 0; i < lines.length; i++) {
+      const trimmed = lines[i].trim();
+      if (/^(return|throw|exit\(|process\.exit)\b/.test(trimmed)) {
+        // Look ahead: if there are 5+ non-empty, non-comment lines after, flag it
+        let codeAfter = 0;
+        for (let j = i + 1; j < Math.min(i + 20, lines.length); j++) {
+          const t = lines[j].trim();
+          if (t.length === 0 || t.startsWith('//') || t.startsWith('*') || t.startsWith('/*') || t.startsWith('}')) continue;
+          codeAfter++;
+        }
+        if (codeAfter >= 5) {
+          addIssue('low', 'dead-code', `${codeAfter} lines of unreachable code after return/throw`, relPath, i + 1);
+          break; // one flag per file is enough
+        }
+      }
+    }
   }
 
   const grade = score >= 90 ? 'A' : score >= 75 ? 'B' : score >= 60 ? 'C' : score >= 40 ? 'D' : 'F';

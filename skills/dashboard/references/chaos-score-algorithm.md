@@ -2,7 +2,12 @@
 
 The Takeover Audit view computes a **Chaos Score** from 0 to 100. Higher = more chaos (worse project health). Lower = cleaner, more maintainable project.
 
-## Scoring Rules
+There are **two scoring modes**:
+
+1. **Takeover Audit** — score from evidence, documentation, testing, CI, and blocked items
+2. **Quick Scan** — score from vibe-signs heuristics on source code (9 detectors)
+
+## Takeover Audit Scoring Rules
 
 Start at **100 points**. Subtract for each issue found.
 
@@ -24,17 +29,61 @@ Start at **100 points**. Subtract for each issue found.
 | **CI/CD** | CI status reported as red | -10 | -10 |
 | **Blocked** | Issues in Blocked section with no resolution | -3 per item | -15 |
 
+## Quick Scan Scoring Rules
+
+Start at **100 points**. Each detector fires at most once per file (deduplicated).
+
+### Deductions by Severity
+
+| Severity | Deduction | Example |
+|----------|-----------|---------|
+| Critical | -10 | Hardcoded AWS secret key |
+| High | -5 | API key in source file |
+| Medium | -3 | Missing error handling, duplicate code block, missing tests, style drift |
+| Low | -1 | Placeholder name, commented-out code, TODO without link, dead code |
+
+### 9 Detectors
+
+| # | Detector | Category | Severity | What it catches |
+|---|----------|----------|----------|-----------------|
+| 1 | Hardcoded secrets | security | HIGH | API keys, tokens, passwords, AWS keys, GitHub PATs, JWT fragments |
+| 2 | Missing error handling | reliability | MEDIUM | `try` blocks without `catch` handler |
+| 3 | Placeholder names | code-hygiene | LOW | `foo`, `bar`, `baz`, `temp`, `xxx` as function/class/var/param names |
+| 4 | Commented-out code | code-hygiene | LOW | 3+ consecutive `//` or `/* */` comment lines |
+| 5 | TODO markers | code-hygiene | LOW | `TODO`/`FIXME`/`HACK` without `#123` issue link |
+| 6 | Duplicate blocks | duplication | MEDIUM | Same 3-line block appearing 2+ times |
+| 7 | Missing tests | testing | MEDIUM | Source files without `*.test.*` or `*.spec.*` counterpart |
+| 8 | Style drift | style-drift | MEDIUM | Mixed tabs and spaces within the same file |
+| 9 | Dead code after return | dead-code | LOW | 5+ lines of unreachable code after `return`/`throw`/`exit()` |
+
+### Scanned Sources
+
+The quick scan looks in these directories (if they exist): `src`, `lib`, `app`, `server`, `pkg`, `internal`, `cmd`.
+
+File extensions scanned: `.ts`, `.js`, `.tsx`, `.jsx`, `.py`, `.go`, `.rs`, `.java`, `.rb`, `.php`.
+
+Skipped: `node_modules`, `.git`, `__pycache__`, `.map`, `.d.ts`.
+
 ### Grade Mapping
 
 | Score | Grade | Meaning |
 |-------|-------|---------|
-| 90-100 | A | Excellent — ready for production |
-| 75-89 | B | Good — minor issues to address |
-| 60-74 | C | Fair — significant cleanup needed |
-| 40-59 | D | Poor — major refactoring required |
-| 0-39 | F | Critical — project is in disarray |
+| 90-100 | A | Excellent — no significant vibe-signs |
+| 75-89 | B | Good — minor code hygiene issues |
+| 60-74 | C | Fair — needs cleanup before takeover |
+| 40-59 | D | Poor — significant refactoring required |
+| 0-39 | F | Critical — typical vibe-coded mess |
 
-### Algorithm Pseudocode
+### Display in Dashboard
+
+The Takeover Audit view shows:
+1. **Chaos Score gauge** — large SVG arc, color-coded (green → yellow → red)
+2. **Grade letter** — A/B/C/D/F, large
+3. **Severity breakdown** — bar chart showing critical/high/medium/low counts
+4. **Category breakdown** — horizontal bars showing issues per category
+5. **Issue list** — filterable table with severity, category, description, file link
+
+## Algorithm Pseudocode
 
 ```javascript
 function computeChaosScore(projectStatus, evidencePacks, memory, freshness) {
@@ -115,12 +164,3 @@ function computeChaosScore(projectStatus, evidencePacks, memory, freshness) {
 | High | -5 |
 | Medium | -3 |
 | Low | -1 |
-
-### Display in Dashboard
-
-The Takeover Audit view shows:
-1. **Chaos Score gauge** — large SVG arc, color-coded (green → yellow → red)
-2. **Grade letter** — A/B/C/D/F, large
-3. **Severity breakdown** — bar chart showing critical/high/medium/low counts
-4. **Category breakdown** — horizontal bars showing issues per category
-5. **Issue list** — filterable table with severity, category, description, file link

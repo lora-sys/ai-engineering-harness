@@ -43,7 +43,7 @@ On the Takeover Audit page, click the **Quick Scan** button.
 The dashboard calls `GET /api/quick-scan` which:
 
 - Scans all source files in `src/`, `lib/`, `app/`, `server/`, `pkg/`, `internal/`, `cmd/` directories
-- Runs 7 heuristic detectors:
+- Runs 9 heuristic detectors:
   1. **Hardcoded secrets** — API keys, tokens, passwords in non-config files (HIGH)
   2. **Missing error handling** — try blocks without catch (MEDIUM)
   3. **Placeholder names** — `foo`, `bar`, `temp`, `xxx` as code identifiers (LOW)
@@ -51,6 +51,8 @@ The dashboard calls `GET /api/quick-scan` which:
   5. **TODO without links** — markers without issue references (LOW)
   6. **Duplicate blocks** — same 3-line code in multiple places (MEDIUM)
   7. **Missing tests** — source files without test counterparts (MEDIUM)
+  8. **Style drift** — mixed tabs and spaces in the same file (MEDIUM)
+  9. **Dead code after return** — 5+ unreachable lines after `return`/`throw` (LOW)
 - Returns: chaos score + severity-ranked top issues + category breakdown
 
 ### 4. Review the report

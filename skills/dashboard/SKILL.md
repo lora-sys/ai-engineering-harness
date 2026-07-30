@@ -43,7 +43,7 @@ Zero external deps: Node.js `http` + `fs` + `path` (parser.js) + single self-con
 | `GET /api/evidence/:id` | Full detail for one pack |
 | `GET /api/kanban` | Issues by closed-loop stage |
 | `GET /api/takeover-audit` | Chaos Score + issues |
-| `GET /api/quick-scan` | Vibe-signs scan (7 detectors) |
+| `GET /api/quick-scan` | Vibe-signs scan (9 detectors) |
 | `GET /` | Serves dashboard.html |
 
 ### Views
@@ -54,7 +54,7 @@ Zero external deps: Node.js `http` + `fs` + `path` (parser.js) + single self-con
 | Evidence Detail | `#/evidence/:id` | Screenshots, code blocks, reviewers |
 | Kanban | `#/kanban` | Now / Backlog / Blocked / Merged |
 | Takeover Audit | `#/takeover` | Chaos Score 0-100, categorized issues |
-| Quick Scan | button on Takeover | 7 vibe-signs detectors → chaos score + top-5 |
+| Quick Scan | button on Takeover | 9 vibe-signs detectors → chaos score + top-5 |
 
 ## Hand-off
 
