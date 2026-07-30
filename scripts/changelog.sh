@@ -21,7 +21,10 @@ for arg in "$@"; do
     *)       POSITIONAL+=("$arg") ;;
   esac
 done
-set -- "${POSITIONAL[@]}"
+# `${ARR[@]+"${ARR[@]}"}` not `"${ARR[@]}"`: under `set -u`, bash 3.2 (macOS)
+# treats an empty array's [@] expansion as an unbound variable and aborts.
+# Fixed in bash 4.4, so this only ever crashed on macOS. See issue #13.
+set -- ${POSITIONAL[@]+"${POSITIONAL[@]}"}
 
 if [[ -f CHANGELOG.md ]] && [[ $FORCE -eq 0 ]]; then
   if grep -qE '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md; then

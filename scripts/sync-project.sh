@@ -223,11 +223,14 @@ mig_github_templates_apply() {
 mig_agents_capabilities_describe() {
   echo "patch AGENTS.md fenced block 'harness-capabilities' (current harness features)"
 }
-mig_agents_capabilities_apply() {
-  local agents_file="$PROJECT_DIR/AGENTS.md"
-  [[ -f "$agents_file" ]] || agents_file="$PROJECT_DIR/CLAUDE.md"
-  local content
-  content=$(cat <<BLOCK
+# NOTE: the heredoc lives in its own function rather than inline in a
+# `content=$(cat <<BLOCK ...)` command substitution. bash 3.2 (shipped on
+# macOS) cannot parse a heredoc nested inside $( ) when the body contains an
+# apostrophe -- it mis-lexes the quote and fails with a syntax error far below,
+# making the whole script unrunnable. bash 4+ parses it fine, so CI never
+# caught it. Keep the heredoc out of $( ). See issue #13.
+mig_agents_capabilities_block() {
+  cat <<BLOCK
 This project uses **ai-engineering-harness v${HARNESS_VERSION}**. Key capabilities:
 
 - **Closed loop with CI as a blocking gate.** A red CI must BLOCK review, merge, and Issue-close. See workflows/04-ci-recovery.md.
@@ -239,7 +242,12 @@ This project uses **ai-engineering-harness v${HARNESS_VERSION}**. Key capabiliti
 
 To update the harness: run \`npx -y skills update lora-sys/ai-engineering-harness -g\` and then \`bash scripts/sync-project.sh --apply\` in this project.
 BLOCK
-)
+}
+mig_agents_capabilities_apply() {
+  local agents_file="$PROJECT_DIR/AGENTS.md"
+  [[ -f "$agents_file" ]] || agents_file="$PROJECT_DIR/CLAUDE.md"
+  local content
+  content=$(mig_agents_capabilities_block)
   set_fenced "$agents_file" "harness-capabilities" "$content"
 }
 

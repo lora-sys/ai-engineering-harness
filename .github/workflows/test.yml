@@ -6,6 +6,60 @@ on:
     branches: [main]
 
 jobs:
+  # Syntax + static checks. Cheap, no servers, no network -- this is the job that
+  # would have caught issue #13: every one of those bugs was a bash 3.2-only
+  # failure (heredoc-in-$(), mapfile, declare -A, empty-array under set -u) that
+  # parses fine on the Linux bash 5.x CI images. Only a real 3.x parser sees them.
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Install just + python3
+        run: sudo apt-get update && sudo apt-get install -y just python3
+      - name: Run meta validators
+        run: |
+          bash scripts/validate-meta.sh --strict
+          bash scripts/check-templates.sh --strict
+      - name: Syntax-check all scripts (bash 5.x)
+        run: |
+          fail=0
+          for f in scripts/*.sh skills/*/scripts/*.sh tests/cross-version/*.sh; do
+            [ -f "$f" ] || continue
+            bash -n "$f" || { echo "SYNTAX FAIL: $f"; fail=1; }
+          done
+          exit $fail
+
+  # bash 3.2 compatibility gate. macOS runners ship bash 3.2.57 as /bin/bash,
+  # which is what harness users on macOS actually execute. Scripts must both
+  # PARSE and RUN there. Kept in CI (not local-only) precisely because a
+  # Linux-only matrix cannot see these failures at all.
+  bash32-compat:
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Confirm we are really on bash 3.2
+        run: /bin/bash --version | head -1
+      - name: Syntax-check all scripts under bash 3.2
+        run: |
+          fail=0
+          for f in scripts/*.sh skills/*/scripts/*.sh tests/cross-version/*.sh; do
+            [ -f "$f" ] || continue
+            /bin/bash -n "$f" || { echo "SYNTAX FAIL (bash 3.2): $f"; fail=1; }
+          done
+          exit $fail
+      - name: Smoke-run entrypoints under bash 3.2
+        run: |
+          # Parsing is not enough -- `mapfile`/`declare -A` only fail at runtime.
+          /bin/bash scripts/sync-project.sh --help >/dev/null
+          /bin/bash scripts/register-existing.sh --dry-run . >/dev/null
+          /bin/bash scripts/install-all-skills.sh --status >/dev/null
+
+  # Full bats suite. The 13 dashboard tests here each spawn a real node parser
+  # server; they are the slow, environment-sensitive part.
   bats:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -16,10 +70,31 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y bats
       - name: Install just + python3
         run: sudo apt-get install -y just python3
-      - name: Run meta validators
-        run: |
-          bash scripts/validate-meta.sh --strict
-          bash scripts/check-templates.sh --strict
       - name: Run bats suite
         timeout-minutes: 10
         run: bash scripts/run-tests.sh
+      - name: Assert no orphaned test servers
+        # Guards the issue #13 hang: servers were spawned so that $! held the
+        # subshell's PID, so `kill $PID` missed node entirely and bats waited
+        # forever on the inherited fds. If this ever regresses, fail loudly here
+        # instead of burning the job timeout in silence.
+        run: |
+          if pgrep -f 'node parser\.js' >/dev/null 2>&1; then
+            echo "orphaned parser.js server(s) survived the suite:" >&2
+            pgrep -af 'node parser\.js' >&2
+            exit 1
+          fi
+          echo "no orphaned servers"
+
+  # Cross-version migration regression. Network-free but slow-ish; keep it off
+  # the critical path of the fast static job.
+  cross-version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Install python3
+        run: sudo apt-get update && sudo apt-get install -y python3
+      - name: Run cross-version regression
+        run: bash tests/cross-version/run-test.sh

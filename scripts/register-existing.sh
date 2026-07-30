@@ -50,7 +50,13 @@ log()  { [[ $QUIET -eq 0 ]] && printf '[register-existing] %s\n' "$*" >&2 || tru
 fail() { printf '[register-existing] FAIL: %s\n' "$*" >&2; exit 1; }
 
 # Find all candidate projects: dirs that have BOTH AGENTS.md and docs/evidence/
-mapfile -t candidates < <(find "$ROOT" -maxdepth 4 -name "AGENTS.md" -type f 2>/dev/null | xargs -n1 dirname 2>/dev/null | sort -u)
+# `mapfile` is a bash 4 builtin and does not exist on macOS (bash 3.2), where it
+# failed with "command not found" and left $candidates unset -- then `set -u`
+# aborted. Use a portable read loop instead. See issue #13.
+candidates=()
+while IFS= read -r _line; do
+  [[ -n "$_line" ]] && candidates+=("$_line")
+done < <(find "$ROOT" -maxdepth 4 -name "AGENTS.md" -type f 2>/dev/null | xargs -n1 dirname 2>/dev/null | sort -u)
 
 if [[ ${#candidates[@]} -eq 0 ]]; then
   log "no projects with AGENTS.md found under $ROOT (max depth 4)"

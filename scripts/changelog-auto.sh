@@ -62,7 +62,14 @@ if [[ $APPEND_MODE -eq 1 ]]; then
 fi
 
 # Collect tags (chronological, oldest first)
-mapfile -t TAGS < <(git tag --sort=creatordate --format='%(refname:short)' 2>/dev/null | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | tac | sort -V)
+# Portable to bash 3.2 / macOS: `mapfile` is a bash 4 builtin and `tac` is
+# GNU-only -- neither exists on macOS, where this aborted under `set -u`.
+# (`tac` was also redundant: the trailing `sort -V` re-orders anyway.)
+# See issue #13.
+TAGS=()
+while IFS= read -r _tag; do
+  [[ -n "$_tag" ]] && TAGS+=("$_tag")
+done < <(git tag --sort=creatordate --format='%(refname:short)' 2>/dev/null | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V)
 if [[ ${#TAGS[@]} -eq 0 ]]; then
   echo "no semver tags yet; nothing to do" >&2
   exit 1
@@ -77,7 +84,7 @@ for t in "${TAGS[@]}"; do
     FILTERED+=("$t")
   fi
 done
-TAGS=("${FILTERED[@]}")
+TAGS=(${FILTERED[@]+"${FILTERED[@]}"})
 [[ ${#TAGS[@]} -eq 0 ]] && { echo "no tags >= $SINCE_TAG; nothing to do" >&2; exit 1; }
 
 # Categorize a subject line based on conventional commit prefix
@@ -161,7 +168,9 @@ for tag in "${TAGS[@]}"; do
     RANGE="$prev..$tag"
   fi
 
-  declare -A SECTIONS=()
+  # bash 3.2 (macOS) has no `declare -A`. Keep a tab-delimited
+  # "section<TAB>bullet" list and filter it per section below. See issue #13.
+  SECTION_LINES=()
   while IFS= read -r subject; do
     [[ -z "$subject" ]] && continue
     sec=$(section_for "$subject")
@@ -169,16 +178,23 @@ for tag in "${TAGS[@]}"; do
     case "$bullet" in
       "Merge branch"*|"Merge remote"*|"Merge pull request"*) continue ;;
     esac
-    SECTIONS[$sec]+="- $bullet"$'\n'
+    SECTION_LINES+=("$sec"$'\t'"$bullet")
   done < <(git log --pretty=format:'%s%n' "$RANGE" 2>/dev/null)
 
   for sec in "${ORDER[@]}"; do
-    if [[ -n "${SECTIONS[$sec]:-}" ]]; then
+    body=""
+    if [[ ${#SECTION_LINES[@]} -gt 0 ]]; then
+      for entry in "${SECTION_LINES[@]}"; do
+        [[ "${entry%%$'\t'*}" == "$sec" ]] || continue
+        body+="- ${entry#*$'\t'}"$'\n'
+      done
+    fi
+    if [[ -n "$body" ]]; then
       out+="### $sec"$'\n'
-      out+="${SECTIONS[$sec]}"$'\n'
+      out+="$body"$'\n'
     fi
   done
-  unset SECTIONS
+  unset SECTION_LINES
 
   prev="$tag"
 done

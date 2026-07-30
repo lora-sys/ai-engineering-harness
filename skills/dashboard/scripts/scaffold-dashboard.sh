@@ -6,21 +6,23 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_DIR="$(cd "$SCRIPT_DIR/../templates" && pwd)"
 SKILL_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-PROJECT_ROOT="${1:-$(pwd)}"
 
-# Resolve target project root (look for PROJECT_STATUS.md or AGENTS.md)
-if [[ -n "$1" ]]; then
-  TARGET="$1"
-else
-  if [[ -f "PROJECT_STATUS.md" ]]; then
-    TARGET="$(pwd)"
-  elif [[ -f "AGENTS.md" ]]; then
-    TARGET="$(pwd)"
-  else
-    echo "Error: No PROJECT_STATUS.md or AGENTS.md found in $(pwd)" >&2
-    echo "Usage: $0 [project-root]" >&2
-    exit 1
-  fi
+# Resolve target project root, then verify it really is one.
+# `${1:-}` not `$1`: under `set -u` a bare $1 with no args aborts the script.
+TARGET="${1:-$(pwd)}"
+
+if [[ ! -d "$TARGET" ]]; then
+  echo "Error: not a directory: $TARGET" >&2
+  exit 1
+fi
+
+# Validate the explicit-argument path too, not just the cwd fallback. Without
+# this, `scaffold-dashboard.sh /some/empty/dir` happily scattered .dashboard/
+# and scripts/ into an unrelated directory. See issue #13.
+if [[ ! -f "$TARGET/PROJECT_STATUS.md" ]] && [[ ! -f "$TARGET/AGENTS.md" ]]; then
+  echo "Error: No PROJECT_STATUS.md or AGENTS.md found in $TARGET" >&2
+  echo "Usage: $0 [project-root]" >&2
+  exit 1
 fi
 
 DASHBOARD_DIR="$TARGET/.dashboard"
