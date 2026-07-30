@@ -31,21 +31,17 @@ This skill is a **software engineering organization**, not a coding prompt. It t
 
 For one-off scripts, throwaway prototypes, or single-file edits, fall back to a regular coding skill — this harness is overhead for those.
 
-### Adjacent skills in the same family (proactively use these)
+### Sibling skills — route by keyword
 
-This skill is the **engineering coordinator** of a 4-skill family. When a user request matches a sibling's domain, **route to the sibling first** — don't try to do creative-UI design or agent-app design in this skill.
+| Keyword | → Use | Skip if user says |
+|---------|-------|-------------------|
+| "agent", "LLM", "chatbot", "tool-use", "wire up" | **`$build-agent-app`** | "standard SaaS", "ship a feature" |
+| "landing page", "portfolio", "brand site", "Awwwards", "GSAP", "Framer Motion", "R3F", "bold typography" | **`$frontend-creative`** | "dashboard", "admin panel", "standard UI" |
+| "show dashboard", "project health", "evidence completeness", "kanban", "chaos score", "quick scan", "vibe signs" | **`$dashboard`** (auto-starts on `workflows/` execution — see §10 step 1) | — |
 
-- **`$build-agent-app`** — designs / takes over / refactors **agent apps** (LLM + tools + state). The kernel: `agent = model + harness`. Use BEFORE this skill when the project is an agent app. The sibling writes the Agent Contract + Harness Contract, then hands implementation off to `$ai-engineering-harness`. Sibling skill; install with `bash install.sh --skill build-agent-app` or `bash scripts/install-all-skills.sh` (bulk-installs all 4).
-- **`$frontend-creative`** — generates **Awwwards-grade creative web UIs** (non-Dashboard layouts, GSAP/Framer Motion/R3F). Use for creative landing pages, brand sites, product pages. Has its own lifecycle: bootstrap / takeover / redo / post-mortem. Routes design-phase to this skill for evidence-gated implementation. Sibling skill; install with `bash install.sh --skill frontend-creative` or `bash scripts/install-all-skills.sh`.
+**Routing rule:** match the user's keywords → invoke the sibling skill directly. The sibling handles its own lifecycle; this skill resumes when the sibling hands off.
 
-**Trigger rules** (when to suggest the sibling without being asked):
-
-- User says "build me an agent", "wire up an LLM tool", "design a chatbot", "agent app" → suggest `$build-agent-app`.
-- User says "creative landing page", "Awwwards", "bold typography", "non-Dashboard", "portfol.io", "GSAP / Framer Motion / R3F" → suggest `$frontend-creative`.
-- User says "build a SaaS", "engineer this", "evidence-gated", "PR review", "merge", "ship a feature" → use this skill directly.
-- User says "show me the dashboard", "project health", "evidence completeness", "takeover audit", "chaos score", "kanban" → suggest .
-
-These four form the `ai-engineering-harness` skill family. Install any combination via `bash install.sh --skill <name>` or `bash scripts/install-all-skills.sh` (the recommended one-shot for all 4 across 14 agent platforms).
+**Dashboard auto-start:** When working in a project directory, the Coordinator auto-runs `bash scripts/dashboard.sh` (from project root) before entering workflow phases and after completing them. This keeps the dashboard live at `:4321` reflecting current state. Skip if `.dashboard/` does not exist (dashboard not yet bootstrapped for this project).
 
 ## 3. Repository Layout the Skill Expects
 
@@ -212,12 +208,15 @@ The system does not trust "completed" — it trusts **verifiable evidence + a re
 
 When invoked as `$ai-engineering-harness`:
 
-1. The Coordinator role activates. Read the project root, find `CLAUDE.md` / `AGENTS.md` / `PROJECT_STATUS.md` / `docs/INDEX.md`. If they don't exist, run `workflows/00-project-bootstrap.md`.
+1. The Coordinator role activates. Read the project root, find `CLAUDE.md` / `AGENTS.md` / `PROJECT_STATUS.md` / `docs/INDEX.md`. If they don't exist, run `workflows/00-project-bootstrap.md`. **Auto-start dashboard**: if `.dashboard/` exists (from `$dashboard`), run `bash scripts/dashboard.sh` (or `bash scripts/dashboard.sh <project-dir>`) so it's live at `:4321` before proceeding.
 2. Read the latest `memory/` + last `sessions/` entry to recover state if this is a resume.
 3. If the user provides raw text (PRD, idea, bug), classify and route:
    - Bootstrapping a new project → bootstrap workflow.
    - Existing repo, no docs → bootstrap workflow.
    - Existing repo with docs → enter at the current Todo from `PROJECT_STATUS.md`.
+   - User mentions "agent", "LLM", "chatbot", "tool-use" → **`$build-agent-app`** first.
+   - User mentions "landing page", "portfolio", "brand site", "Awwwards", "GSAP", "Framer Motion", "R3F" → **`$frontend-creative`** first.
+   - User mentions "dashboard", "project health", "evidence", "kanban", "chaos score", "quick scan", "vibe signs" → **`$dashboard`** (also auto-started above).
 4. Maintain `PROJECT_STATUS.md` continuously; never let it drift more than one Issue behind reality.
 5. Use `agents/`, `workflows/`, `templates/`, `checklists/` as the contract — load them on demand, never pre-load all of them.
 

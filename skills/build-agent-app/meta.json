@@ -2,7 +2,7 @@
   "id": "build-agent-app",
   "version": "0.1.2",
   "name": "Build Agent App",
-  "description": "Design, take over, or refactor an agent app (LLM + tools + state). Use when user has a PRD for an agent, wants to wire in an existing one, or reports a broken one. Writes Agent + Harness Contract, picks the workflow, hands off to $ai-engineering-harness. Kernel: agent = model + harness.",
+  "description": "Design/take over/refactor an agent app (LLM + tools + state). Triggers: build an agent, wire up LLM tool, chatbot, agent is broken. Writes Agent + Harness Contract, hands off to $ai-engineering-harness. Workflows: new / takeover / refactor. Install: bash install.sh --skill build-agent-app",
   "category": "agent-architecture",
   "priority": 18,
   "tags": [

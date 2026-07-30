@@ -2,7 +2,7 @@
   "id": "dashboard",
   "version": "0.2.0",
   "name": "Dashboard",
-  "description": "Visual web dashboard for the ai-engineering-harness. Generates a dark-themed, developer-friendly dashboard showing project health, evidence completeness, closed-loop progress, evidence detail with screenshots, kanban view, Takeover Audit with Chaos Score, and Quick Scan for one-click vibe-signs detection. Zero dependencies — Node.js parser + single self-contained HTML. Install alongside the main skill, run `bash scripts/dashboard.sh`, open http://localhost:4321. Triggers: $dashboard.",
+  "description": "Visual dashboard for ai-engineering-harness. Dark-themed, zero-dep. Triggers: $dashboard, show dashboard, project health, evidence, kanban, chaos score, quick scan, vibe signs. Run: bash scripts/dashboard.sh → :4321",
   "category": "observability",
   "priority": 20,
   "tags": [

@@ -2,7 +2,7 @@
   "id": "frontend-creative",
   "version": "0.1.2",
   "name": "Frontend Creative UI",
-  "description": "Awwwards-grade creative web UI design + frontend engineering for AI agents. Generates non-Dashboard, asymmetric, motion-rich websites (Next.js + React + TS + Tailwind + Framer Motion + GSAP + React Three Fiber). Use when the user wants a creative landing page, design portfolio, or experimental product page \u2014 not a standard SaaS dashboard. Triggers: $frontend-creative. Adjacent to $build-agent-app and $ai-engineering-harness: hand off implementation to the harness after the design brief is approved.",
+  "description": "Awwwards-grade creative web UI (non-Dashboard). Triggers: landing page, portfolio, brand site, Awwwards, GSAP, Framer Motion, R3F. Stack: Next.js + TS + Tailwind + Framer Motion + GSAP + R3F. Hands off impl to $ai-engineering-harness. Install: bash install.sh --skill frontend-creative",
   "category": "creative-frontend",
   "priority": 15,
   "tags": [
