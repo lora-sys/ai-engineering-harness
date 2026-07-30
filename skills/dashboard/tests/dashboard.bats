@@ -10,12 +10,15 @@
 # 6. quick-scan detectors fire on planted findings and stay quiet on clean code
 # 7. scan-to-issues.sh groups findings into Issues (never against a real repo)
 #
-# NOTE on assertions: under bats 1.13 only the LAST command's exit status fails
-# a test. A bare `[[ ... ]]` that fails mid-body is silently ignored, and
-# `set -e` does not change this (verified: bats resets it inside test bodies).
-# So multi-condition assertions are written as a single `[[ A ]] && [[ B ]]` or
-# with an explicit `|| false`. Confirmed by mutation testing -- without this,
-# breaking the projectRoot check left the suite green.
+# NOTE on assertions: bats changed behavior here between versions, so write
+# assertions that fail under BOTH. Under bats 1.13 (local dev) only the LAST
+# command's status fails a test -- a bare `[[ ... ]]` mid-body is silently
+# ignored, and `set -e` does not change it (bats resets it inside test bodies).
+# Under bats 1.10 (what CI installs from apt) a failing `[[ ... ]]` DOES fail
+# the test. So a wrong assertion can pass locally and red CI: that is exactly
+# how `detects hardcoded secrets` shipped asserting the opposite of the secret
+# detector's design. Use the assert_* helpers below -- they exit non-zero, which
+# fails the test on every version.
 
 set -uo pipefail
 
@@ -237,8 +240,8 @@ teardown() {
 
   run curl -s http://localhost:4321/api/health
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "overall" ]]
-  [[ "$output" =~ "evidence" ]]
+  assert_has "$output" "overall"
+  assert_has "$output" "evidence"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -252,8 +255,8 @@ teardown() {
 
   run curl -s http://localhost:4321/
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "<!DOCTYPE html>" ]]
-  [[ "$output" =~ "Dashboard" ]]
+  assert_has "$output" "<!DOCTYPE html>"
+  assert_has "$output" "Dashboard"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -267,8 +270,8 @@ teardown() {
 
   run curl -s http://localhost:4321/api/project-status
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "now" ]]
-  [[ "$output" =~ "backlog" ]]
+  assert_has "$output" "now"
+  assert_has "$output" "backlog"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -282,7 +285,7 @@ teardown() {
 
   run curl -s http://localhost:4321/api/evidence
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "packs" ]]
+  assert_has "$output" "packs"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -296,8 +299,8 @@ teardown() {
 
   run curl -s http://localhost:4321/api/evidence/1
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "verification" ]]
-  [[ "$output" =~ "changeSummary" ]]
+  assert_has "$output" "verification"
+  assert_has "$output" "changeSummary"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -311,9 +314,9 @@ teardown() {
 
   run curl -s http://localhost:4321/api/kanban
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "now" ]]
-  [[ "$output" =~ "backlog" ]]
-  [[ "$output" =~ "blocked" ]]
+  assert_has "$output" "now"
+  assert_has "$output" "backlog"
+  assert_has "$output" "blocked"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -327,9 +330,9 @@ teardown() {
 
   run curl -s http://localhost:4321/api/takeover-audit
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "chaosScore" ]]
-  [[ "$output" =~ "grade" ]]
-  [[ "$output" =~ "issues" ]]
+  assert_has "$output" "chaosScore"
+  assert_has "$output" "grade"
+  assert_has "$output" "issues"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -343,7 +346,7 @@ teardown() {
 
   run curl -s http://localhost:4321/api/memory
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "files" ]]
+  assert_has "$output" "files"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -357,24 +360,68 @@ teardown() {
 
   run curl -s http://localhost:4321/api/quick-scan
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "chaosScore" ]]
-  [[ "$output" =~ "grade" ]]
-  [[ "$output" =~ "issues" ]]
-  [[ "$output" =~ "filesScanned" ]]
+  assert_has "$output" "chaosScore"
+  assert_has "$output" "grade"
+  assert_has "$output" "issues"
+  assert_has "$output" "filesScanned"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
 }
 
 @test "parser.js quick-scan detects hardcoded secrets" {
+  # The planted secrets live in src/config.ts, and the secret detector
+  # deliberately skips config files -- a key in a config file is where a key is
+  # supposed to be. So assert on a file the detector does look at, or this test
+  # is asserting the opposite of the design.
+  cat > "$PROJECT_DIR/src/handler.ts" << 'EOF'
+export function callUpstream() {
+  const token = "ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8"
+  return fetch("https://api.example.com", { headers: { Authorization: token } })
+}
+EOF
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
   ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &
   local PID=$!
   sleep 2
 
   run curl -s http://localhost:4321/api/quick-scan
-  [[ "$output" =~ "security" ]]
-  [[ "$output" =~ "hardcoded secret" ]]
+  # The fixture plants keys in src/config.ts. That file used to be exempt from
+  # secret scanning entirely, so these two assertions were unsatisfiable from the
+  # day they were written -- they only "passed" because bats 1.13 swallows a
+  # failing bare `[[ ]]` mid-body. assert_has exits non-zero, so it fails on
+  # every bats version.
+  assert_eq "$status" 0 status
+  assert_has "$output" "security"
+  assert_has "$output" "hardcoded secret"
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "parser.js quick-scan does NOT flag env indirection or placeholders" {
+  # The other half of the secret detector, and the reason the old code exempted
+  # config files at all. `apiKey: process.env.KEY` is the *fix* for a hardcoded
+  # secret -- flagging it would punish the correct pattern. Without this test,
+  # tightening the detector to catch config files could regress into flagging
+  # every env lookup in the repo and nothing would notice.
+  mkdir -p "$PROJECT_DIR/src"
+  cat > "$PROJECT_DIR/src/safe-config.ts" << 'EOF'
+const API_KEY = process.env.API_KEY
+const DB_PASSWORD = process.env.DB_PASSWORD
+export const placeholder = { apiKey: "YOUR_API_KEY_HERE", token: "changeme" }
+// const password = "Password used to generate key"
+EOF
+  rm -f "$PROJECT_DIR/src/config.ts"
+
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  assert_eq "$status" 0 status
+  assert_lacks "$output" "hardcoded secret"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -387,8 +434,8 @@ teardown() {
   sleep 2
 
   run curl -s http://localhost:4321/api/quick-scan
-  [[ "$output" =~ "reliability" ]]
-  [[ "$output" =~ "catch" ]]
+  assert_has "$output" "reliability"
+  assert_has "$output" "catch"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -417,7 +464,7 @@ EOF
   sleep 2
 
   run curl -s http://localhost:4321/api/quick-scan
-  [[ "$output" =~ "A" ]]
+  assert_has "$output" "A"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -526,7 +573,7 @@ EOF
 
   run curl -s http://localhost:4321/api/evidence/999
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "not found" ]]
+  assert_has "$output" "not found"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true

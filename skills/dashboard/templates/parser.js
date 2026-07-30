@@ -1017,6 +1017,57 @@ function findIntentMismatch(fn) {
   return null;
 }
 
+// Is the secret-shaped value on this line obviously NOT a real secret?
+//
+// This replaces a filename-based exemption that skipped config files wholesale
+// (see the call site). Config files do carry a lot of secret-shaped scaffolding,
+// but so does every other file, and the distinguishing property is the value --
+// so it is judged here, uniformly, instead of by path.
+//
+// Deliberately narrow: it only clears values that are structurally incapable of
+// being a credential, or that are self-evidently a stand-in. When unsure it
+// returns false and the finding is reported -- a false positive on a placeholder
+// costs a glance, a false negative on a live key costs the key.
+function isPlaceholderSecret(line) {
+  // Documentation, not code. Measured on 282 MB of third-party JS/TS: doc-comment
+  // examples were the single largest false-positive class (~40 of 46 suppressed
+  // hits), overwhelmingly `@types/node`'s `* const password = 'Password used to
+  // generate key';` and `@noble/curves`' worked examples. A key inside a `*`
+  // continuation line or a `//` comment is illustrating an API, not leaking a
+  // credential. This mirrors the comment-stripping the placeholder-name detector
+  // already does at its own call site.
+  if (/^\s*(\*|\/\/|#\s|--\s)/.test(line)) return true;
+
+  // Extract the quoted value the secret pattern matched, if any.
+  const m = line.match(/[=:]\s*['"]([^'"]*)['"]/);
+  const value = m ? m[1] : '';
+
+  // An empty or whitespace-only literal cannot be a credential.
+  if (m && !value.trim()) return true;
+
+  // Indirection, not a literal: env vars, config lookups, template holes,
+  // interpolation. `apiKey: process.env.API_KEY` is the *correct* pattern and
+  // must never be flagged, or the detector punishes the fix it wants.
+  if (/(process\.env|os\.environ|getenv|ENV\[|secrets?\.get|config\.get|vault|\$\{|\{\{|%s|%\(|<%=)/i.test(line)) return true;
+
+  if (value) {
+    // Self-labelled stand-ins.
+    if (/^(x{3,}|\*{3,}|\.{3,}|-{3,}|_{3,})$/i.test(value)) return true;
+    if (/(your[_-]?|my[_-]?|some[_-]?|the[_-]?)?(api[_-]?key|secret|token|password|passwd|value)[_-]?(here|goes[_-]?here)?$/i.test(value)
+        && /^(your|my|some|the|placeholder|dummy|example|sample|changeme|change[_-]?me|replace[_-]?me|todo|fixme|insert|xxx|test|fake|foo|bar)/i.test(value)) return true;
+    if (/^(changeme|change[_-]?me|replace[_-]?me|placeholder|dummy|example|sample|todo|fixme|none|null|nil|undefined|empty|n\/a|redacted|hidden|omitted)$/i.test(value)) return true;
+    // Documentation-style example keys. AWS's own docs use EXAMPLE as the marker.
+    if (/(EXAMPLE|SAMPLE|DUMMY|FAKE|PLACEHOLDER|REDACTED|XXXXX)/.test(value)) return true;
+    // Too short to be a credential. Real keys have entropy and length; the
+    // patterns already require 8+ chars for most cases, this catches the rest.
+    if (value.length < 8) return true;
+    // No entropy at all -- a single repeated character.
+    if (/^(.)\1*$/.test(value)) return true;
+  }
+
+  return false;
+}
+
 function detectVibeSigns() {
   const issues = [];
   const byCategory = {};
@@ -1061,29 +1112,40 @@ function detectVibeSigns() {
     if (!content) continue;
     const lines = content.split('\n');
     const ext = path.extname(filePath).toLowerCase();
-    const isConfig = relPath.startsWith('src/config') || relPath.startsWith('config') || relPath.endsWith('.config.js') || relPath.endsWith('.config.ts');
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const lineNum = i + 1;
 
       // 1. Hardcoded secrets (HIGH)
-      if (!isConfig) {
-        const secretPatterns = [
-          /\b(api[_-]?key|apikey)\s*[=:]\s*['"][^'"]{8,}['"]/i,
-          /\b(api[_-]?key|apikey)\s*[=:]\s*['"][^'"]+['"]\s*[,)]/i,
-          /\b(token|secret|password|passwd|private[_-]?key)\s*[=:]\s*['"][^'"]{8,}['"]/i,
-          /\b(aws_access_key_id|aws_secret_access_key)\s*[=:]\s*['"][^'"]+/i,
-          /\b(SK-[a-zA-Z0-9]{20,})\b/,
-          /\b(ghp_[a-zA-Z0-9]{36})\b/,
-          /\b(AIza[a-zA-Z0-9_-]{35})\b/,
-          /\b(eyJ[a-zA-Z0-9_-]{20,}\.eyJ[a-zA-Z0-9_-]{20,})/,
-        ];
-        for (const pat of secretPatterns) {
-          if (pat.test(line)) {
-            addIssue('high', 'security', `Potential hardcoded secret`, relPath, lineNum);
-            break;
-          }
+      //
+      // This used to be skipped entirely for config files (`src/config*`,
+      // `*.config.ts`, ...). That exemption was backwards: a config file is the
+      // single most likely place for a real key to be pasted, so the one file a
+      // reviewer most wants scanned was the one file never scanned. It shipped
+      // in e9f9c3a together with a test whose fixture planted a key in
+      // `src/config.ts` -- detector and test contradicted each other from birth,
+      // and the test only "passed" locally because bats 1.13 swallows a failing
+      // bare `[[ ]]` mid-body. CI (bats 1.10) had been telling the truth.
+      //
+      // The exemption was aiming at a real problem -- config files carry
+      // `apiKey: process.env.KEY` and `password: "changeme"` scaffolding -- but
+      // that is a property of the *value*, not of the filename. So judge the
+      // value instead, everywhere.
+      const secretPatterns = [
+        /\b(api[_-]?key|apikey)\s*[=:]\s*['"][^'"]{8,}['"]/i,
+        /\b(api[_-]?key|apikey)\s*[=:]\s*['"][^'"]+['"]\s*[,)]/i,
+        /\b(token|secret|password|passwd|private[_-]?key)\s*[=:]\s*['"][^'"]{8,}['"]/i,
+        /\b(aws_access_key_id|aws_secret_access_key)\s*[=:]\s*['"][^'"]+/i,
+        /\b(SK-[a-zA-Z0-9]{20,})\b/,
+        /\b(ghp_[a-zA-Z0-9]{36})\b/,
+        /\b(AIza[a-zA-Z0-9_-]{35})\b/,
+        /\b(eyJ[a-zA-Z0-9_-]{20,}\.eyJ[a-zA-Z0-9_-]{20,})/,
+      ];
+      for (const pat of secretPatterns) {
+        if (pat.test(line) && !isPlaceholderSecret(line)) {
+          addIssue('high', 'security', `Potential hardcoded secret`, relPath, lineNum);
+          break;
         }
       }
 
