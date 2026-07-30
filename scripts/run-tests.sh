@@ -58,9 +58,17 @@ done
 cd "$REPO_DIR"
 
 if [[ -n "$filter" ]]; then
-  log "running $BATS_BIN tests/$filter.bats"
-  "$BATS_BIN" "tests/$filter.bats"
+  if [[ -f "tests/$filter.bats" ]]; then
+    log "running $BATS_BIN tests/$filter.bats"
+    "$BATS_BIN" "tests/$filter.bats"
+  elif [[ -f "skills/dashboard/tests/$filter.bats" ]]; then
+    log "running $BATS_BIN skills/dashboard/tests/$filter.bats"
+    "$BATS_BIN" "skills/dashboard/tests/$filter.bats"
+  else
+    log "FAIL: test file tests/$filter.bats not found"
+    exit 1
+  fi
 else
-  log "running $BATS_BIN tests/*.bats"
-  "$BATS_BIN" tests/
+  log "running $BATS_BIN tests/*.bats skills/dashboard/tests/*.bats"
+  "$BATS_BIN" tests/ skills/dashboard/tests/
 fi
