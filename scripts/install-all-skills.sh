@@ -56,34 +56,48 @@ log()  { printf '[install-all] %s\n' "$*" >&2; }
 SKILLS=(ai-engineering-harness build-agent-app frontend-creative dashboard)
 
 # TARGET paths to install into + the install.sh --target name each maps to.
-# Keep in sync with install.sh's TARGETS array. (We hardcode here for speed and
-# because install.sh rarely changes its list of supported agents.)
-declare -A PATH_TO_NAME
-PATH_TO_NAME["$HOME/.codex/skills"]="codex"
-PATH_TO_NAME["$HOME/.agents/skills"]="agents"
-PATH_TO_NAME["$HOME/.claude/skills"]="claude"
-PATH_TO_NAME["$HOME/.qwen/skills"]="qwen"
-PATH_TO_NAME["$HOME/.gemini/skills"]="gemini"
-PATH_TO_NAME["$HOME/.cursor/skills"]="cursor"
-PATH_TO_NAME["$HOME/.grok/skills"]="grok"
-PATH_TO_NAME["$HOME/.hermes/skills"]="hermes"
-PATH_TO_NAME["$HOME/.hermes/hermes-agent/skills"]="hermes-agent"
-PATH_TO_NAME["$HOME/.aider-desk/skills"]="aider-desk"
-PATH_TO_NAME["$HOME/.augment/skills"]="augment"
-PATH_TO_NAME["$HOME/.config/opencode/skills"]="opencode"
-PATH_TO_NAME["$HOME/.trae/skills"]="trae"
-PATH_TO_NAME["$HOME/.trae-cn/skills"]="trae-cn"
-# Add more here as the family grows.
-TARGETS=("${!PATH_TO_NAME[@]}")
+# Using indexed arrays for Bash 3.2 compat (no declare -A).
+PATH_TO_NAME_LIST=(
+  "$HOME/.codex/skills|codex"
+  "$HOME/.agents/skills|agents"
+  "$HOME/.claude/skills|claude"
+  "$HOME/.qwen/skills|qwen"
+  "$HOME/.gemini/skills|gemini"
+  "$HOME/.cursor/skills|cursor"
+  "$HOME/.grok/skills|grok"
+  "$HOME/.hermes/skills|hermes"
+  "$HOME/.hermes/hermes-agent/skills|hermes-agent"
+  "$HOME/.aider-desk/skills|aider-desk"
+  "$HOME/.augment/skills|augment"
+  "$HOME/.config/opencode/skills|opencode"
+  "$HOME/.trae/skills|trae"
+  "$HOME/.trae-cn/skills|trae-cn"
+)
+
+path_to_name() {
+  local p="$1"
+  for entry in "${PATH_TO_NAME_LIST[@]}"; do
+    local path_part="${entry%%|*}"
+    local name_part="${entry#*|}"
+    if [[ "$p" == "$path_part" ]]; then echo "$name_part"; return; fi
+  done
+  echo ""
+}
+
+# Extract just the path portion for iteration
+# Extract just the path portion for iteration
+TARGETS=()
+for entry in "${PATH_TO_NAME_LIST[@]}"; do
+  TARGETS+=("${entry%%|*}")
+done
 
 # For each target, run install.sh with --skill <each-skill> --target <target>.
-# install.sh already handles thin vs fat; we just iterate.
 case "$ACTION" in
   install)
     log "installing 4 skills × ${#TARGETS[@]} targets (fat=$FAT)"
     for target in "${TARGETS[@]}"; do
       [[ -d "$target" ]] || continue
-      target_name="${PATH_TO_NAME[$target]:-}"
+      target_name="$(path_to_name "$target")"
       if [[ -z "$target_name" ]]; then
         log "  SKIP  $target (no install.sh TARGET matches; add manually)"
         continue

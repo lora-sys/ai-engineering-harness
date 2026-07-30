@@ -17,19 +17,30 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Skill family — add new entries here as the family grows.
-declare -A SKILL_SOURCES=(
-  ["ai-engineering-harness"]="$SCRIPT_DIR"
-  ["build-agent-app"]="$SCRIPT_DIR/skills/build-agent-app"
-  ["frontend-creative"]="$SCRIPT_DIR/skills/frontend-creative"
-  ["dashboard"]="$SCRIPT_DIR/skills/dashboard"
+# Using indexed arrays for Bash 3.2 compat (no declare -A).
+SKILL_SOURCES_LIST=(
+  "ai-engineering-harness|$SCRIPT_DIR"
+  "build-agent-app|$SCRIPT_DIR/skills/build-agent-app"
+  "frontend-creative|$SCRIPT_DIR/skills/frontend-creative"
+  "dashboard|$SCRIPT_DIR/skills/dashboard"
 )
-
 # Paths to exclude when copying a skill bundle
 EXCLUDES=(--exclude=.git --exclude=.DS_Store)
 
 USER_HOME="${HOME:-}"
 [[ -n "${SUDO_USER:-}" ]] && USER_HOME="$(getent passwd "${SUDO_USER}" | cut -d: -f6)"
 [[ -z "$USER_HOME" ]] && USER_HOME="${HOME}"
+
+# Lookup helper for skill source dir
+get_skill_source() {
+  local name="$1"
+  for entry in "${SKILL_SOURCES_LIST[@]}"; do
+    local k="${entry%%|*}"
+    local v="${entry#*|}"
+    if [[ "$k" == "$name" ]]; then echo "$v"; return; fi
+  done
+  echo ""
+}
 
 # Per-agent TARGETS — the placeholder __DIR__ is replaced per-skill at copy time.
 TARGETS=(
@@ -114,7 +125,7 @@ uninstall_one() {
 
 skills_to_install() {
   if [[ "$SKILL_FILTER" == "all" ]]; then
-    printf "%s\n" "${!SKILL_SOURCES[@]}"
+    printf "%s\n" "${SKILL_SOURCES_LIST[@]}" | cut -d'|' -f1
   else
     printf "%s\n" "$SKILL_FILTER"
   fi
@@ -168,7 +179,11 @@ done
 
 if [[ "$LIST" -eq 1 ]]; then
   echo "Skills in family:"
-  for k in "${!SKILL_SOURCES[@]}"; do echo "  - $k → ${SKILL_SOURCES[$k]}"; done
+  for entry in "${SKILL_SOURCES_LIST[@]}"; do
+    k="${entry%%|*}"
+    v="${entry#*|}"
+    echo "  - $k → $v"
+  done
   echo
   while IFS= read -r skill; do
     echo "=== $skill ==="
@@ -211,7 +226,7 @@ if [[ -n "$TARGET_ONLY" ]]; then
       raw_path="${entry#*:}"
       if [[ "${name}" == "${TARGET_ONLY}" ]]; then
         path="$(resolve_path "$raw_path" "$skill")"
-        copy_skill "$skill" "${SKILL_SOURCES[$skill]}" "$path" "$name"
+        copy_skill "$skill" "$(get_skill_source "$skill")" "$path" "$name"
         found=1
       fi
     done
@@ -227,7 +242,7 @@ if [[ "$ALL" -eq 1 ]]; then
       name="${entry%%:*}"
       raw_path="${entry#*:}"
       path="$(resolve_path "$raw_path" "$skill")"
-      copy_skill "$skill" "${SKILL_SOURCES[$skill]}" "$path" "$name"
+      copy_skill "$skill" "$(get_skill_source "$skill")" "$path" "$name"
     done
   done < <(skills_to_install)
   exit 0
@@ -235,7 +250,7 @@ fi
 
 # Default: interactive menu
 echo "This is the ai-engineering-harness skill family installer."
-echo "  Skills: ${!SKILL_SOURCES[@]}"
+echo "  Skills: $(get_skill_source "" | wc -w) skills in family"
 echo "  Targets: $(echo "${TARGETS[@]}" | wc -w) CLI agent dirs (deduped count below)"
 echo
 echo "  0) install ALL skills to ALL targets"
@@ -252,7 +267,7 @@ select opt in "${options[@]}"; do
           name="${entry%%:*}"
           raw_path="${entry#*:}"
           path="$(resolve_path "$raw_path" "$skill")"
-          copy_skill "$skill" "${SKILL_SOURCES[$skill]}" "$path" "$name"
+          copy_skill "$skill" "$(get_skill_source "$skill")" "$path" "$name"
         done
       done < <(skills_to_install)
       break ;;
@@ -272,7 +287,7 @@ select opt in "${options[@]}"; do
               raw_path="${entry#*:}"
               if [[ "${name}" == "${t}" ]]; then
                 path="$(resolve_path "$raw_path" "$skill")"
-                copy_skill "$skill" "${SKILL_SOURCES[$skill]}" "$path" "$name"
+                copy_skill "$skill" "$(get_skill_source "$skill")" "$path" "$name"
                 found=1; break
               fi
             done
