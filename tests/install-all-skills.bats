@@ -18,9 +18,14 @@ setup() {
 @test "install-all-skills --status reports 3 skills per target" {
   run bash "$SCRIPT" --status
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "ai-engineering-harness" ]]
-  [[ "$output" =~ "build-agent-app" ]]
-  [[ "$output" =~ "frontend-creative" ]]
+  # Single `[[ ]]` chain, not three separate ones: a bare `[[ ]]` that fails
+  # mid-body is silently ignored under bats 1.13 (only `[ ]` propagates), so
+  # written separately the first two were decoration -- only the last would have
+  # failed the test. Verified: bats 1.13 reports `ok` for a guaranteed-false
+  # `[[ ]]` mid-body; the same shape with `[ ]` fails correctly.
+  [[ "$output" =~ "ai-engineering-harness" ]] \
+    && [[ "$output" =~ "build-agent-app" ]] \
+    && [[ "$output" =~ "frontend-creative" ]]
 }
 
 @test "install-all-skills PATH_TO_NAME resolves common targets" {

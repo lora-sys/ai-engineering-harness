@@ -27,8 +27,9 @@ make_harness_project() {
   make_harness_project "$ROOT/projB"
   run bash "$SCRIPT" --dry-run "$ROOT"
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "projA" ]]
-  [[ "$output" =~ "projB" ]]
+  # Chained: a mid-body bare `[[ ]]` is swallowed under bats 1.13, so the projA
+  # check was decoration -- only projB could fail the test.
+  [[ "$output" =~ "projA" ]] && [[ "$output" =~ "projB" ]]
 }
 
 @test "register-existing skips projects without .harness-state.json (none registered by dry-run)" {

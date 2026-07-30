@@ -37,8 +37,12 @@ text = re.sub(r'^## CI\n(?:^- .+\n)+\n', '', text, count=1, flags=re.MULTILINE)
 open('templates/pr-description.md', 'w').write(text)
 "
   run bash scripts/check-templates.sh --strict
+  # `[ ]` first (it propagates), then the message check with an explicit guard:
+  # a bare `[[ ]]` mid-body is swallowed under bats 1.13, so on its own this line
+  # asserted nothing -- the test would pass on a non-zero exit for ANY reason,
+  # including an unrelated crash. The guard is what makes it a real check.
   [ "$status" -ne 0 ]
-  [[ "$output" =~ "## CI" ]]
+  [[ "$output" =~ "## CI" ]] || { echo "expected the failure to name '## CI', got: $output" >&2; exit 1; }
   rm -rf "$TMPDIR"
 }
 
@@ -55,7 +59,11 @@ text = text.replace('## CI\n- Workflow run: <github actions URL or run-id>\n- Co
 open('templates/pr-description.md', 'w').write(text)
 "
   run bash scripts/check-templates.sh --strict
+  # `[ ]` first (it propagates), then the message check with an explicit guard:
+  # a bare `[[ ]]` mid-body is swallowed under bats 1.13, so on its own this line
+  # asserted nothing -- the test would pass on a non-zero exit for ANY reason,
+  # including an unrelated crash. The guard is what makes it a real check.
   [ "$status" -ne 0 ]
-  [[ "$output" =~ "## CI" ]]
+  [[ "$output" =~ "## CI" ]] || { echo "expected the failure to name '## CI', got: $output" >&2; exit 1; }
   rm -rf "$TMPDIR"
 }
