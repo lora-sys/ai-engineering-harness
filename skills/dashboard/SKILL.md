@@ -23,6 +23,19 @@ bash scripts/dashboard.sh         # starts parser + opens :4321
 
 Or from the main skill: Coordinator auto-starts dashboard before each workflow phase (see §10 in parent `SKILL.md`).
 
+## Taking over an existing repo
+
+When you bootstrap onto a repo that already has code, run Quick Scan without
+being asked and **name the vibe residue out loud** — specific categories and
+the worst location, not just a grade. See `workflows/00-bootstrap.md` §"Taking
+over an existing repo".
+
+```bash
+curl -s http://localhost:4321/api/quick-scan     # scan
+bash scripts/scan-to-issues.sh                   # dry-run Issue drafts
+bash scripts/scan-to-issues.sh --create          # file them (ask first)
+```
+
 ## Architecture
 
 Zero external deps: Node.js `http` + `fs` + `path` (parser.js) + single self-contained HTML (dashboard.html).
@@ -32,6 +45,7 @@ Zero external deps: Node.js `http` + `fs` + `path` (parser.js) + single self-con
 | Parser + Server | `templates/parser.js` | Scans project, serves JSON API |
 | Dashboard UI | `templates/dashboard.html` | Single HTML file, 5 views |
 | Wrapper | `scripts/dashboard.sh` | Starts server + opens browser |
+| Scan → Issues | `scripts/scan-to-issues.sh` | Groups findings into `gh` Issues (dry run by default) |
 
 ### API endpoints
 
@@ -43,7 +57,7 @@ Zero external deps: Node.js `http` + `fs` + `path` (parser.js) + single self-con
 | `GET /api/evidence/:id` | Full detail for one pack |
 | `GET /api/kanban` | Issues by closed-loop stage |
 | `GET /api/takeover-audit` | Chaos Score + issues |
-| `GET /api/quick-scan` | Vibe-signs scan (9 detectors) |
+| `GET /api/quick-scan` | Vibe-signs scan (10 detectors) |
 | `GET /` | Serves dashboard.html |
 
 ### Views
@@ -54,7 +68,7 @@ Zero external deps: Node.js `http` + `fs` + `path` (parser.js) + single self-con
 | Evidence Detail | `#/evidence/:id` | Screenshots, code blocks, reviewers |
 | Kanban | `#/kanban` | Now / Backlog / Blocked / Merged |
 | Takeover Audit | `#/takeover` | Chaos Score 0-100, categorized issues |
-| Quick Scan | button on Takeover | 9 vibe-signs detectors → chaos score + top-5 |
+| Quick Scan | button on Takeover | 10 vibe-signs detectors → chaos score + top-5 |
 
 ## Hand-off
 

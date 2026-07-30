@@ -7,6 +7,15 @@
 # 3. Dashboard HTML contains expected elements
 # 4. serve.sh works
 # 5. scaffold-dashboard.sh works
+# 6. quick-scan detectors fire on planted findings and stay quiet on clean code
+# 7. scan-to-issues.sh groups findings into Issues (never against a real repo)
+#
+# NOTE on assertions: under bats 1.13 only the LAST command's exit status fails
+# a test. A bare `[[ ... ]]` that fails mid-body is silently ignored, and
+# `set -e` does not change this (verified: bats resets it inside test bodies).
+# So multi-condition assertions are written as a single `[[ A ]] && [[ B ]]` or
+# with an explicit `|| false`. Confirmed by mutation testing -- without this,
+# breaking the projectRoot check left the suite green.
 
 set -uo pipefail
 
@@ -14,6 +23,31 @@ REPO_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
 TEMPLATE_DIR="$REPO_ROOT/templates"
 SCAFFOLD_SCRIPT="$REPO_ROOT/scripts/scaffold-dashboard.sh"
 SERVE_SCRIPT="$REPO_ROOT/scripts/serve.sh"
+S2I_SCRIPT="$REPO_ROOT/scripts/scan-to-issues.sh"
+
+# Assertion helpers. A bare `[[ ... ]]` mid-body does not fail a bats 1.13 test
+# (see the note at the top of this file); these `exit 1`, which does. Taking the
+# haystack as an argument rather than eval'ing a string keeps arbitrary scan
+# output from being re-parsed as shell.
+assert_has() {   # assert_has <haystack> <substring>
+  case "$1" in
+    *"$2"*) return 0 ;;
+    *) echo "assertion failed: expected to find '$2'" >&2; exit 1 ;;
+  esac
+}
+
+assert_lacks() { # assert_lacks <haystack> <substring>
+  case "$1" in
+    *"$2"*) echo "assertion failed: did not expect '$2'" >&2; exit 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+assert_eq() {    # assert_eq <actual> <expected> [label]
+  [[ "$1" == "$2" ]] && return 0
+  echo "assertion failed: ${3:-value} was '$1', expected '$2'" >&2
+  exit 1
+}
 
 setup() {
   TMPDIR="$(mktemp -d)"
@@ -124,6 +158,36 @@ function bar(y) { return y + 1 }
 // const OLD_VAR = "legacy"
 
 export { foo, bar }
+EOF
+
+  # Intent-mismatch fixtures (Issue #9): code that contradicts its own doc
+  # comment. One case per rule, so a regression names which rule broke.
+  cat > "$PROJECT_DIR/src/intent.ts" << 'EOF'
+/**
+ * Adds the given amount to the balance.
+ */
+function subtractBalance(balance, amount) {
+  return balance - amount
+}
+
+/**
+ * Formats a label.
+ * @param {string} prefix - leading text
+ * @param {string} suffix - trailing text
+ */
+function formatLabel(prefix) {
+  console.log(prefix)
+}
+
+/**
+ * Computes the checksum.
+ * @returns {number} the checksum
+ */
+function computeChecksum(bytes) {
+  for (const b of bytes) {
+    console.log(b)
+  }
+}
 EOF
 }
 
@@ -359,6 +423,89 @@ EOF
   wait $PID 2>/dev/null || true
 }
 
+@test "parser.js quick-scan detects intent mismatch: opposite verb in doc comment" {
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  assert_eq "$status" 0 status
+  assert_has "$output" "intent-mismatch"
+  # Doc says "Adds" on a function named subtractBalance
+  assert_has "$output" "subtractBalance"
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "parser.js quick-scan detects stale @param not in signature" {
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  assert_eq "$status" 0 status
+  # formatLabel documents `suffix` but only takes `prefix`
+  assert_has "$output" "suffix"
+  assert_has "$output" "formatLabel"
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "parser.js quick-scan detects @returns on a function that never returns" {
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  assert_eq "$status" 0 status
+  assert_has "$output" "computeChecksum"
+  assert_has "$output" "never returns"
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "parser.js quick-scan does not flag a doc comment that matches its code" {
+  # Guards the false-positive path: a correct docblock must stay silent, or the
+  # detector is just noise on every well-documented file.
+  MATCH_DIR="$TMPDIR/match-project"
+  mkdir -p "$MATCH_DIR/src"
+  cat > "$MATCH_DIR/PROJECT_STATUS.md" << 'EOF'
+# Project Status
+
+## Health
+- Tests: green
+EOF
+  cat > "$MATCH_DIR/src/good.ts" << 'EOF'
+/**
+ * Subtracts the given amount from the balance.
+ * @param {number} balance - starting balance
+ * @param {number} amount - amount to remove
+ * @returns {number} the new balance
+ */
+function subtractBalance(balance, amount) {
+  return balance - amount
+}
+EOF
+
+  bash "$SCAFFOLD_SCRIPT" "$MATCH_DIR" > /dev/null 2>&1
+  ( cd "$MATCH_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  assert_eq "$status" 0 status
+  assert_lacks "$output" "intent-mismatch"
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
 @test "dashboard.html contains quick-scan button" {
   run grep -c 'quick-scan-btn' "$TEMPLATE_DIR/dashboard.html"
   [ "$status" -eq 0 ]
@@ -427,4 +574,193 @@ EOF
   mkdir -p "$EMPTY_DIR"
   run bash "$SCAFFOLD_SCRIPT" "$EMPTY_DIR"
   [ "$status" -ne 0 ]
+}
+
+# ─── scan-to-issues.sh ────────────────────────────────────────────────────────
+# These use a scratch DASHBOARD_PORT so they can't collide with the :4321 tests
+# above, and never pass --create without a stub `gh` on PATH -- a test that
+# files real Issues into whatever repo the runner happens to be in is a bug.
+
+@test "scaffold-dashboard.sh installs scan-to-issues.sh" {
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  [ -f "$PROJECT_DIR/scripts/scan-to-issues.sh" ]
+  [ -x "$PROJECT_DIR/scripts/scan-to-issues.sh" ]
+}
+
+@test "scan-to-issues.sh --help does not leak shell directives" {
+  run bash "$S2I_SCRIPT" --help
+  assert_eq "$status" 0 status
+  assert_has "$output" "Usage"
+  # The help text is sliced out of this file's own header comment, so an
+  # off-by-one in the sed range dumps `set -uo pipefail` at the user.
+  assert_lacks "$output" "pipefail"
+}
+
+@test "scan-to-issues.sh rejects an unknown flag and a bad severity" {
+  run bash "$S2I_SCRIPT" --bogus
+  [[ "$status" -ne 0 ]] || { echo "expected non-zero exit" >&2; exit 1; }
+
+  run bash "$S2I_SCRIPT" --min-severity sideways
+  [[ "$status" -ne 0 ]] || { echo "expected non-zero exit" >&2; exit 1; }
+}
+
+@test "scan-to-issues.sh errors when the project has no dashboard" {
+  NODASH_DIR="$TMPDIR/nodash"
+  mkdir -p "$NODASH_DIR"
+  cat > "$NODASH_DIR/PROJECT_STATUS.md" << 'EOF'
+# Project Status
+EOF
+  run bash "$S2I_SCRIPT" --project "$NODASH_DIR"
+  [[ "$status" -ne 0 ]] || { echo "expected non-zero exit" >&2; exit 1; }
+  assert_has "$output" "parser.js"
+}
+
+@test "scan-to-issues.sh dry run prints drafts and files nothing" {
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+
+  # No server running: the script has to start its own scratch one.
+  DASHBOARD_PORT=7431 run bash "$S2I_SCRIPT" --project "$PROJECT_DIR"
+  assert_eq "$status" 0 status
+  assert_has "$output" "DRY RUN"
+  assert_has "$output" "Acceptance criteria"
+  assert_has "$output" "Issue(s) would be filed"
+  # One Issue per category, not one per finding: utils.ts alone plants several
+  # code-hygiene findings and they must collapse into a single draft.
+  assert_has "$output" "vibe-signs: code-hygiene"
+  assert_has "$output" "vibe-signs: reliability"
+  run bash -c "printf '%s\n' \"\$1\" | grep -c 'vibe-signs: code-hygiene'" _ "$output"
+  assert_eq "$output" 1 "code-hygiene draft count"
+}
+
+@test "scan-to-issues.sh --min-severity medium drops the LOW findings" {
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+
+  DASHBOARD_PORT=7432 run bash "$S2I_SCRIPT" --project "$PROJECT_DIR" --min-severity medium
+  assert_eq "$status" 0 status
+  # reliability (try-without-catch) is MEDIUM so it survives; code-hygiene
+  # (TODOs, commented-out code) is LOW so it must be filtered out entirely.
+  assert_has "$output" "vibe-signs: reliability"
+  assert_lacks "$output" "vibe-signs: code-hygiene"
+}
+
+@test "scan-to-issues.sh reports nothing to file for a clean project" {
+  CLEAN2_DIR="$TMPDIR/clean2"
+  mkdir -p "$CLEAN2_DIR"
+  cat > "$CLEAN2_DIR/PROJECT_STATUS.md" << 'EOF'
+# Project Status
+
+## Health
+- Tests: green
+EOF
+  bash "$SCAFFOLD_SCRIPT" "$CLEAN2_DIR" > /dev/null 2>&1
+
+  DASHBOARD_PORT=7433 run bash "$S2I_SCRIPT" --project "$CLEAN2_DIR"
+  assert_eq "$status" 0 status
+  assert_has "$output" "Nothing to file"
+}
+
+@test "scan-to-issues.sh leaves no scratch server behind" {
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+
+  DASHBOARD_PORT=7434 bash "$S2I_SCRIPT" --project "$PROJECT_DIR" >/dev/null 2>&1
+  sleep 1
+  # Scratch port is DASHBOARD_PORT + 1000. A survivor here answers a *later*
+  # run with the wrong project's findings, so this is a correctness test.
+  run bash -c 'lsof -tiTCP:8434 -sTCP:LISTEN 2>/dev/null | wc -l | tr -d " "'
+  assert_eq "$output" 0 "listeners on scratch port"
+}
+
+@test "scan-to-issues.sh ignores a server that is serving another project" {
+  # Put a dashboard for PROJECT_DIR (planted secret, several findings) on the
+  # port scan-to-issues checks first, then ask about CLEAN3 (no source at all).
+  # Accepting that response would file PROJECT_DIR's findings against CLEAN3.
+  # Falling back to its own scratch server is fine -- what we assert is *whose*
+  # findings came back, and the only correct answer for CLEAN3 is "none".
+  CLEAN3_DIR="$TMPDIR/clean3"
+  mkdir -p "$CLEAN3_DIR"
+  cat > "$CLEAN3_DIR/PROJECT_STATUS.md" << 'EOF'
+# Project Status
+EOF
+  bash "$SCAFFOLD_SCRIPT" "$CLEAN3_DIR" > /dev/null 2>&1
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+
+  ( cd "$PROJECT_DIR/.dashboard" && exec env PORT=7435 node parser.js >/dev/null 2>&1 ) &
+  local PID=$!
+  sleep 2
+
+  DASHBOARD_PORT=7435 run bash "$S2I_SCRIPT" --project "$CLEAN3_DIR"
+  assert_eq "$status" 0 status
+  # CLEAN3 has no source files at all, so "nothing to file" is the only correct
+  # answer. Any drafted Issue here came from PROJECT_DIR via the port -- which
+  # is the wrong-project bug, and would file Issues against the wrong repo.
+  assert_has "$output" "Nothing to file"
+  assert_lacks "$output" "vibe-signs:"
+  assert_lacks "$output" "would be filed"
+
+  # And it must not have killed the other project's server to get there.
+  kill -0 $PID
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "scan-to-issues.sh fails loudly when the scratch port is another project" {
+  # Both ports unusable: primary has nothing, scratch is held by a foreign
+  # dashboard. Refusing is the only safe answer -- reporting the squatter's
+  # findings would file Issues against the wrong repo.
+  CLEAN4_DIR="$TMPDIR/clean4"
+  mkdir -p "$CLEAN4_DIR"
+  cat > "$CLEAN4_DIR/PROJECT_STATUS.md" << 'EOF'
+# Project Status
+EOF
+  bash "$SCAFFOLD_SCRIPT" "$CLEAN4_DIR" > /dev/null 2>&1
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+
+  ( cd "$CLEAN4_DIR/.dashboard" && exec env PORT=8437 node parser.js >/dev/null 2>&1 ) &
+  local PID=$!
+  sleep 2
+
+  DASHBOARD_PORT=7437 run bash "$S2I_SCRIPT" --project "$PROJECT_DIR"
+  [[ "$status" -ne 0 ]] || { echo "expected non-zero exit" >&2; exit 1; }
+  assert_has "$output" "could not get a Quick Scan"
+  assert_has "$output" "DASHBOARD_PORT"
+
+  kill -0 $PID
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "scan-to-issues.sh --create files one Issue per category and dedupes" {
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+
+  # Stub gh: records what it was asked to create, reports one title as already
+  # open so the dedupe path is exercised too.
+  STUB_BIN="$TMPDIR/stubbin"
+  mkdir -p "$STUB_BIN"
+  cat > "$STUB_BIN/gh" << 'EOF'
+#!/usr/bin/env bash
+case "$1 $2" in
+  "auth status") exit 0 ;;
+  "issue list") echo "vibe-signs: security — 2 findings" ; exit 0 ;;
+  "issue create")
+    for a in "$@"; do
+      [[ "$PREV" == "--title" ]] && echo "$a" >> "$GH_STUB_LOG"
+      PREV="$a"
+    done
+    exit 0 ;;
+esac
+exit 0
+EOF
+  chmod +x "$STUB_BIN/gh"
+  export GH_STUB_LOG="$TMPDIR/created.txt"
+  : > "$GH_STUB_LOG"
+
+  DASHBOARD_PORT=7436 PATH="$STUB_BIN:$PATH" run bash "$S2I_SCRIPT" --project "$PROJECT_DIR" --create
+  assert_eq "$status" 0 status
+  assert_has "$output" "filed"
+
+  # Something got filed, and no title was filed twice.
+  run bash -c "wc -l < '$GH_STUB_LOG' | tr -d ' '"
+  [[ "$output" -gt 0 ]] || { echo "nothing was filed" >&2; exit 1; }
+  run bash -c "sort '$GH_STUB_LOG' | uniq -d | wc -l | tr -d ' '"
+  assert_eq "$output" 0 "duplicate titles filed"
 }

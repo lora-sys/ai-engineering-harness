@@ -78,6 +78,18 @@ Use $ai-engineering-harness to take over this repo
 
 先 Quick Scan → 发现 chaos → 生成 Issue → 分派 Agent → 逐步修复。30 秒内知道从哪开始。
 
+Quick Scan 跑 10 个 vibe-signs 检测器（硬编码密钥、缺失错误处理、重复逻辑、
+风格漂移、缺少测试、意图丢失……），并且**主动喊出来**发现了什么，而不是只给你一个分数。
+findings 不会停在终端里——一条命令分类归档成 Issue：
+
+```bash
+bash scripts/scan-to-issues.sh                  # 干跑：只打印草稿，不落库
+bash scripts/scan-to-issues.sh --create         # 真的建 Issue（按类别各一条）
+```
+
+干跑是默认行为：建 Issue 会写进共享 tracker，所以要显式 `--create`。
+细节见 `skills/dashboard/workflows/03-quick-scan.md`。
+
 #### 把一个 Issue 推到合并
 
 ```bash

@@ -58,7 +58,7 @@ jobs:
           /bin/bash scripts/register-existing.sh --dry-run . >/dev/null
           /bin/bash scripts/install-all-skills.sh --status >/dev/null
 
-  # Full bats suite. The 13 dashboard tests here each spawn a real node parser
+  # Full bats suite. The dashboard tests here each spawn a real node parser
   # server; they are the slow, environment-sensitive part.
   bats:
     runs-on: ubuntu-latest

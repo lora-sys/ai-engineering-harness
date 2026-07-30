@@ -87,6 +87,15 @@ else
   echo "  = scripts/dashboard.sh already exists (skipped)"
 fi
 
+# Copy scan-to-issues.sh — turns Quick Scan findings into trackable Issues
+if [[ -f "$SCRIPT_DIR/scan-to-issues.sh" ]]; then
+  cp "$SCRIPT_DIR/scan-to-issues.sh" "$TARGET/scripts/scan-to-issues.sh"
+  chmod +x "$TARGET/scripts/scan-to-issues.sh"
+  echo "  ✓ scripts/scan-to-issues.sh created"
+else
+  echo "  ✗ scan-to-issues.sh not found in $SCRIPT_DIR" >&2
+fi
+
 # Add .dashboard/ to .gitignore
 GITIGNORE="$TARGET/.gitignore"
 if [[ -f "$GITIGNORE" ]]; then

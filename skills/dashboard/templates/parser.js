@@ -20,7 +20,7 @@
  *   GET /api/kanban           → issues grouped by closed-loop stage
  *   GET /api/takeover-audit   → Chaos Score + categorized issues
  *   GET /api/screenshots/:id/:file → serve image from evidence pack
- *   GET /api/quick-scan          → vibe-signs heuristic scan (9 detectors, Issue #8 + #9)
+ *   GET /api/quick-scan          → vibe-signs heuristic scan (10 detectors, Issue #8 + #9)
  */
 
 'use strict';
@@ -807,6 +807,215 @@ function computeChaosScore(projectStatus, evidencePacks, memory, freshness) {
 
 // ─── Quick Scan (Vibe-Signs Detection) ─────────────────────────────────────────
 // Issue #8: heuristic scan for common AI-generated / messy code patterns.
+// Issue #9: vibe-specific signs — secrets, missing error handling, duplication,
+// style drift, missing tests, and intent loss (code vs. its own doc comment).
+
+// Verb pairs that contradict each other. A doc comment leading with one verb
+// while the function is named the other is a strong sign the code drifted away
+// from the description someone (or some model) wrote for it.
+const ANTONYM_VERBS = [
+  ['add', 'subtract'], ['add', 'remove'], ['add', 'delete'],
+  ['get', 'set'], ['read', 'write'], ['open', 'close'],
+  ['enable', 'disable'], ['start', 'stop'], ['create', 'destroy'],
+  ['create', 'delete'], ['increment', 'decrement'], ['show', 'hide'],
+  ['lock', 'unlock'], ['encrypt', 'decrypt'], ['push', 'pop'],
+  ['connect', 'disconnect'], ['serialize', 'deserialize'],
+  ['encode', 'decode'], ['compress', 'decompress'], ['attach', 'detach'],
+  ['mount', 'unmount'], ['register', 'unregister'], ['insert', 'remove'],
+  ['multiply', 'divide'], ['expand', 'collapse'], ['import', 'export'],
+  ['load', 'save'], ['grant', 'revoke'], ['subscribe', 'unsubscribe'],
+];
+
+const ANTONYM_MAP = (() => {
+  const m = new Map();
+  for (const [a, b] of ANTONYM_VERBS) {
+    if (!m.has(a)) m.set(a, new Set());
+    if (!m.has(b)) m.set(b, new Set());
+    m.get(a).add(b);
+    m.get(b).add(a);
+  }
+  return m;
+})();
+
+// Function signatures across the languages in SOURCE_EXTS. Java/C#-style
+// `Type name(...)` methods are deliberately excluded — too ambiguous to match
+// without false positives on calls and casts.
+const FN_SIGNATURE_PATTERNS = [
+  /^(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)\s*\(([^)]*)\)/,
+  /^(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*(?::[^=]+)?=\s*(?:async\s*)?\(([^)]*)\)\s*=>/,
+  /^(?:async\s+)?def\s+([A-Za-z_]\w*)\s*\(([^)]*)\)/,
+  /^func\s+(?:\([^)]*\)\s*)?([A-Za-z_]\w*)\s*\(([^)]*)\)/,
+  /^(?:pub\s+)?(?:async\s+)?fn\s+([A-Za-z_]\w*)\s*(?:<[^>]*>)?\s*\(([^)]*)\)/,
+];
+
+// "Adds" → "add", "Fetches" → "fetch", "Copies" → "copy"
+function normalizeVerb(word) {
+  const w = String(word).toLowerCase().replace(/[^a-z]/g, '');
+  if (!w) return '';
+  if (w.endsWith('ies') && w.length > 4) return w.slice(0, -3) + 'y';
+  if (/(?:sh|ch|ss|x|z)es$/.test(w)) return w.slice(0, -2);
+  if (w.endsWith('s') && !w.endsWith('ss')) return w.slice(0, -1);
+  return w;
+}
+
+// getUserName → "get", save_config → "save"
+function leadingNameVerb(name) {
+  const parts = String(name)
+    .replace(/[_-]+/g, ' ')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .trim()
+    .split(/\s+/);
+  return normalizeVerb(parts[0] || '');
+}
+
+// Returns an array of parameter names, or null when the signature is too
+// complex to match names reliably (destructuring, generics, nested calls).
+function parseParamNames(raw) {
+  const s = String(raw).trim();
+  if (!s) return [];
+  if (/[{}[\]<>(]/.test(s)) return null;
+  const names = [];
+  for (const part of s.split(',')) {
+    const ident = part.trim().replace(/^[.*&\s]+/, '').match(/^([A-Za-z_$][\w$]*)/);
+    if (!ident) continue;
+    const name = ident[1];
+    if (name === 'self' || name === 'this') continue;
+    names.push(name);
+  }
+  return names;
+}
+
+// Walks backwards from a signature line to collect the doc comment attached to
+// it — a /** */ block, or a run of consecutive // or # lines.
+function collectDocComment(lines, sigIndex) {
+  let j = sigIndex - 1;
+  let skipped = 0;
+  while (j >= 0 && skipped < 3 && (lines[j].trim() === '' || /^\s*@\w+/.test(lines[j]))) {
+    j--;
+    skipped++;
+  }
+  if (j < 0) return '';
+  const collected = [];
+  if (/\*\/\s*$/.test(lines[j])) {
+    while (j >= 0) {
+      collected.unshift(lines[j]);
+      if (/\/\*/.test(lines[j])) break;
+      j--;
+    }
+    return j < 0 ? '' : collected.join('\n');
+  }
+  while (j >= 0 && /^\s*(?:\/\/|#)/.test(lines[j])) {
+    collected.unshift(lines[j]);
+    j--;
+  }
+  return collected.join('\n');
+}
+
+// Body text between the signature's opening brace and its match, or null when
+// braces don't balance within the window (or the language has none).
+function collectFunctionBody(lines, sigIndex) {
+  let depth = 0;
+  let started = false;
+  const collected = [];
+  const limit = Math.min(sigIndex + 150, lines.length);
+  for (let i = sigIndex; i < limit; i++) {
+    for (const ch of lines[i]) {
+      if (ch === '{') { depth++; started = true; }
+      else if (ch === '}') depth--;
+    }
+    collected.push(lines[i]);
+    if (started && depth <= 0) return collected.join('\n');
+  }
+  return null;
+}
+
+// Yields { doc, name, params, body, line } for every documented function.
+function extractDocumentedFunctions(content) {
+  const lines = content.split('\n');
+  const found = [];
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    if (!trimmed) continue;
+    let match = null;
+    for (const pat of FN_SIGNATURE_PATTERNS) {
+      match = trimmed.match(pat);
+      if (match) break;
+    }
+    if (!match) continue;
+    const doc = collectDocComment(lines, i);
+    if (!doc) continue;
+    found.push({
+      doc,
+      name: match[1],
+      params: parseParamNames(match[2] || ''),
+      body: collectFunctionBody(lines, i),
+      line: i + 1,
+    });
+  }
+  return found;
+}
+
+// Compares a function against its own doc comment. Returns the first
+// contradiction found, or null.
+function findIntentMismatch(fn) {
+  const docText = fn.doc.replace(/^\s*(?:\/\*+|\*+\/|\*|\/\/|#)\s?/gm, ' ');
+  const prose = docText.replace(/@\w+[^\n]*/g, ' ').trim();
+  if (!prose && !/@\w/.test(docText)) return null;
+
+  // a) The doc leads with the opposite of the function's own verb.
+  const nameVerb = leadingNameVerb(fn.name);
+  const firstWord = (prose.match(/[A-Za-z]+/) || [''])[0];
+  const docVerb = normalizeVerb(firstWord);
+  const opposites = ANTONYM_MAP.get(docVerb);
+  if (opposites && opposites.has(nameVerb)) {
+    // If the doc also mentions the function's own verb, it is describing both
+    // sides of the operation rather than contradicting itself.
+    if (!new RegExp(`\\b${nameVerb}`, 'i').test(prose)) {
+      return {
+        severity: 'medium',
+        description: `Doc says "${firstWord}..." but function is named ${fn.name}()`,
+      };
+    }
+  }
+
+  // b) A documented @param that no longer exists in the signature.
+  if (fn.params !== null) {
+    const documented = [];
+    const paramRe = /@param\s+(?:\{[^}]*\}\s*)?\[?([A-Za-z_$][\w$.]*)/g;
+    let m;
+    while ((m = paramRe.exec(docText)) !== null) {
+      const name = m[1].split('.')[0];
+      // Malformed docs like `@param {string} The string to inspect.` capture a
+      // prose word, not a name. Identifiers conventionally start lowercase, _,
+      // or $ — anything else is a doc typo, not intent drift.
+      if (!/^[a-z_$]/.test(name)) continue;
+      documented.push(name);
+    }
+    if (documented.length > 0) {
+      const actual = new Set(fn.params);
+      const stale = documented.filter(p => !actual.has(p));
+      if (stale.length > 0) {
+        return {
+          severity: 'low',
+          description: `@param ${stale[0]} documented but missing from ${fn.name}() signature`,
+        };
+      }
+    }
+  }
+
+  // c) A documented return value the function never produces.
+  const returnsSomething = /@returns?\b\s*(?:\{\s*)?(?!\s*(?:void|None|undefined|nothing)\b)\S/.test(docText);
+  if (returnsSomething && fn.body !== null) {
+    if (!/\breturn\s+[^;\s}]/.test(fn.body) && !/\byield\b/.test(fn.body)) {
+      return {
+        severity: 'low',
+        description: `@returns documented but ${fn.name}() never returns a value`,
+      };
+    }
+  }
+
+  return null;
+}
 
 function detectVibeSigns() {
   const issues = [];
@@ -1010,7 +1219,7 @@ function detectVibeSigns() {
     }
   }
 
-  // 9. Intent mismatch — dead code after early return (LOW)
+  // 9. Dead code after early return (LOW)
   for (const filePath of allFiles) {
     const relPath = path.relative(PROJECT_ROOT, filePath);
     const content = readFileSafe(filePath);
@@ -1032,6 +1241,20 @@ function detectVibeSigns() {
           break; // one flag per file is enough
         }
       }
+    }
+  }
+
+  // 10. Intent loss — code contradicts its own doc comment (MEDIUM/LOW)
+  for (const filePath of allFiles) {
+    const relPath = path.relative(PROJECT_ROOT, filePath);
+    const content = readFileSafe(filePath);
+    if (!content) continue;
+    let flagged = 0;
+    for (const fn of extractDocumentedFunctions(content)) {
+      const mismatch = findIntentMismatch(fn);
+      if (!mismatch) continue;
+      addIssue(mismatch.severity, 'intent-mismatch', mismatch.description, relPath, fn.line);
+      if (++flagged >= 3) break; // cap per file so one stale file can't flood the report
     }
   }
 

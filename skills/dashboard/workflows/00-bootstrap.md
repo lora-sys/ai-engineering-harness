@@ -86,7 +86,51 @@ Tell the user:
 - Open `http://localhost:4321` in browser
 - Edit `templates/parser.js` and `templates/dashboard.html` to customize (these are the source files; `.dashboard/` copies are regenerated)
 
+## Taking over an existing repo
+
+If the project already had code before you bootstrapped it — i.e. this is a
+takeover, not a greenfield start — do not stop at step 8. The whole point of
+bootstrapping onto inherited code is to find out what you inherited, and the
+user should not have to know to ask.
+
+Run the scan yourself and say what it found, unprompted:
+
+```bash
+bash scripts/dashboard.sh &
+sleep 2
+curl -s http://localhost:4321/api/quick-scan
+```
+
+Then **name the vibe residue out loud** rather than burying it in a score. Lead
+with the categories, not the number:
+
+> Quick Scan on 47 files: chaos score 42/100 (grade C).
+> Typical vibe residue here — 1 hardcoded secret in `src/config.ts:12`,
+> 12 source files with no test, and 3 functions whose doc comment
+> contradicts the code. The secret is the one to fix today.
+
+A grade with no named findings is not a report; it tells the user their repo is
+bad without telling them what to do. Always list the specific categories and at
+least the highest-severity location.
+
+### Turn the findings into a backlog
+
+Findings that live only in a terminal scroll get lost. Group them into Issues:
+
+```bash
+bash scripts/scan-to-issues.sh                    # dry run — prints drafts, files nothing
+bash scripts/scan-to-issues.sh --create           # actually files them
+bash scripts/scan-to-issues.sh --min-severity medium --create   # skip the LOW noise
+```
+
+Dry run is the default because filing writes to a shared tracker. Show the
+drafts, then ask before passing `--create` — one Issue per category, with
+acceptance criteria already filled in.
+
+For a greenfield project there is nothing to scan yet; skip this section.
+
 ## After bootstrap
 
 - Run `workflows/01-generate.md` if templates were updated
 - Run `workflows/02-customize.md` to change theme, title, branding
+- Run `workflows/03-quick-scan.md` for the full scan walkthrough and the detector list
