@@ -87,6 +87,44 @@ EOF
 
 Rate limiting on the auth endpoint caused 503s during peak hours.
 EOF
+
+  # Source files for quick-scan testing (Issue #8)
+  mkdir -p "$PROJECT_DIR/src"
+  cat > "$PROJECT_DIR/src/config.ts" << 'EOF'
+// API configuration
+const API_KEY = "sk-abc123def456ghi789jkl"
+const DB_PASSWORD = "super_secret_123"
+export default { apiKey: API_KEY, dbPassword: DB_PASSWORD }
+EOF
+
+  cat > "$PROJECT_DIR/src/api.ts" << 'EOF'
+async function fetchData(url) {
+  try {
+    const res = await fetch(url)
+    const data = await res.json()
+    return data
+  // Missing catch — intentional for quick-scan testing
+  }
+}
+EOF
+
+  cat > "$PROJECT_DIR/src/utils.ts" << 'EOF'
+// Helper functions
+function foo(x) { return x * 2 }
+function bar(y) { return y + 1 }
+
+// TODO fix this later
+// TODO: add validation
+// FIXME: edge case
+
+// Commented out old code
+// function oldMethod() {
+//   return 42
+// }
+// const OLD_VAR = "legacy"
+
+export { foo, bar }
+EOF
 }
 
 teardown() {
@@ -240,6 +278,92 @@ teardown() {
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
+}
+
+@test "parser.js serves /api/quick-scan" {
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ "chaosScore" ]]
+  [[ "$output" =~ "grade" ]]
+  [[ "$output" =~ "issues" ]]
+  [[ "$output" =~ "filesScanned" ]]
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "parser.js quick-scan detects hardcoded secrets" {
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  [[ "$output" =~ "security" ]]
+  [[ "$output" =~ "hardcoded secret" ]]
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "parser.js quick-scan detects missing error handling" {
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  cd "$PROJECT_DIR/.dashboard" && node parser.js &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  [[ "$output" =~ "reliability" ]]
+  [[ "$output" =~ "catch" ]]
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "parser.js quick-scan returns A grade for clean repo" {
+  # Create a project with no source files
+  CLEAN_DIR="$TMPDIR/clean-project"
+  mkdir -p "$CLEAN_DIR/docs/evidence/1/screenshots"
+  cat > "$CLEAN_DIR/PROJECT_STATUS.md" << 'EOF'
+# Project Status
+
+## Now (in progress)
+- Issue #1 — test
+
+## Health
+- Tests: green
+- CI: green
+- Docs: fresh
+- Memory: ok
+EOF
+
+  bash "$SCAFFOLD_SCRIPT" "$CLEAN_DIR" > /dev/null 2>&1
+  cd "$CLEAN_DIR/.dashboard" && node parser.js &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  [[ "$output" =~ "A" ]]
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "dashboard.html contains quick-scan button" {
+  run grep -c 'quick-scan-btn' "$TEMPLATE_DIR/dashboard.html"
+  [ "$status" -eq 0 ]
+  [ "$output" -gt 0 ]
+}
+
+@test "dashboard.html contains quick-scan result area" {
+  run grep -c 'quick-scan-result' "$TEMPLATE_DIR/dashboard.html"
+  [ "$status" -eq 0 ]
+  [ "$output" -gt 0 ]
 }
 
 @test "parser.js returns 404 for non-existent evidence pack" {

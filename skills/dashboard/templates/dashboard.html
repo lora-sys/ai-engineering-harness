@@ -590,6 +590,93 @@
     .sb-fill.medium { background: var(--accent); }
     .sb-fill.low { background: var(--text-muted); }
 
+    /* ─── Quick Scan ──────────────────────────────────────────────────────── */
+    .quick-scan-btn {
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      border: none;
+      color: white;
+      padding: 8px 18px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .quick-scan-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+    .quick-scan-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .quick-scan-btn .scan-spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+    .quick-scan-btn.loading .scan-spinner { display: block; }
+    .quick-scan-btn.loading .scan-icon { display: none; }
+
+    .quick-scan-result {
+      margin-top: 24px;
+      display: none;
+    }
+    .quick-scan-result.visible { display: block; }
+    .quick-scan-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .quick-scan-header h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .export-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 6px 14px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .export-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+    .scan-category-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 12px;
+    }
+    .scan-category-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .scan-category-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .scan-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
     .issue-table {
       width: 100%;
       border-collapse: collapse;
@@ -867,6 +954,33 @@
           </div>
           <div id="takeover-content" style="display:none;">
             <div class="chaos-score-container" id="chaos-score-container"></div>
+
+            <!-- Quick Scan Button -->
+            <div style="margin-bottom: 20px;">
+              <button class="quick-scan-btn" id="quick-scan-btn" onclick="runQuickScan()">
+                <span class="scan-icon">⚡</span>
+                <div class="scan-spinner"></div>
+                <span id="quick-scan-btn-text">Quick Scan</span>
+              </button>
+              <span style="font-size:0.8rem;color:var(--text-muted);margin-left:12px;">Scan source files for vibe signs</span>
+            </div>
+
+            <!-- Quick Scan Result (hidden by default) -->
+            <div class="quick-scan-result" id="quick-scan-result">
+              <div class="card section" id="qs-score-card">
+                <div class="card-header">
+                  <span class="card-title">Quick Scan Result</span>
+                  <button class="export-btn" onclick="exportQuickScanReport()">
+                    📄 Export Report
+                  </button>
+                </div>
+                <div id="qs-score-container" style="display:flex;align-items:center;gap:32px;margin-bottom:20px;"></div>
+                <div id="qs-severity-bars" class="severity-bar-chart" style="margin-bottom:20px;"></div>
+                <div id="qs-issues-area"></div>
+                <div class="scan-meta" id="qs-meta"></div>
+              </div>
+            </div>
+
             <div class="card section" id="issues-card">
               <div class="card-header">
                 <span class="card-title">Issues Found</span>
@@ -1020,6 +1134,7 @@
       try { memoryData = await api('/api/memory'); } catch(e) { console.error('memory:', e); }
       try { kanbanData = await api('/api/kanban'); } catch(e) { console.error('kanban:', e); }
       try { takeoverData = await api('/api/takeover-audit'); } catch(e) { console.error('takeover:', e); }
+      try { quickScanData = await api('/api/quick-scan'); } catch(e) { console.error('quick-scan:', e); }
     }
 
     // ─── Render: Dashboard ──────────────────────────────────────────────
@@ -1478,6 +1593,190 @@
           </div>
         `;
       }).join('');
+    }
+
+    // ─── Quick Scan ───────────────────────────────────────────────────────
+    let quickScanData = null;
+
+    async function runQuickScan() {
+      const btn = document.getElementById('quick-scan-btn');
+      const btnText = document.getElementById('quick-scan-btn-text');
+      btn.classList.add('loading');
+      btnText.textContent = 'Scanning...';
+      btn.disabled = true;
+
+      try {
+        quickScanData = await api('/api/quick-scan');
+        renderQuickScanResult();
+      } catch (e) {
+        document.getElementById('qs-issues-area').innerHTML =
+          `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Scan failed</div><div class="empty-desc">${e.message}</div></div>`;
+        document.getElementById('quick-scan-result').classList.add('visible');
+      } finally {
+        btn.classList.remove('loading');
+        btnText.textContent = 'Quick Scan';
+        btn.disabled = false;
+      }
+    }
+
+    function renderQuickScanResult() {
+      if (!quickScanData) return;
+      const container = document.getElementById('quick-scan-result');
+      container.classList.add('visible');
+
+      const score = quickScanData.chaosScore || 0;
+      const maxScore = quickScanData.maxScore || 100;
+      const grade = quickScanData.grade || 'F';
+      const pct = Math.round((score / maxScore) * 100);
+      const issues = quickScanData.issues || [];
+      const bySeverity = quickScanData.bySeverity || { critical: 0, high: 0, medium: 0, low: 0 };
+      const totalIssues = Object.values(bySeverity).reduce((a, b) => a + b, 0);
+
+      // Gauge
+      let gaugeColor = '#22c55e', gradeColor = 'var(--green)';
+      if (pct < 40) { gaugeColor = '#ef4444'; gradeColor = 'var(--red)'; }
+      else if (pct < 60) { gaugeColor = '#eab308'; gradeColor = 'var(--yellow)'; }
+      else if (pct < 75) { gaugeColor = '#f97316'; gradeColor = '#f97316'; }
+
+      const radius = 50;
+      const circumference = 2 * Math.PI * radius;
+      const dashOffset = circumference - (pct / 100) * circumference;
+
+      document.getElementById('qs-score-container').innerHTML = `
+        <div style="position:relative;width:110px;height:110px;flex-shrink:0;">
+          <svg viewBox="0 0 110 110" style="width:100%;height:100%;">
+            <circle cx="55" cy="55" r="${radius}" fill="none" stroke="var(--bg-elevated)" stroke-width="8"
+              stroke-dasharray="${circumference}" stroke-dashoffset="0"
+              transform="rotate(-90 55 55)" stroke-linecap="round"/>
+            <circle cx="55" cy="55" r="${radius}" fill="none" stroke="${gaugeColor}" stroke-width="8"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}"
+              transform="rotate(-90 55 55)" stroke-linecap="round"
+              style="transition: stroke-dashoffset 0.8s ease;"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div style="font-size:1.8rem;font-weight:800;line-height:1;color:${gaugeColor}">${score}</div>
+            <div style="font-size:0.75rem;font-weight:700;color:${gradeColor}">${grade}</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:0.95rem;font-weight:600;margin-bottom:4px;">${totalIssues} issue${totalIssues !== 1 ? 's' : ''} found</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);">${quickScanData.filesScanned || 0} files scanned</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Generated: ${new Date().toLocaleDateString()}</div>
+        </div>
+      `;
+
+      // Severity bars
+      const maxSev = Math.max(totalIssues, 1);
+      document.getElementById('qs-severity-bars').innerHTML = `
+        <div class="severity-bar">
+          <div class="sb-label"><span style="color:var(--red)">Critical</span><span>${bySeverity.critical}</span></div>
+          <div class="sb-bar"><div class="sb-fill critical" style="width:${bySeverity.critical / maxSev * 100}%"></div></div>
+        </div>
+        <div class="severity-bar">
+          <div class="sb-label"><span style="color:var(--yellow)">High</span><span>${bySeverity.high}</span></div>
+          <div class="sb-bar"><div class="sb-fill high" style="width:${bySeverity.high / maxSev * 100}%"></div></div>
+        </div>
+        <div class="severity-bar">
+          <div class="sb-label"><span style="color:var(--accent)">Medium</span><span>${bySeverity.medium}</span></div>
+          <div class="sb-bar"><div class="sb-fill medium" style="width:${bySeverity.medium / maxSev * 100}%"></div></div>
+        </div>
+        <div class="severity-bar">
+          <div class="sb-label"><span style="color:var(--text-muted)">Low</span><span>${bySeverity.low}</span></div>
+          <div class="sb-bar"><div class="sb-fill low" style="width:${bySeverity.low / maxSev * 100}%"></div></div>
+        </div>
+      `;
+
+      // Issues table
+      if (issues.length === 0) {
+        document.getElementById('qs-issues-area').innerHTML = `
+          <div style="text-align:center;padding:24px;color:var(--text-muted);">
+            <div style="font-size:1.5rem;margin-bottom:8px;">✨</div>
+            <div style="font-weight:600;color:var(--text-secondary);">No issues found</div>
+            <div style="font-size:0.85rem;">Your project is in great shape!</div>
+          </div>
+        `;
+      } else {
+        document.getElementById('qs-issues-area').innerHTML = `
+          <table class="issue-table">
+            <thead><tr><th>Severity</th><th>Category</th><th>Description</th><th>File</th></tr></thead>
+            <tbody>${issues.map(issue => {
+              const sevClass = issue.severity === 'critical' ? 'badge-red' : issue.severity === 'high' ? 'badge-yellow' : issue.severity === 'medium' ? 'badge-blue' : 'badge-gray';
+              return `<tr>
+                <td><span class="badge ${sevClass}">${issue.severity}</span></td>
+                <td><span class="badge badge-purple">${issue.category}</span></td>
+                <td>${issue.description}</td>
+                <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem;">${issue.file || '—'}${issue.line ? ':' + issue.line : ''}</td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        `;
+      }
+
+      // Category breakdown
+      const cats = quickScanData.byCategory || {};
+      const catEntries = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+      if (catEntries.length > 0) {
+        const catTable = catEntries.map(([cat, count]) =>
+          `<tr><td><span class="badge badge-purple">${cat}</span></td><td>${count}</td></tr>`
+        ).join('');
+        document.getElementById('qs-issues-area').innerHTML += `
+          <div style="margin-top:16px;">
+            <div style="font-size:0.8rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Category Breakdown</div>
+            <table class="scan-category-table">
+              <thead><tr><th>Category</th><th>Count</th></tr></thead>
+              <tbody>${catTable}</tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      document.getElementById('qs-meta').textContent =
+        `${quickScanData.filesScanned || 0} files scanned`;
+    }
+
+    function exportQuickScanReport() {
+      if (!quickScanData) return;
+      const d = quickScanData;
+      const issues = d.issues || [];
+      const byCat = d.byCategory || {};
+      const score = d.chaosScore || 0;
+      const grade = d.grade || 'F';
+      const now = new Date().toISOString().slice(0, 10);
+      const projectName = PROJECT_ROOT.split('/').pop() || 'project';
+
+      let md = `# Takeover Report: ${projectName}\n\n`;
+      md += `**Chaos Score:** ${score}/${d.maxScore || 100} (Grade: ${grade})\n`;
+      md += `**Generated:** ${now}\n`;
+      md += `**Files scanned:** ${d.filesScanned || 0}\n\n`;
+      md += `## Top Issues\n\n`;
+      if (issues.length === 0) {
+        md += `No issues found — project is in great shape!\n`;
+      } else {
+        issues.forEach((issue, i) => {
+          md += `${i + 1}. **[${issue.severity.toUpperCase()}]** ${issue.description}`;
+          if (issue.file) {
+            md += ` — \`${issue.file}${issue.line ? ':' + issue.line : ''}\``;
+          }
+          md += '\n';
+        });
+      }
+      md += '\n## Category Breakdown\n\n';
+      md += '| Category | Count |\n';
+      md += '|----------|-------|\n';
+      for (const [cat, count] of Object.entries(byCat).sort((a, b) => b[1] - a[1])) {
+        md += `| ${cat} | ${count} |\n`;
+      }
+
+      // Download as file
+      const blob = new Blob([md], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'takeover-report.md';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
     // ─── Render: Takeover Audit ──────────────────────────────────────────

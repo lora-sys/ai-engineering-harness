@@ -20,6 +20,7 @@
  *   GET /api/kanban           → issues grouped by closed-loop stage
  *   GET /api/takeover-audit   → Chaos Score + categorized issues
  *   GET /api/screenshots/:id/:file → serve image from evidence pack
+ *   GET /api/quick-scan          → vibe-signs heuristic scan (Issue #8)
  */
 
 'use strict';
@@ -39,6 +40,11 @@ const MEMORY_DIR = path.join(PROJECT_ROOT, 'memory');
 const FRESHNESS_FILE = path.join(PROJECT_ROOT, 'docs', '.index', 'freshness.json');
 const STATUS_FILE = path.join(PROJECT_ROOT, 'PROJECT_STATUS.md');
 const REFRESH_INTERVAL = 30000; // 30 seconds
+
+// Directories to scan for vibe-signs (source code)
+const SOURCE_DIRS = ['src', 'lib', 'app', 'server', 'pkg', 'internal', 'cmd'];
+// File extensions to scan for vibe-signs
+const SOURCE_EXTS = ['.ts', '.js', '.tsx', '.jsx', '.py', '.go', '.rs', '.java', '.rb', '.php'];
 
 let dashboardHtml = '';
 let parserTimestamp = Date.now();
@@ -87,6 +93,25 @@ function listDirSafe(dirPath) {
   } catch {
     return [];
   }
+}
+
+function listAllFiles(dirPath) {
+  const results = [];
+  const items = listDirSafe(dirPath);
+  for (const item of items) {
+    const fullPath = path.join(dirPath, item);
+    try {
+      const stat = fs.statSync(fullPath);
+      if (stat.isDirectory()) {
+        results.push(...listAllFiles(fullPath));
+      } else {
+        results.push(fullPath);
+      }
+    } catch {
+      // skip unreadable entries
+    }
+  }
+  return results;
 }
 
 function meta(sources, missing) {
@@ -780,6 +805,194 @@ function computeChaosScore(projectStatus, evidencePacks, memory, freshness) {
   return { chaosScore: score, maxScore: 100, grade, issues, bySeverity, byCategory };
 }
 
+// ─── Quick Scan (Vibe-Signs Detection) ─────────────────────────────────────────
+// Issue #8: heuristic scan for common AI-generated / messy code patterns.
+
+function detectVibeSigns() {
+  const issues = [];
+  const byCategory = {};
+  const bySeverity = { critical: 0, high: 0, medium: 0, low: 0 };
+
+  let score = 100;
+  function addIssue(severity, category, description, file, line) {
+    const deduction = { critical: 10, high: 5, medium: 3, low: 1 }[severity] || 1;
+    score = Math.max(0, score - deduction);
+    issues.push({ severity, category, description, file: file || '', line: line || null });
+    bySeverity[severity]++;
+    byCategory[category] = (byCategory[category] || 0) + 1;
+  }
+
+  // Collect all source files in the project
+  const sourceDirs = SOURCE_DIRS.filter(d => dirExists(path.join(PROJECT_ROOT, d)));
+  const allFiles = [];
+  for (const dir of sourceDirs) {
+    const fullDir = path.join(PROJECT_ROOT, dir);
+    const files = listAllFiles(fullDir).filter(f => {
+      const ext = path.extname(f).toLowerCase();
+      // skip node_modules, .git, dist, build, __pycache__
+      const parts = path.relative(fullDir, f).split(path.sep);
+      if (parts[0] === 'node_modules' || parts[0] === '.git' || parts[0] === '__pycache__') return false;
+      if (ext === '.map' || ext === '.d.ts') return false;
+      return SOURCE_EXTS.includes(ext);
+    });
+    allFiles.push(...files);
+  }
+
+  if (allFiles.length === 0) {
+    // No source files found — perfect score, no issues
+    return { chaosScore: 100, maxScore: 100, grade: 'A', issues: [], bySeverity, byCategory, filesScanned: 0 };
+  }
+
+  // Track seen content for duplicate detection
+  const blockMap = new Map(); // signature → [{ file, line }]
+
+  for (const filePath of allFiles) {
+    const relPath = path.relative(PROJECT_ROOT, filePath);
+    const content = readFileSafe(filePath);
+    if (!content) continue;
+    const lines = content.split('\n');
+    const ext = path.extname(filePath).toLowerCase();
+    const isConfig = relPath.startsWith('src/config') || relPath.startsWith('config') || relPath.endsWith('.config.js') || relPath.endsWith('.config.ts');
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const lineNum = i + 1;
+
+      // 1. Hardcoded secrets (HIGH)
+      if (!isConfig) {
+        const secretPatterns = [
+          /\b(api[_-]?key|apikey)\s*[=:]\s*['"][^'"]{8,}['"]/i,
+          /\b(api[_-]?key|apikey)\s*[=:]\s*['"][^'"]+['"]\s*[,)]/i,
+          /\b(token|secret|password|passwd|private[_-]?key)\s*[=:]\s*['"][^'"]{8,}['"]/i,
+          /\b(aws_access_key_id|aws_secret_access_key)\s*[=:]\s*['"][^'"]+/i,
+          /\b(SK-[a-zA-Z0-9]{20,})\b/,
+          /\b(ghp_[a-zA-Z0-9]{36})\b/,
+          /\b(AIza[a-zA-Z0-9_-]{35})\b/,
+          /\b(eyJ[a-zA-Z0-9_-]{20,}\.eyJ[a-zA-Z0-9_-]{20,})/,
+        ];
+        for (const pat of secretPatterns) {
+          if (pat.test(line)) {
+            addIssue('high', 'security', `Potential hardcoded secret`, relPath, lineNum);
+            break;
+          }
+        }
+      }
+
+      // 2. Missing error handling — try without catch (MEDIUM)
+      const trimmed = line.trim();
+      if (/^try\s*\{/.test(trimmed) && i + 1 < lines.length) {
+        let hasCatch = false;
+        for (let j = i + 1; j < Math.min(i + 30, lines.length); j++) {
+          if (/^\}\s*catch\b/.test(lines[j].trim())) { hasCatch = true; break; }
+          if (/^\}/.test(lines[j].trim()) && j > i + 1) break; // brace closed without catch
+        }
+        if (!hasCatch) {
+          addIssue('medium', 'reliability', 'try block without catch handler', relPath, lineNum);
+        }
+      }
+
+      // 3. Placeholder names (LOW)
+      const placeholderPattern = /\b(foo|bar|baz|temp|xxx|placeholder|dummy|asdf|qwerty)\b/;
+      // Only flag if it's a function name, class name, or variable declaration (not comments)
+      const codePart = line.replace(/\/\/.*$/, '').replace(/\/\*[\s\S]*?\*\//, '').trim();
+      if (placeholderPattern.test(codePart)) {
+        // Skip if it's clearly a valid use (e.g., "foo === bar" in a test)
+        const fnMatch = line.match(/function\s+(foo|bar|baz|temp|xxx|placeholder)\b/i);
+        const clsMatch = line.match(/class\s+(foo|bar|baz|temp|xxx|placeholder)\b/i);
+        const constMatch = line.match(/(const|let|var)\s+(foo|bar|baz|temp|xxx|placeholder)\b/i);
+        const paramMatch = line.match(/\(\s*(foo|bar|baz|temp|xxx|placeholder)\s*[,)]/);
+        if (fnMatch || clsMatch || constMatch || paramMatch) {
+          addIssue('low', 'code-hygiene', 'Placeholder name used in code', relPath, lineNum);
+        }
+      }
+
+      // 4. Commented-out code (LOW)
+      if (/^[\s]*\/{3,}/.test(line) || /^[\s]*\/\*[\s]*[\*]/.test(line)) {
+        // Single-line block comments
+        if (i + 1 < lines.length && (lines[i + 1].trim().startsWith('//') || lines[i + 1].trim().startsWith('*'))) {
+          // Look ahead for 3+ consecutive comment lines
+          let count = 1;
+          for (let j = i + 1; j < Math.min(i + 10, lines.length); j++) {
+            if (lines[j].trim().startsWith('//') || lines[j].trim().startsWith('*') || lines[j].trim().startsWith('/*')) {
+              count++;
+            } else break;
+          }
+          if (count >= 3) {
+            addIssue('low', 'code-hygiene', `${count} lines of commented-out code`, relPath, lineNum);
+          }
+        }
+      }
+      // Also check multi-line /* */ blocks
+      if (/\/\*/.test(line) && !/\*\//.test(line) && !line.trim().startsWith('/**')) {
+        // Start of a multi-line comment block (not docblock)
+        let commentLines = 1;
+        let j = i + 1;
+        while (j < lines.length && !lines[j].includes('*/')) {
+          if (lines[j].trim().length > 0) commentLines++;
+          j++;
+        }
+        if (commentLines >= 3) {
+          addIssue('low', 'code-hygiene', `${commentLines} lines of commented-out block`, relPath, lineNum);
+        }
+      }
+
+      // 5. TODO markers without issue links (LOW)
+      if (/\/\/\s*(TODO|FIXME|HACK|XXX)\b/.test(line) && !/#\d+/.test(line)) {
+        addIssue('low', 'code-hygiene', 'TODO/FIXME without issue link', relPath, lineNum);
+      }
+
+      // 6. Duplicate blocks (MEDIUM) — track 3-line blocks
+      if (i + 2 < lines.length) {
+        const block = [lines[i].trim(), lines[i + 1].trim(), lines[i + 2].trim()];
+        // Skip blocks that are all empty or comments
+        const nonEmpty = block.filter(l => l.length > 0 && !l.startsWith('//') && !l.startsWith('*') && !l.startsWith('/*')).length;
+        if (nonEmpty >= 2) {
+          const sig = block.join('|||');
+          if (!blockMap.has(sig)) blockMap.set(sig, []);
+          blockMap.get(sig).push({ file: relPath, line: lineNum });
+        }
+      }
+    }
+  }
+
+  // Report duplicates
+  for (const [sig, locations] of blockMap) {
+    if (locations.length >= 2) {
+      const files = [...new Set(locations.map(l => l.file))];
+      const firstLine = locations[0].line;
+      addIssue('medium', 'duplication', `Duplicate code block (${locations.length} copies in ${files.length} file(s))`, files[0], firstLine);
+    }
+  }
+
+  // 7. Missing tests (MEDIUM)
+  const testDirExists = dirExists(path.join(PROJECT_ROOT, 'test')) ||
+                        dirExists(path.join(PROJECT_ROOT, 'tests')) ||
+                        dirExists(path.join(PROJECT_ROOT, '__tests__')) ||
+                        dirExists(path.join(PROJECT_ROOT, 'spec'));
+  const sourceFiles = allFiles;
+  let untested = 0;
+  for (const sf of sourceFiles) {
+    const base = path.basename(sf, path.extname(sf));
+    const dir = path.dirname(sf);
+    const hasTest = listAllFiles(dir).some(f => {
+      const fn = path.basename(f);
+      return fn === `${base}.test${path.extname(f)}` ||
+             fn === `${base}.spec${path.extname(f)}` ||
+             fn === `${base}.test.js` ||
+             fn === `${base}.test.ts` ||
+             fn === `${base}.spec.js` ||
+             fn === `${base}.spec.ts`;
+    });
+    if (!hasTest) untested++;
+  }
+  if (untested > 0 && sourceFiles.length > 0) {
+    addIssue('medium', 'testing', `${untested} source file${untested !== 1 ? 's' : ''} without corresponding test file(s)`, null, null);
+  }
+
+  const grade = score >= 90 ? 'A' : score >= 75 ? 'B' : score >= 60 ? 'C' : score >= 40 ? 'D' : 'F';
+  return { chaosScore: score, maxScore: 100, grade, issues: issues.slice(0, 20), bySeverity, byCategory, filesScanned: allFiles.length };
+}
+
 // ─── Request Handlers ─────────────────────────────────────────────────────────
 
 function handleHealth(req, res) {
@@ -888,6 +1101,11 @@ function handleTakeoverAudit(req, res) {
   jsonResponse(res, 200, { ...audit, _meta: meta(sources, missing) });
 }
 
+function handleQuickScan(req, res) {
+  const result = detectVibeSigns();
+  jsonResponse(res, 200, { ...result, _meta: { projectRoot: PROJECT_ROOT, scanTime: new Date().toISOString() } });
+}
+
 function handleScreenshot(req, res, packId, fileName) {
   const screenshotPath = path.join(EVIDENCE_DIR, packId, 'screenshots', decodeURIComponent(fileName));
   const ext = path.extname(screenshotPath).toLowerCase();
@@ -965,6 +1183,9 @@ function createServer() {
     }
     if (pathname === '/api/takeover-audit' && req.method === 'GET') {
       return handleTakeoverAudit(req, res);
+    }
+    if (pathname === '/api/quick-scan' && req.method === 'GET') {
+      return handleQuickScan(req, res);
     }
 
     // Screenshot: /api/screenshots/:packId/:fileName

@@ -1,6 +1,6 @@
 ---
 name: dashboard
-description: Visual web dashboard for the ai-engineering-harness. Generates a dark-themed, developer-friendly dashboard showing project health, evidence completeness, closed-loop progress, evidence detail with screenshots, kanban view, and Takeover Audit with Chaos Score. Zero dependencies — Node.js parser + single self-contained HTML. Install alongside the main skill, run `bash scripts/dashboard.sh`, open http://localhost:4321. Triggers: $dashboard.
+description: Visual web dashboard for the ai-engineering-harness. Generates a dark-themed, developer-friendly dashboard showing project health, evidence completeness, closed-loop progress, evidence detail with screenshots, kanban view, Takeover Audit with Chaos Score, and Quick Scan for one-click vibe-signs detection. Zero dependencies — Node.js parser + single self-contained HTML. Install alongside the main skill, run `bash scripts/dashboard.sh`, open http://localhost:4321. Triggers: $dashboard.
 ---
 
 # Dashboard
@@ -15,6 +15,7 @@ Trigger this skill when the user asks for:
 - "I want to see project health / evidence completeness"
 - "Run the dashboard / open the dashboard"
 - "Takeover audit / chaos score"
+- "Quick scan / vibe signs / what's wrong with this repo"
 - "Show me the kanban / what's in progress"
 
 ## Architecture
@@ -46,6 +47,7 @@ Two components, zero external dependencies:
 | `GET /api/memory` | Memory summary |
 | `GET /api/kanban` | Issues grouped by closed-loop stage |
 | `GET /api/takeover-audit` | Chaos Score + categorized issues |
+| `GET /api/quick-scan` | Vibe-signs heuristic scan — hardcoded secrets, missing error handling, placeholders, TODO, commented-out code, duplicates, missing tests |
 | `GET /` | Serves dashboard.html |
 
 Graceful degradation: every field nullable, no crashes on missing data.
@@ -58,6 +60,7 @@ Graceful degradation: every field nullable, no crashes on missing data.
 | Evidence Detail | `#/evidence/:id` | AC verification table, screenshots, code blocks, reviewer reports |
 | Kanban | `#/kanban` | Columns: Now / Backlog / Blocked / Recently Merged |
 | Takeover Audit | `#/takeover` | Chaos Score 0-100, categorized issues, severity breakdown |
+| Quick Scan | `#/takeover` (button) | Vibe-signs heuristic scan — chaos score + top issues from source files |
 
 ## Quick start
 
@@ -107,6 +110,7 @@ System font stack + SF Mono. SVG/CSS-only charts. Zero external dependencies.
 - `workflows/00-bootstrap.md` — scaffold dashboard into a target project
 - `workflows/01-generate.md` — regenerate dashboard artifacts
 - `workflows/02-customize.md` — customize theme, title, branding
+- `workflows/03-quick-scan.md` — one-click vibe-signs scan + takeover report
 - `references/data-sources.md` — catalog of files the parser reads + schemas
 - `references/parser-spec.md` — JSON output contract for each API endpoint
 - `references/chaos-score-algorithm.md` — 0-100 Takeover Audit scoring
