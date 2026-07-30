@@ -1,0 +1,465 @@
+# Instincts generated from https://github.com/lora-sys/ai-engineering-harness
+# Generated: 2026-07-30T16:25:49.768Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: ai-engineering-harness-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: docs, test
+
+## Evidence
+
+- 7 commits analyzed
+- Detected conventional commit pattern
+- Examples: docs(readme): delete stale dump + duplicated sections, test(check-templates): guard markdown fence + heading structure
+
+---
+id: ai-engineering-harness-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Commit Length
+
+## Action
+
+Write moderate-length commit messages (~57 characters)
+
+## Evidence
+
+- Average commit message length: 57 chars
+- Based on 7 commits
+
+---
+id: ai-engineering-harness-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Naming Files
+
+## Action
+
+Use PascalCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: PascalCase
+
+---
+id: ai-engineering-harness-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: ai-engineering-harness-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: ai-engineering-harness-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: ai-engineering-harness-workflow-documentation-sync-and-structure-update
+trigger: "when doing documentation sync and structure update"
+confidence: 0.55
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Workflow Documentation Sync And Structure Update
+
+## Action
+
+Follow the documentation-sync-and-structure-update workflow:
+1. Identify outdated, duplicated, or stale sections in main README(s) and related docs.
+2. Delete or relocate obsolete content (e.g., move maintainer-facing sections to CONTRIBUTING.md).
+3. Reorder sections to match a canonical or issue-specified structure.
+4. Update section headings to consistent levels for TOC generation.
+5. Normalize counts (workflows, references, examples, install targets, etc.) using invisible count markers.
+6. Fix dead or incorrect internal anchors and links.
+7. Sync changes to translated/secondary documentation (e.g., README_EN.md), including translating new or changed sections.
+8. Verify all relative links, anchors, and rendered elements (tables, images) work as intended.
+9. Reference or close related issues (e.g., #11).
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~1x per month
+- Files: README.md, README_EN.md, CONTRIBUTING.md
+
+---
+id: ai-engineering-harness-workflow-documentation-counts-consistency-update
+trigger: "when doing documentation counts consistency update"
+confidence: 0.55
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Workflow Documentation Counts Consistency Update
+
+## Action
+
+Follow the documentation-counts-consistency-update workflow:
+1. Identify all locations in documentation where counts are referenced.
+2. Update counts in all relevant files to match the actual state of the repo.
+3. Add or update invisible <!-- count:key --> markers for machine-checking.
+4. Verify that no count drift remains between files.
+5. Optionally, update related descriptions or tables to reflect the new numbers.
+6. Run or update scripts/check-templates.sh to validate counts.
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~1x per month
+- Files: README.md, README_EN.md, CONTRIBUTING.md
+
+---
+id: ai-engineering-harness-workflow-add-or-fix-markdown-structure-ci-gate
+trigger: "when doing add or fix markdown structure ci gate"
+confidence: 0.55
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Workflow Add Or Fix Markdown Structure Ci Gate
+
+## Action
+
+Follow the add-or-fix-markdown-structure-ci-gate workflow:
+1. Create or update a shell script (e.g., scripts/check-templates.sh) to check for fence parity, heading levels inside fences, and invisible count markers.
+2. Add or update bats tests to cover new rules or edge cases.
+3. Integrate the script into CI (e.g., test.yml static job).
+4. Test the script by running it on current and previous versions of the docs to ensure it catches real issues and avoids false positives.
+5. Document the new checks and ensure contributors are aware of the gate.
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~1x per month
+- Files: scripts/check-templates.sh, tests/check-templates.bats
+
+---
+id: ai-engineering-harness-instinct-filename-pascalcase
+trigger: "When creating or renaming a file in the codebase."
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Filename Pascalcase
+
+## Action
+
+Name the file using PascalCase (e.g., MyFile.ts).
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.files
+- TypeScript convention in repo
+
+---
+id: ai-engineering-harness-instinct-function-camelcase
+trigger: "When defining a function."
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Function Camelcase
+
+## Action
+
+Name the function using camelCase (e.g., doSomething).
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.functions
+
+---
+id: ai-engineering-harness-instinct-class-pascalcase
+trigger: "When defining a class."
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Class Pascalcase
+
+## Action
+
+Name the class using PascalCase (e.g., MyClass).
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.classes
+
+---
+id: ai-engineering-harness-instinct-constant-screaming-snake-case
+trigger: "When declaring a constant."
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Constant Screaming Snake Case
+
+## Action
+
+Name the constant using SCREAMING_SNAKE_CASE (e.g., MAX_COUNT).
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.constants
+
+---
+id: ai-engineering-harness-instinct-import-relative
+trigger: "When importing modules."
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Import Relative
+
+## Action
+
+Use relative import paths (e.g., import x from './module').
+
+## Evidence
+
+- Pattern in codeStyle.importStyle
+
+---
+id: ai-engineering-harness-instinct-export-named
+trigger: "When exporting functions, classes, or constants."
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Export Named
+
+## Action
+
+Use named exports instead of default exports.
+
+## Evidence
+
+- Pattern in codeStyle.exportStyle
+
+---
+id: ai-engineering-harness-instinct-test-location-separate
+trigger: "When adding or updating tests."
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Test Location Separate
+
+## Action
+
+Place test files in the 'tests' directory, separate from source code.
+
+## Evidence
+
+- Pattern in architecture.folderStructure.testLocation
+- Presence of 'tests' folder
+
+---
+id: ai-engineering-harness-instinct-test-bats-for-scripts
+trigger: "When writing tests for shell scripts."
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Test Bats For Scripts
+
+## Action
+
+Use Bats (.bats) files in the 'tests' directory for shell script testing.
+
+## Evidence
+
+- Presence of tests/check-templates.bats
+- Workflow 'add-or-fix-markdown-structure-ci-gate'
+
+---
+id: ai-engineering-harness-instinct-git-conventional-commits
+trigger: "When writing a commit message."
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Git Conventional Commits
+
+## Action
+
+Format the commit message using the conventional commit style (e.g., docs(readme): ... or test(...): ...).
+
+## Evidence
+
+- Pattern in commits.type: conventional
+- Examples: 'docs(readme): delete stale dump + duplicated sections', 'test(check-templates): guard markdown fence + heading structure'
+
+---
+id: ai-engineering-harness-instinct-git-commit-prefix-docs-test
+trigger: "When committing documentation or test changes."
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Git Commit Prefix Docs Test
+
+## Action
+
+Use 'docs' or 'test' as the prefix in the commit message.
+
+## Evidence
+
+- Pattern in commits.prefixes: ['docs', 'test']
+- Examples: 'docs(readme): ...', 'test(check-templates): ...'
+
+---
+id: ai-engineering-harness-instinct-workflow-doc-sync
+trigger: "When documentation structure or content needs to be updated, reordered, or synced across languages (e.g., after a major doc rewrite or feature addition)."
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Workflow Doc Sync
+
+## Action
+
+Synchronize documentation structure, counts, and content across all relevant docs and languages, ensuring consistency and up-to-date reference counts.
+
+## Evidence
+
+- Workflow: documentation-sync-and-structure-update
+- Commits: 'docs(readme): reorder to issue #11 order + fix fence parity', 'docs(readme-en): sync structure with README.md + translate 196 stale lines'
+
+---
+id: ai-engineering-harness-instinct-workflow-doc-counts
+trigger: "When the number of workflows, tests, examples, or other counted items changes, or when inconsistencies are found between files."
+confidence: 0.92
+domain: workflow
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Workflow Doc Counts
+
+## Action
+
+Update all documentation files to ensure referenced counts are accurate and consistent, including invisible count markers.
+
+## Evidence
+
+- Workflow: documentation-counts-consistency-update
+- Commits: 'docs(readme): normalize punctuation + correct all counts', 'docs: fix duplicate CHANGELOG 1.9.0 + stale counts across the repo'
+
+---
+id: ai-engineering-harness-instinct-workflow-markdown-ci-gate
+trigger: "When a markdown rendering bug is discovered or when new doc structure rules are needed."
+confidence: 0.88
+domain: workflow
+source: repo-analysis
+source_repo: lora-sys/ai-engineering-harness
+---
+
+# Ai Engineering Harness Instinct Workflow Markdown Ci Gate
+
+## Action
+
+Create or update a CI script to check markdown structure (fence parity, heading levels, count markers) and integrate it into the CI pipeline.
+
+## Evidence
+
+- Workflow: add-or-fix-markdown-structure-ci-gate
+- Commits: 'test(check-templates): guard markdown fence + heading structure', 'scripts/check-templates.sh', 'tests/check-templates.bats'
+
