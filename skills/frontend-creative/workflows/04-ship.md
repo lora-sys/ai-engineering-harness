@@ -5,19 +5,35 @@ Final checks + hand-off to `$ai-engineering-harness` (if the design needs to bec
 ## Trigger
 
 - Visual regression passed (`workflows/03-visual-regression-check.md`).
-- Awwwards self-score ≥ 48/60.
+- Awwwards self-score ≥ 56/70.
 
 ## Steps
 
 1. Run the **Phase 4 prompt** from `references/prompt-library.md`.
 2. **Run `templates/review-checklist.md` end-to-end** (mandatory pre-ship gate). Final score recorded.
-3. Verify performance:
-   - Lighthouse mobile ≥ 90 (Performance, A11y, Best Practices, SEO)
-   - LCP < 2.5s on mid-range mobile
-   - No autoplay video / audio
-   - No layout thrash (transforms only)
-4. Verify Awwwards criteria (the checklist).
-5. **Commit `final`** with screenshot, design brief, iteration log, review checklist all bundled.
+3. Verify performance — each of these is a **measurement to run**, not a box to
+   tick from memory:
+   - Lighthouse mobile ≥ 90 (Performance, A11y, Best Practices, SEO). Record the
+     four numbers. If any audit fails, fix it or state plainly why it is waived.
+   - LCP < 2.5s, CLS < 0.1 — from a real trace, not an estimate.
+   - JS gzipped within the brief's budget. `gzip -c dist/assets/*.js | wc -c`.
+   - No autoplay video / audio.
+   - No layout thrash (transforms only).
+4. Verify interaction and a11y by exercising them:
+   - Emulate `prefers-reduced-motion: reduce`, reload, and assert every entrance
+     is at its final state and no canvas/RAF loop is running.
+   - Tab through the whole page. Every interactive element reachable, focus
+     visible, no trap.
+   - Compute contrast for every text pair with the WCAG formula. Lowest pair
+     ≥ 4.5:1. **Compute it in the page** — palette values look fine and measure
+     badly more often than not.
+   - Screenshot at 320 / 390 / 768 / 1440 / 1920 and confirm no horizontal scroll
+     and no clipped text. Text hidden by `clip-path` or `overflow` does not show
+     up in a screenshot — measure the text run against its container.
+5. Verify content sources: every figure listed in brief §8 is either derived at
+   build time or explicitly justified as static. A build that can ship a stale
+   number will eventually ship one.
+6. **Commit `final`** with screenshot, design brief, iteration log, review checklist all bundled.
 
 ## Hand-off (two paths)
 
@@ -34,7 +50,12 @@ Final checks + hand-off to `$ai-engineering-harness` (if the design needs to bec
 
 - Don't ship with lorem ipsum or fake testimonials.
 - Don't ship below Lighthouse 90.
-- Don't ship without an Awwwards self-score ≥ 48/60.
+- Don't ship without an Awwwards self-score ≥ 56/70.
+- Don't report a number you did not measure this round. "Lighthouse 95" from two
+  rounds ago is not evidence; it is a memory.
+- Don't let CI be the first thing that builds the site. If deployment is
+  automated on merge, the build must also run on the PR — otherwise the four
+  green checks say nothing about the page.
 
 ## Output
 

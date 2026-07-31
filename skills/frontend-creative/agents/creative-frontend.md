@@ -64,7 +64,7 @@ Don't propose alternatives. The user can override explicitly.
 
 - Walk the brief row by row. PASS / FAIL / PARTIAL.
 - Score 1-10 on each Awwwards criterion (composition / type / color / motion / originality / performance).
-- If any criterion is 0 or total < 36, the round is rejected. Re-do.
+- If any criterion is 0 or total < 42 (of 70), the round is rejected. Re-do.
 
 ## Hand-off
 

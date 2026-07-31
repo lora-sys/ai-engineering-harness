@@ -133,6 +133,34 @@ Goal:
 
 > Design web pages like cinema, not arrange components.
 
+### Banned visual clichés
+
+Each of these is banned because it is what a generative model reaches for when it
+has no point of view. Using one is not a style choice; it is the absence of one.
+
+| Banned | Why |
+|---|---|
+| Blue-purple gradient SaaS template | The single most common AI default. Instantly places the product in a crowd. |
+| Full-screen glassmorphism | Frosted panels over a blurred blob. Costs contrast, buys nothing. |
+| Rows of identical rounded cards | Equal cards assert that everything matters equally, which is never true. |
+| Bento grid | Was a 2023 idea; now it is wallpaper. |
+| Robot avatars / mascots | Says "AI" by illustration instead of by product behaviour. |
+| Shield and padlock icons | Security-theatre iconography. Show the actual gate, control or state. |
+| Floating AI chat bubble | Only if the product genuinely is a chat product. |
+| Decorative grid background | A grid must be a measuring system. If nothing aligns to it, delete it. |
+| Excess neon / everything glowing | If every element emits light, light means nothing. |
+| Digital globe with arcs | Implies global scale without evidence of it. |
+| Blockchain hexagons, generic Web3 iconography | Borrowed signalling from an unrelated category. |
+| Low-contrast grey body text | Under 4.5:1 is not "subtle", it is unreadable. |
+| Motion that costs readability or performance | The page exists to be read. |
+
+Glow is permitted only when it is **semantic** — a state indicator whose job is to
+emit (pass/fail, live/idle, armed/blocked). One accent colour used with meaning
+beats four used for decoration.
+
+Grids, likewise: a drafting grid that content actually aligns to is a visual
+language. The same grid with content floating over it is noise.
+
 ## 六、Typography Rules
 
 Core:
@@ -208,6 +236,85 @@ For:
 Principle:
 
 > GSAP for "big scenes", Framer Motion for "details".
+
+### One element, one animation system
+
+Never drive the same element with both GSAP and Framer Motion. Both write to
+`transform`/`opacity`, and the last writer wins — you get a jitter that only
+appears under load, or an element stuck mid-tween when a Framer re-render lands
+between two GSAP ticks. Split by element, not by property.
+
+### Interaction design requirements
+
+The rules above say *what* animates. These say *how it must behave* — they are
+acceptance criteria, not suggestions, and `templates/review-checklist.md` scores
+them.
+
+#### Scroll motion
+
+Scroll is for revealing structure that is genuinely sequential. Good uses:
+
+- an artefact travelling through a pipeline (a proof packet, a request, a build)
+- section state changing as you enter it
+- a UI panel assembling layer by layer
+- attributes attaching progressively (evidence, policy, metadata)
+- a gate opening or closing
+- a final artefact being produced (a receipt, a report, a signature)
+
+Avoid:
+
+- every text block fading up from the bottom — the default that makes pages
+  interchangeable
+- the same animation on every element, which reads as a template
+- scroll-jacking; the user's scroll must remain theirs
+- long pins. If the user cannot leave, it is a cutscene, not a page
+- any motion the user is forced to watch to completion before content is legible
+
+#### Micro-interactions
+
+- buttons resolve direction on hover (an arrow that moves, not a colour swap)
+- status labels pulse only while genuinely pending
+- a blocking state gets mechanical feedback — a gate closing should feel like a
+  gate closing
+- generated artefacts get a brief confirmation, then settle
+- every code block has a copy button, with a state change on success and no false
+  success when the clipboard API is unavailable
+- product demos with more than one view use tabs, not a carousel
+- state changes are acknowledged in the same frame the user acts, even if the
+  result is still loading
+
+#### Custom cursor (desktop only, optional)
+
+A custom cursor is the fastest way to make a page feel bespoke and the fastest
+way to make it unusable. If used, all six must hold:
+
+1. it never intercepts clicks (`pointer-events: none`)
+2. it never covers text the user is reading
+3. it is off on touch devices — detected by `(hover: hover) and (pointer: fine)`,
+   not by width
+4. it is off under `prefers-reduced-motion: reduce`
+5. it changes only over specific interactive regions, so the change carries
+   meaning
+6. the native cursor is still available as a fallback if the custom layer fails
+   to mount
+
+#### Reduced motion is a code path, not a comment
+
+`@media (prefers-reduced-motion: reduce)` must collapse every entrance to its
+final state, and JS must check `matchMedia` too so canvas/WebGL loops never
+start. Verify by emulating the query and asserting final state — a CSS block
+alone leaves a `requestAnimationFrame` loop running.
+
+#### Never hide content behind an animation that might not run
+
+`gsap.from()` writes `opacity: 0` immediately and only restores it when its
+trigger fires. Anything that stops the trigger — landing mid-page, a
+`ScrollTrigger.refresh()` race, a print stylesheet, a failed bundle — leaves the
+section permanently blank. Use `fromTo` with `immediateRender: false`, and keep
+any JS-only start state behind a class that JS itself adds.
+
+Measured, not theoretical: this shipped in this repo's own landing page and two
+whole sections rendered as empty voids until a full-page capture caught it.
 
 ## 八、Recommended Tech Stack
 

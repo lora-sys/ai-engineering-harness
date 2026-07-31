@@ -35,5 +35,5 @@ Round 2+: improve **one region at a time**. Never rewrite the whole page.
 
 ## Hand-off
 
-- Repeat this workflow until the Awwwards self-score plateaus at ≥ 48/60.
+- Repeat this workflow until the Awwwards self-score plateaus at ≥ 56/70.
 - Then move to `workflows/03-visual-regression-check.md`.

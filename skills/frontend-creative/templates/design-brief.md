@@ -46,10 +46,31 @@ Pick one (or invent your own):
 - Tech stack (default: Next.js + TS + Tailwind + Framer Motion + GSAP + R3F):
 - Other:
 
-## 7. Out of scope
+## 7. Budgets (numbers, not adjectives)
+
+Fill these in before design starts. `templates/review-checklist.md` scores against
+them, and `workflows/04-ship.md` will not pass a budget that was never set.
+
+- JS (gzipped):            (default < 200 KB)
+- LCP:                     (default < 2.5 s)
+- CLS:                     (default < 0.1)
+- Lighthouse mobile:       (default ≥ 90 across the board)
+- Lowest contrast pair:    (must be ≥ 4.5:1 — compute it, do not estimate)
+
+## 8. Content sources
+
+Where does every number and string come from? List each figure and its origin.
+Anything derivable from a repo, an API or a CMS gets derived at build time with a
+staleness check; a hand-typed count is a claim that will quietly go wrong.
+
+| Figure / copy | Source | Derived at build? |
+|---|---|---|
+|  |  |  |
+
+## 9. Out of scope
 
 What's explicitly NOT in this page? (e.g., "no e-commerce", "no auth flow", "no blog")
 
-## 8. Open questions
+## 10. Open questions
 
 Anything the AI should ask before starting.
