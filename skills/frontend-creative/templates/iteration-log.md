@@ -14,7 +14,8 @@ One row per round. Screenshots saved alongside as `round-N.png` in the design wo
 After each round, answer YES / NO to each:
 
 - Did the page get MORE generic or LESS generic this round?
-- Is the type scale still giant (≥ clamp(4rem, 12vw, 12rem))?
+- Is the type scale still at the selected theme's display scale, and still the
+  visual subject rather than a heading?
 - Is the layout still asymmetric (no centered 3-card sections)?
 - Is the motion still layered (heavy on focal, light elsewhere — not 100% motion)?
 - Is the Awwwards self-score (from `review-checklist.md`) holding or improving?

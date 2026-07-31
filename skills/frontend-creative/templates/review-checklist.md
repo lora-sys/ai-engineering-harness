@@ -12,7 +12,11 @@ Reject if total < 42, or if any single category scores 0.
 
 ## Type (10)
 
-- [ ] Giant title (clamp 4-12rem) used as visual subject
+- [ ] Giant title at the selected theme's display scale, used as visual subject
+      (not merely as a heading). The scale is theme-defined — E is deliberately
+      the smallest at `clamp(2.25rem, 5.4vw, 5.5rem)` because it is sized against
+      its column; C is the largest at `18vw`. Judge dominance in the composition,
+      not absolute rem
 - [ ] Variable / display font, not system default
 - [ ] At least one experimental layout (staggered, masked, vertical)
 
