@@ -18,9 +18,12 @@ setup() {
 @test "install-all-skills --status reports 3 skills per target" {
   run bash "$SCRIPT" --status
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "ai-engineering-harness" ]]
-  [[ "$output" =~ "build-agent-app" ]]
-  [[ "$output" =~ "frontend-creative" ]]
+  # Single `[[ ]]` chain, not three separate lines: a failing `[[ ]]` aborts the
+  # body, so written separately the later checks are only reached when the earlier
+  # ones already passed. All three skills are required, and the chain says so.
+  [[ "$output" =~ "ai-engineering-harness" ]] \
+    && [[ "$output" =~ "build-agent-app" ]] \
+    && [[ "$output" =~ "frontend-creative" ]]
 }
 
 @test "install-all-skills PATH_TO_NAME resolves common targets" {

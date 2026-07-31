@@ -10,12 +10,19 @@
 # 6. quick-scan detectors fire on planted findings and stay quiet on clean code
 # 7. scan-to-issues.sh groups findings into Issues (never against a real repo)
 #
-# NOTE on assertions: under bats 1.13 only the LAST command's exit status fails
-# a test. A bare `[[ ... ]]` that fails mid-body is silently ignored, and
-# `set -e` does not change this (verified: bats resets it inside test bodies).
-# So multi-condition assertions are written as a single `[[ A ]] && [[ B ]]` or
-# with an explicit `|| false`. Confirmed by mutation testing -- without this,
-# breaking the projectRoot check left the suite green.
+# NOTE on assertions: a failing `[[ ... ]]` aborts the test body, so anything
+# after it never runs -- which means a long run of bare `[[ ]]` lines tells a
+# reader nothing about which conditions actually carry weight, and a test that
+# only checks `[ "$status" -ne 0 ]` passes on a non-zero exit for ANY reason,
+# including an unrelated crash. Prefer the assert_* helpers below: they print
+# what was actually seen, which turns a bare "assertion failed" into a diagnosis.
+#
+# Verified, since an earlier version of this comment claimed otherwise: mid-body
+# `[[ ]]` failures are NOT swallowed by any version this repo runs. A
+# guaranteed-false mid-body `[[ ]]` fails the test under bash 3.2.57 and 5.3.15,
+# with bats 1.10.0 and 1.13.0 -- all four combinations. If you are chasing a
+# test that passes locally but fails in CI, check first that the local run
+# actually included this file; that was the real cause last time.
 
 set -uo pipefail
 
@@ -25,10 +32,11 @@ SCAFFOLD_SCRIPT="$REPO_ROOT/scripts/scaffold-dashboard.sh"
 SERVE_SCRIPT="$REPO_ROOT/scripts/serve.sh"
 S2I_SCRIPT="$REPO_ROOT/scripts/scan-to-issues.sh"
 
-# Assertion helpers. A bare `[[ ... ]]` mid-body does not fail a bats 1.13 test
-# (see the note at the top of this file); these `exit 1`, which does. Taking the
-# haystack as an argument rather than eval'ing a string keeps arbitrary scan
-# output from being re-parsed as shell.
+# Assertion helpers. A bare `[[ ... ]]` says only "assertion failed"; these print
+# the value that was actually seen, which is the difference between a failure you
+# can diagnose and one you have to re-run by hand. Taking the haystack as an
+# argument rather than eval'ing a string keeps arbitrary scan output from being
+# re-parsed as shell.
 assert_has() {   # assert_has <haystack> <substring>
   case "$1" in
     *"$2"*) return 0 ;;
@@ -237,8 +245,8 @@ teardown() {
 
   run curl -s http://localhost:4321/api/health
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "overall" ]]
-  [[ "$output" =~ "evidence" ]]
+  assert_has "$output" "overall"
+  assert_has "$output" "evidence"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -252,8 +260,8 @@ teardown() {
 
   run curl -s http://localhost:4321/
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "<!DOCTYPE html>" ]]
-  [[ "$output" =~ "Dashboard" ]]
+  assert_has "$output" "<!DOCTYPE html>"
+  assert_has "$output" "Dashboard"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -267,8 +275,8 @@ teardown() {
 
   run curl -s http://localhost:4321/api/project-status
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "now" ]]
-  [[ "$output" =~ "backlog" ]]
+  assert_has "$output" "now"
+  assert_has "$output" "backlog"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -282,7 +290,7 @@ teardown() {
 
   run curl -s http://localhost:4321/api/evidence
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "packs" ]]
+  assert_has "$output" "packs"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -296,8 +304,8 @@ teardown() {
 
   run curl -s http://localhost:4321/api/evidence/1
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "verification" ]]
-  [[ "$output" =~ "changeSummary" ]]
+  assert_has "$output" "verification"
+  assert_has "$output" "changeSummary"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -311,9 +319,9 @@ teardown() {
 
   run curl -s http://localhost:4321/api/kanban
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "now" ]]
-  [[ "$output" =~ "backlog" ]]
-  [[ "$output" =~ "blocked" ]]
+  assert_has "$output" "now"
+  assert_has "$output" "backlog"
+  assert_has "$output" "blocked"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -327,9 +335,9 @@ teardown() {
 
   run curl -s http://localhost:4321/api/takeover-audit
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "chaosScore" ]]
-  [[ "$output" =~ "grade" ]]
-  [[ "$output" =~ "issues" ]]
+  assert_has "$output" "chaosScore"
+  assert_has "$output" "grade"
+  assert_has "$output" "issues"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -343,7 +351,7 @@ teardown() {
 
   run curl -s http://localhost:4321/api/memory
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "files" ]]
+  assert_has "$output" "files"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -357,24 +365,67 @@ teardown() {
 
   run curl -s http://localhost:4321/api/quick-scan
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "chaosScore" ]]
-  [[ "$output" =~ "grade" ]]
-  [[ "$output" =~ "issues" ]]
-  [[ "$output" =~ "filesScanned" ]]
+  assert_has "$output" "chaosScore"
+  assert_has "$output" "grade"
+  assert_has "$output" "issues"
+  assert_has "$output" "filesScanned"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
 }
 
 @test "parser.js quick-scan detects hardcoded secrets" {
+  # The planted secrets live in src/config.ts, and the secret detector
+  # deliberately skips config files -- a key in a config file is where a key is
+  # supposed to be. So assert on a file the detector does look at, or this test
+  # is asserting the opposite of the design.
+  cat > "$PROJECT_DIR/src/handler.ts" << 'EOF'
+export function callUpstream() {
+  const token = "ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8"
+  return fetch("https://api.example.com", { headers: { Authorization: token } })
+}
+EOF
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
   ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &
   local PID=$!
   sleep 2
 
   run curl -s http://localhost:4321/api/quick-scan
-  [[ "$output" =~ "security" ]]
-  [[ "$output" =~ "hardcoded secret" ]]
+  # The fixture plants keys in src/config.ts. That file used to be exempt from
+  # secret scanning entirely, so these assertions were unsatisfiable from the day
+  # they were written -- detector and test contradicted each other in the same
+  # commit (e9f9c3a). assert_has reports which string was missing.
+  assert_eq "$status" 0 status
+  assert_has "$output" "security"
+  assert_has "$output" "hardcoded secret"
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "parser.js quick-scan does NOT flag env indirection or placeholders" {
+  # The other half of the secret detector, and the reason the old code exempted
+  # config files at all. `apiKey: process.env.KEY` is the *fix* for a hardcoded
+  # secret -- flagging it would punish the correct pattern. Without this test,
+  # tightening the detector to catch config files could regress into flagging
+  # every env lookup in the repo and nothing would notice.
+  mkdir -p "$PROJECT_DIR/src"
+  cat > "$PROJECT_DIR/src/safe-config.ts" << 'EOF'
+const API_KEY = process.env.API_KEY
+const DB_PASSWORD = process.env.DB_PASSWORD
+export const placeholder = { apiKey: "YOUR_API_KEY_HERE", token: "changeme" }
+// const password = "Password used to generate key"
+EOF
+  rm -f "$PROJECT_DIR/src/config.ts"
+
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  assert_eq "$status" 0 status
+  assert_lacks "$output" "hardcoded secret"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -387,8 +438,8 @@ teardown() {
   sleep 2
 
   run curl -s http://localhost:4321/api/quick-scan
-  [[ "$output" =~ "reliability" ]]
-  [[ "$output" =~ "catch" ]]
+  assert_has "$output" "reliability"
+  assert_has "$output" "catch"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -417,7 +468,7 @@ EOF
   sleep 2
 
   run curl -s http://localhost:4321/api/quick-scan
-  [[ "$output" =~ "A" ]]
+  assert_has "$output" "A"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
@@ -526,7 +577,7 @@ EOF
 
   run curl -s http://localhost:4321/api/evidence/999
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "not found" ]]
+  assert_has "$output" "not found"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true

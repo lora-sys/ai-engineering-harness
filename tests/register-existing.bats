@@ -27,8 +27,10 @@ make_harness_project() {
   make_harness_project "$ROOT/projB"
   run bash "$SCRIPT" --dry-run "$ROOT"
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "projA" ]]
-  [[ "$output" =~ "projB" ]]
+  # Chained so both projects are required. Written as two separate lines the
+  # projB check is only reached when projA already matched, which reads as if
+  # both were verified independently when they are not.
+  [[ "$output" =~ "projA" ]] && [[ "$output" =~ "projB" ]]
 }
 
 @test "register-existing skips projects without .harness-state.json (none registered by dry-run)" {
