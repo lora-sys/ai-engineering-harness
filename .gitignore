@@ -24,3 +24,6 @@ node_modules/
 
 # Evidence packs in target projects (when this skill lands inside another repo)
 # docs/evidence/*/test-results/*.json.bak
+
+# Playwright MCP scratch output (screenshots, snapshots) — never committed.
+.playwright-mcp/
