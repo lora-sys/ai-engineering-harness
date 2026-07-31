@@ -33,7 +33,13 @@ Final checks + hand-off to `$ai-engineering-harness` (if the design needs to bec
 5. Verify content sources: every figure listed in brief §8 is either derived at
    build time or explicitly justified as static. A build that can ship a stale
    number will eventually ship one.
-6. **Commit `final`** with screenshot, design brief, iteration log, review checklist all bundled.
+6. Verify the **deployed** page, not the build output, and read it from the
+   rendered DOM. A minifier renames your keys, so grepping the shipped bundle for
+   a figure is unreliable — on this repo's own site that grep matched React's
+   `version:"18.3.1"` instead of the project's. The DOM is what the visitor reads.
+   Also confirm the PR actually built the site: four green checks mean nothing if
+   no job touched the site's paths.
+7. **Commit `final`** with screenshot, design brief, iteration log, review checklist all bundled.
 
 ## Hand-off (two paths)
 

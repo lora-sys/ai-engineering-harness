@@ -101,6 +101,18 @@ Capabilities:
 - 3D scene
 - Immersive experience
 
+### 4.5 Engineering Blueprint / Instrumentation
+
+- Drafting rules, measured values, monospaced numerals
+- **One** semantic accent; glow reserved for state
+- Spec-sheet composition (persistent gutter numerals, staggered indents)
+- For products whose claim is *verifiability*, not *possibility*
+
+4.1 and 4.5 are both dark and differ in what they argue. A neon-gradient hero on a
+trust product argues against its own pitch. Full tokens, measured contrast and the
+motion presets are in `theme-e-engineering-blueprint.md`; the shipped
+implementation is `examples/landing-page/`.
+
 ## 五、Layout Rules
 
 Forbidden:
@@ -183,6 +195,39 @@ Use:
 - Type animation
 - Text masking
 - Dynamic gradient type
+
+### Size giant type against its column, not the viewport
+
+A `vw`-based clamp sizes against the *viewport*. Giant type almost never occupies
+the full viewport — it sits on 7 of 12 columns, inside a gutter — so a `vw` clamp
+overshoots by whatever the rest of the grid takes.
+
+This is worth its own rule because the failure is silent. Combine it with the
+masking above and the overflow does not wrap, does not scroll, and does not show:
+it is clipped away. Measured on this repo's own site, `8.5vw` on a 1440 viewport
+needed **835px inside a 764px column** and shipped as `AI ENGINEERIN` through a
+full round of review.
+
+`scrollWidth` will not catch it — a block-level span reports its container's
+width. Measure the **inked** width:
+
+```js
+const r = document.createRange()
+r.selectNodeContents(el)
+r.getBoundingClientRect().width < el.getBoundingClientRect().width  // must hold
+```
+
+Assert it at every breakpoint you claim to support, not just the one you designed on.
+
+### Check the effective font size inside scaled SVG
+
+Text in an SVG scales with the `viewBox`. A `12px` label in an 800-wide viewBox
+rendered into a 335px mobile column is **5.03px** — illegible, and nothing in the
+source says `5px`, so it is invisible to review. Compute
+`fontSize × (renderedWidth / viewBoxWidth)`.
+
+Enlarging the font inside the viewBox wrecks the desktop diagram. Ship a separate
+narrow-screen variant with labels as real HTML at a real size.
 
 ## 七、Motion Rules
 

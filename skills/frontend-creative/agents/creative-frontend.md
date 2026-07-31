@@ -9,7 +9,7 @@ Generate creative, Awwwards-grade web UIs that break out of the "Tailwind Dashbo
 ## Read first (in order)
 
 1. `references/creative-ui-design-spec.md` — the rulebook. Internalize it before writing a line of code.
-2. `references/theme-variants.md` — pick one of the four themes before macro design.
+2. `references/theme-variants.md` — pick one of the five themes before macro design.
 3. `references/prompt-library.md` — the prompts per phase.
 
 ## Inputs

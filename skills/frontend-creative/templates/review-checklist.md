@@ -20,7 +20,9 @@ Reject if total < 42, or if any single category scores 0.
 
 - [ ] Cohesive palette, not random Tailwind colors
 - [ ] At least one gradient / texture / noise
-- [ ] Sufficient contrast for a11y
+- [ ] Sufficient contrast for a11y — computed, and computed on the **rendered**
+      colour. A token that passes at full strength can fail at
+      `text-<token>/60`; the opacity modifier is what ships
 
 ## Motion (10)
 
@@ -60,6 +62,11 @@ tolerant desktop visitor is not finished.
       the clipboard API is blocked
 - [ ] Every CTA has a real destination, and they are distinguishable in analytics
       /logs (no two unlabelled "learn more" links)
+- [ ] Giant type measured against its column with a `Range`, at every claimed
+      breakpoint — `scrollWidth` reports the container and will pass a clipped
+      wordmark
+- [ ] Any scaled SVG's effective label size ≥ 11px on the narrowest supported
+      screen (`fontSize × renderedWidth / viewBoxWidth`)
 
 ## Verdict questions
 
