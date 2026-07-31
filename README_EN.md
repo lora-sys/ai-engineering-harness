@@ -587,18 +587,39 @@ Three lanes: **Active** (in progress this week), **Backlog** (planned, queued), 
 
 #### Active
 
-_(Roadmap Part 1 and Part 2 done — see Done section.)_
+_Nothing in progress. The most recent round (issues #9 / #10 / #11) is fully
+merged — see the "unreleased" entry under Done._
 
 #### Backlog
 
-- Frontend-creative: theme variants (Cyberpunk / Minimal Gallery / Retro Acid / Future 3D)
-- Frontend-creative: iteration-log template (prevents "AI 越改越普通")
-- Frontend-creative: Awwwards-style review checklist
-- Harness: add `gh release` automation to `scripts/release-prep.sh`
-- Harness: GHA workflow that runs `scripts/run-tests.sh` on every PR (currently local-only)
+- **Harness: measure the false-positive rate of the other 8 vibe-signs detectors.**
+  Only `security` and `code-hygiene` have been measured against third-party code
+  (282 MB / 70,731 files: 410 → 81 and 153,554 → 1,114). At that hit rate the
+  remaining 8 likely carry comparable noise — and noise teaches users to ignore
+  the whole scan, which is worse than one missing detector.
+- **Harness: secret detection misses hyphenated keys.** `sk-live-xxx` (Stripe
+  style) does not fire when the variable name lacks `key`/`token`/`secret`.
+  Re-measure the false-positive rate before loosening the pattern.
+- **Harness: the detector count is kept in sync by hand.** It is written in three
+  places (`parser.js` numbered comments, `SKILL.md`,
+  `chaos-score-algorithm.md`) and drifted once this round. Worth adding to the
+  `check-templates.sh` gate the way directory counts already are.
 
 #### Done
 
+- **Unreleased (on `main`, after `0.2.2`)** — issues #9 / #10 / #11 all closed:
+  - secret detection no longer exempts config files (#17) — a repo with an AWS
+    key in `src/config.ts` used to score A, because the detector skipped the one
+    path where real keys are most often pasted
+  - comment detection no longer reports JSDoc as residue (#19) — 99.1% of its
+    output on the corpus was documentation; it also never caught plain
+    `// const x = 1`, which it now does
+  - README structure rebuilt (#14) — repaired a fence corruption that inverted
+    rendering for 248 lines, and added markdown-structure + count-drift gates to
+    `check-templates.sh`
+  - case studies labelled by type, plus 2 evidenced cases where every number
+    traces to a commit (#16)
+  - 132 bats tests across 19 files
 - **v1.7.0** — GHA workflow (`test.yml` runs harness tests on every PR) + `scripts/release.sh` (one-command release flow) + 4 frontend-creative theme variants + Awwwards / anti-drift gates wired into workflows; 69 bats tests
 - **v1.6.0** — `skills/frontend-creative/` sibling skill (Awwwards-grade creative web UIs) + 2 `install.sh` bug fixes; 66 bats tests
 - **v1.5.0** — PR intake flow (`workflows/09-pr-intake.md`) + Local-first principle (SKILL.md #9) + decision matrix; closes Roadmap Part 1
