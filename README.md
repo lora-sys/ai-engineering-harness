@@ -154,7 +154,7 @@ cd ai-engineering-harness
 
 ### 一次性装齐整个家族（推荐）
 
-`install.sh` 只装你点名的 skill。要一次装齐 3 个兄弟：
+`install.sh` 只装你点名的 skill。要一次装齐整个家族（4 个）：
 
 ```bash
 # 精简装（只 SKILL.md + meta.json）
@@ -167,7 +167,7 @@ bash scripts/install-all-skills.sh --fat
 bash scripts/install-all-skills.sh --status
 ```
 
-把 `ai-engineering-harness` + `build-agent-app` + `frontend-creative` 装到全部 14 个 agent 平台（Codex / Claude / Cursor / Gemini / Qwen / OpenCode / Grok / Hermes / AiderDesk / Augment / Trae 等），让 Codex 能 `@build-agent-app` 和 `@frontend-creative`（不只是 `@ai-engineering-harness`）。
+把 `ai-engineering-harness` + `build-agent-app` + `frontend-creative` + `dashboard` 装到全部 14 个 agent 平台（Codex / Claude / Cursor / Gemini / Qwen / OpenCode / Grok / Hermes / AiderDesk / Augment / Trae 等），让 Codex 能 `@build-agent-app` 和 `@frontend-creative`（不只是 `@ai-engineering-harness`）。`--status` 的表头会列出全部 4 个 skill 在每个 target 上的状态。
 
 ### 兼容的 CLI Agent
 
@@ -541,18 +541,32 @@ bundle；成因详见 [README_EN.md 的 Troubleshooting](./README_EN.md#troubles
 
 ### Active
 
-_（Roadmap Part 1 和 Part 2 已完成 — 见 Done 段。）_
+_目前没有进行中的条目。最近一轮（issue #9 / #10 / #11）已全部合并 —— 见 Done 段的
+「未发布」条目。_
 
 ### Backlog
 
-- frontend-creative: 4 套主题变体（Cyberpunk / Minimal Gallery / Retro Acid / Future 3D）
-- frontend-creative: iteration-log 模板（防"AI 越改越普通"）
-- frontend-creative: Awwwards 风格自评清单
-- 主 harness: 给 `scripts/release-prep.sh` 加 `gh release` 自动化
-- 主 harness: GHA workflow 跑 `scripts/run-tests.sh`（目前只有本地）
+- **主 harness：给剩下 8 个 vibe-signs 检测器量误报率。** 10 个检测器里只有
+  `security` 与 `code-hygiene` 用第三方语料量过（282 MB / 70,731 文件：
+  410 → 81 和 153,554 → 1,114）。按这个命中率，其余 8 个很可能还有同量级噪音，
+  而噪音会让用户学会忽略整份扫描结果 —— 那比少一个检测器更有害。
+- **主 harness：密钥检测对带连字符的 key 会漏。** `sk-live-xxx`（Stripe 风格）在变量名
+  不含 `key`/`token`/`secret` 时不触发。改正则前要重新量误报率。
+- **主 harness：检测器数量目前靠人工同步。** `parser.js` 的编号注释、`SKILL.md`、
+  `chaos-score-algorithm.md` 三处各写一遍，这轮就漂移过一次。值得像目录计数那样
+  加进 `check-templates.sh` 的闸门。
 
 ### Done
 
+- **未发布（`main` 上，`0.2.2` 之后）** — issue #9 / #10 / #11 全部关闭：
+  - 密钥检测不再豁免 config 文件（#17）—— 一个把 AWS key 放在 `src/config.ts` 的仓库
+    原本打 A 分，因为检测器整个跳过了真密钥最常粘的那个路径
+  - 注释检测不再把 JSDoc 当残留（#19）—— 282 MB 语料上 99.1% 的输出是文档；
+    同时补上它从未检出过的普通 `// const x = 1`
+  - README 结构重建（#14）—— 修复一处让 248 行渲染反转的围栏损坏，并加了
+    markdown 结构 + 计数漂移闸门进 `check-templates.sh`
+  - 案例库标注类型、新增 2 个每个数字可追到 commit 的真实案例（#16）
+  - 132 bats 测试 / 19 个文件
 - **v1.7.0** — GHA workflow (`test.yml` runs harness tests on every PR) + `scripts/release.sh` (one-command release flow) + 4 frontend-creative theme variants + Awwwards / anti-drift gates wired into workflows; 69 bats tests
 - **v1.6.0** — `skills/frontend-creative/` sibling skill (Awwwards-grade creative web UIs) + 2 `install.sh` bug fixes; 66 bats tests
 - **v1.5.0** — PR intake flow (`workflows/09-pr-intake.md`) + Local-first principle (SKILL.md #9) + decision matrix; closes Roadmap Part 1
