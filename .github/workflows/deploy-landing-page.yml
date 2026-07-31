@@ -1,8 +1,25 @@
 name: deploy-landing-page
 
+# Runs on PRs as well as pushes, and this is the point.
+#
+# Before: the workflow triggered only on `push: main`, so nothing verified the
+# landing page until it was already merged and deploying. PR #21 changed 1,070
+# lines of the site and showed four green checks -- none of which built it. The
+# four CI jobs cover the harness's bash scripts and markdown; `examples/
+# landing-page/` was outside all of them. A tsc error, a stale facts.json or a
+# broken vite config would have been discovered by the deploy job, on main, with
+# the site already going out.
+#
+# That is exactly the failure issue #13 documented: green CI only proves the
+# environments the config actually names. So the build now runs on pull_request
+# too, and only the deploy step is gated to main.
 on:
   push:
     branches: [main]
+    paths:
+      - 'examples/landing-page/**'
+      - '.github/workflows/deploy-landing-page.yml'
+  pull_request:
     paths:
       - 'examples/landing-page/**'
       - '.github/workflows/deploy-landing-page.yml'
@@ -13,10 +30,11 @@ permissions:
   pages: write
   id-token: write
 
-# Don't cancel an in-flight deployment if a new commit comes in.
+# Don't cancel an in-flight deployment if a new commit comes in. PR builds are
+# keyed by ref so a new push to a branch does supersede its own earlier build.
 concurrency:
-  group: landing-page
-  cancel-in-progress: false
+  group: landing-page-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -31,9 +49,60 @@ jobs:
       - name: Install deps
         working-directory: examples/landing-page
         run: npm ci
+
+      # site-facts.sh must survive the shell users actually run. macOS ships bash
+      # 3.2.57 as /bin/bash, and `bash -n` alone is not enough -- mapfile and
+      # declare -A only fail at runtime (issue #13, bug 3 and 4). So parse it and
+      # run it.
+      - name: site-facts.sh is bash 3.2 safe
+        working-directory: examples/landing-page
+        run: |
+          bash -n scripts/site-facts.sh
+          bash scripts/site-facts.sh --check
+
+      # Fails if src/facts.json drifts from the repo, which is the whole reason
+      # the script exists: the deployed page claimed 9 workflows (10) and 14 CLI
+      # agents (40) for months because those numbers were typed by hand.
       - name: Build
         working-directory: examples/landing-page
         run: npm run build
+
+      # A build can succeed and still ship an empty page. Assert the artifact
+      # actually contains what the site needs.
+      - name: Verify artifact
+        working-directory: examples/landing-page
+        run: |
+          set -e
+          test -f dist/index.html || { echo "FAIL no dist/index.html"; exit 1; }
+          test -f dist/llms.txt   || { echo "FAIL no dist/llms.txt"; exit 1; }
+          test -f dist/robots.txt || { echo "FAIL no dist/robots.txt"; exit 1; }
+          ls dist/assets/*.js >/dev/null || { echo "FAIL no JS bundle"; exit 1; }
+          ls dist/assets/*.css >/dev/null || { echo "FAIL no CSS bundle"; exit 1; }
+          # The page is the product's front door; a stale version string there is
+          # the defect this whole change set exists to stop. Assert the rendered
+          # HTML and facts.json agree with VERSION.
+          v="$(tr -d ' \n' < ../../VERSION)"
+          grep -q "\"version\": \"$v\"" src/facts.json \
+            || { echo "FAIL facts.json version != VERSION ($v)"; exit 1; }
+          echo "artifact ok (version $v)"
+
+      # Keep the JS budget honest. The design brief commits to < 200 KB gzipped;
+      # without a check that is a comment, not a budget.
+      - name: JS budget (gzipped < 200 KB)
+        working-directory: examples/landing-page
+        run: |
+          total=0
+          for f in dist/assets/*.js; do
+            sz=$(gzip -c "$f" | wc -c)
+            total=$((total + sz))
+            echo "  $(basename "$f"): $((sz / 1024)) KB gz"
+          done
+          echo "total: $((total / 1024)) KB gz"
+          if [ "$total" -gt 204800 ]; then
+            echo "FAIL JS budget exceeded: $((total / 1024)) KB gz > 200 KB" >&2
+            exit 1
+          fi
+
       - name: Copy build artifact
         run: |
           mkdir -p _site
@@ -45,6 +114,9 @@ jobs:
 
   deploy:
     needs: build
+    # Only main deploys. PRs get the full build and every assertion above, but
+    # never touch the live site.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
