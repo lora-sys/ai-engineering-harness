@@ -89,7 +89,7 @@ Stable lessons go into `memory/notes-<date>.md` with Status · Context · Decisi
 4. **`scripts/validate-meta.sh --strict` + `scripts/check-templates.sh --strict` + `scripts/run-tests.sh`** must all pass before commit. Together they catch:
    - schema + version + D-006 drift (`validate-meta.sh`)
    - missing required template headings like `## CI` in `templates/pr-description.md` (`check-templates.sh`)
-   - regressions in the harness's own bash scripts (38 bats tests across 6 files: `install-session-hook.bats`, `context-bundle.bats`, `compact-report.bats`, `check-templates.bats`, `validate-meta.bats`, `changelog.bats`)
+   - regressions in the harness's own bash scripts (124 bats tests across 19 files under `tests/` and `skills/*/tests/`)
    All three exit non-zero on failure. Install bats first: `npm install -g bats && ln -sf $(npm root -g)/bats/bin/bats ~/.local/bin/bats` (or `apt install bats` / `brew install bats-core`).
 5. **`scripts/changelog-auto.sh --append`** to preview the changelog entry your commits will produce; commit `CHANGELOG.md` separately if anything is off.
 6. **PR description uses `templates/pr-description.md`** with the relevant sections.
@@ -131,6 +131,62 @@ npx -y skills update lora-sys/ai-engineering-harness -g
 - **Claim-without-evidence** in skills / harness internals. The harness itself runs on evidence gates; the repo shouldn't be an exception.
 - **Single-incident memory entries** — `memory/<role>-memory.md` is for patterns.
 - **Auto-merge in CI**. Force-push to someone else's branch. Anything that takes the human out of the loop on a risk-bearing change.
+
+## Scripts and tooling · 工具脚本
+
+`scripts/` ships the six helper scripts below. All are safe to run from anywhere;
+they're the bones of every maintenance step.
+
+### `scripts/validate-meta.sh` — schema check for `meta.json`
+
+```bash
+scripts/validate-meta.sh                # default: ./meta.json, exit 0/1/2
+scripts/validate-meta.sh --strict       # also fail on warnings
+scripts/validate-meta.sh --json         # one-line JSON for CI
+```
+
+Validates `meta.json` against the embedded schema (id, name, description, category, priority, tags, install map, agents_supported, license, repository, entry). Returns exit 0 on success, 1 on errors, 2 on missing/invalid JSON. Designed to plug into PR pre-commit and CI.
+
+### `scripts/changelog-auto.sh` — half-automated CHANGELOG from git + `gh`
+
+```bash
+scripts/changelog-auto.sh                  # preview to stdout (default)
+scripts/changelog-auto.sh --write          # write to ./CHANGELOG.md
+scripts/changelog-auto.sh --append         # emit only versions newer than the latest documented
+scripts/changelog-auto.sh --since-tag v0.1.3   # filter to versions ≥ tag
+```
+
+Categorizes conventional-commit subjects into Keep-a-Changelog sections (Added / Changed / Fixed / Docs / Performance / Tests / Maintenance / CI / Build / Style), fetches the **What's new** intro from each GitHub Release via `gh release view`, and emits an index. `--append` is the safe default for ongoing maintenance — it preserves human-curated entries and only auto-fills new versions.
+
+### Existing tools
+
+- `scripts/new-session.sh` — `sessions/<id>/{status,plan,execution,review,summary}.md`
+- `scripts/new-evidence.sh` — `docs/evidence/<id>/{change-summary,verification,…}`
+- `scripts/new-worktree.sh` — `git worktree add ../<repo>-issue-<id>`
+- `scripts/refresh-index.sh` — `docs/.index/{manifest,freshness,relations}.json`
+
+## Discoverability · 收录与发现
+
+This skill is automatically aggregated by [Vercel's `skills.sh`](https://skills.sh/) index — a public registry for AI agent skills. Once GitHub's crawler picks up the topics + SKILL.md metadata here, the install command shows up in skill search results.
+
+To help the crawler (or anyone running the `npx skills find` CLI on the user machine):
+
+```bash
+# Tag-related search (works locally)
+npx -y skills find ai-engineering-harness --owner lora-sys
+
+# Browse by topic (when on the skills.sh web UI)
+# Search: multi-agent, code-review, evidence, skills
+```
+
+If you fork or extend this skill, keep these GitHub fields intact:
+
+| Field         | Why                                                              |
+| ------------- | ---------------------------------------------------------------- |
+| Topics        | `ai-engineering`, `multi-agent`, `skills`, `code-review`, etc.    |
+| Description   | Begins with "AI-native software engineering organization harness… |
+| License       | MIT — keeps it redistribution-friendly                            |
+| `SKILL.md`    | YAML frontmatter `name` + `description` is what the indexer reads|
 
 ## When in doubt
 

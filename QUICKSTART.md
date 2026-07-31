@@ -37,7 +37,7 @@ The harness runs on these. They're the first thing to consult when in doubt.
 
 ## 3 · Pick the right workflow
 
-The skill has 9+ workflows. Pick by what you're doing:
+The skill has 10 workflows. Pick by what you're doing:
 
 | You want to… | Start with |
 | --- | --- |

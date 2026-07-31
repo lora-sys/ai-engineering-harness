@@ -65,3 +65,80 @@ open('templates/pr-description.md', 'w').write(text)
   [[ "$output" =~ "## CI" ]] || { echo "expected the failure to name '## CI', got: $output" >&2; exit 1; }
   rm -rf "$TMPDIR"
 }
+
+# --- markdown structure checks (Part B) -----------------------------------
+# These guard the fence-pairing bug from issue #11: README.md shipped with an
+# unfenced shell block and an orphaned ```, inverting fence pairing for 248
+# lines. Total fence count stayed even, so parity checks saw nothing.
+
+@test "check-templates detects an unclosed code fence" {
+  TMPDIR="$(mktemp -d)"
+  cp -r "$REPO_ROOT" "$TMPDIR/harness"
+  cd "$TMPDIR/harness"
+  printf '# Doc\n\n```bash\necho hi\n' > docs/fence-victim.md
+  git add docs/fence-victim.md 2>/dev/null || true
+  run bash scripts/check-templates.sh
+  [ "$status" -ne 0 ]
+  [[ "$output" =~ "never closed" ]]
+  rm -rf "$TMPDIR"
+}
+
+@test "check-templates detects a heading trapped inside a bash fence" {
+  TMPDIR="$(mktemp -d)"
+  cp -r "$REPO_ROOT" "$TMPDIR/harness"
+  cd "$TMPDIR/harness"
+  printf '# Doc\n\n```bash\necho hi\n\n## Trapped Section\n\nmore text\n```\n' > docs/fence-victim.md
+  git add docs/fence-victim.md 2>/dev/null || true
+  run bash scripts/check-templates.sh
+  [ "$status" -ne 0 ]
+  [[ "$output" =~ "inside a code fence" ]]
+  rm -rf "$TMPDIR"
+}
+
+@test "check-templates does NOT flag headings inside a markdown fence" {
+  # The guardrail against the obvious over-broad version of this rule: templates
+  # legitimately quote markdown, and '## Section' inside ```markdown is content.
+  TMPDIR="$(mktemp -d)"
+  cp -r "$REPO_ROOT" "$TMPDIR/harness"
+  cd "$TMPDIR/harness"
+  printf '# Doc\n\n```markdown\n## This is quoted markdown\n\n| a | b |\n```\n' > docs/fence-ok.md
+  git add docs/fence-ok.md 2>/dev/null || true
+  run bash scripts/check-templates.sh --strict
+  [ "$status" -eq 0 ]
+  rm -rf "$TMPDIR"
+}
+
+@test "check-templates warns (not errors) on an image inside a fence" {
+  # An image in a fence never renders -- that is how the closed-loop diagram was
+  # invisible for months -- but it is not itself a structural break, so it is a
+  # warning that only --strict escalates.
+  TMPDIR="$(mktemp -d)"
+  cp -r "$REPO_ROOT" "$TMPDIR/harness"
+  cd "$TMPDIR/harness"
+  printf '# Doc\n\n```\n![pic](assets/x.svg)\n```\n' > docs/fence-img.md
+  git add docs/fence-img.md 2>/dev/null || true
+  run bash scripts/check-templates.sh
+  [ "$status" -eq 0 ]
+  run bash scripts/check-templates.sh --strict
+  [ "$status" -ne 0 ]
+  rm -rf "$TMPDIR"
+}
+
+# --- count drift (Part C) -------------------------------------------------
+
+@test "check-templates detects a count marker that disagrees with the filesystem" {
+  TMPDIR="$(mktemp -d)"
+  cp -r "$REPO_ROOT" "$TMPDIR/harness"
+  cd "$TMPDIR/harness"
+  # Claim one fewer workflow than exists on disk.
+  python3 -c "
+import re
+t = open('README.md').read()
+t = re.sub(r'\| 10 <!-- count:workflows -->', '| 9 <!-- count:workflows -->', t, count=1)
+open('README.md','w').write(t)
+"
+  run bash scripts/check-templates.sh
+  [ "$status" -ne 0 ]
+  [[ "$output" =~ "count:workflows" ]]
+  rm -rf "$TMPDIR"
+}
