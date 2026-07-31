@@ -431,6 +431,72 @@ EOF
   wait $PID 2>/dev/null || true
 }
 
+@test "parser.js quick-scan does NOT flag JSDoc as commented-out code" {
+  # A doc comment is documentation, not residue. The detector's own regex
+  # `/^\s*\/\*\s*\*/` matches `/**`, the JSDoc opener, so every documented
+  # function was reported as commented-out code -- 99.1% of this detector's output
+  # on 282 MB of third-party JS/TS.
+  #
+  # The fixture is a code-DENSE @example block, deliberately, and it took three
+  # attempts to get right. A prose docblock is already rejected by looksLikeCode,
+  # and a mostly-prose @example is rejected by the codeish-density rule, so
+  # neither can tell whether the `/**` exemption exists -- mutation testing showed
+  # both earlier fixtures passing with the exemption deleted. Only a docblock whose
+  # comment lines are majority-code reaches the case where the two rules disagree.
+  # Verified: removing the exemption now turns this test red.
+  rm -f "$PROJECT_DIR/src"/*.ts
+  cat > "$PROJECT_DIR/src/documented.ts" << 'EOF'
+/**
+ * @example
+ * const a = 1;
+ * const b = 2;
+ * return a + b;
+ */
+export function add(a, b) {
+  return a + b
+}
+EOF
+
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  assert_eq "$status" 0 status
+  assert_lacks "$output" "commented-out code"
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
+@test "parser.js quick-scan still flags genuinely commented-out code" {
+  # The inverse of the test above: suppressing JSDoc must not suppress real
+  # residue. Commented-out code is one of the vibe signs issue #9 asks for, so a
+  # fix that quiets the false positives by quieting the detector is not a fix.
+  rm -f "$PROJECT_DIR/src"/*.ts
+  cat > "$PROJECT_DIR/src/leftovers.ts" << 'EOF'
+export function live() { return 1 }
+
+// function oldMethod() {
+//   const legacy = compute()
+//   return legacy * 2
+// }
+EOF
+
+  bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &
+  local PID=$!
+  sleep 2
+
+  run curl -s http://localhost:4321/api/quick-scan
+  assert_eq "$status" 0 status
+  assert_has "$output" "commented-out code"
+
+  kill $PID 2>/dev/null || true
+  wait $PID 2>/dev/null || true
+}
+
 @test "parser.js quick-scan detects missing error handling" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
   ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &

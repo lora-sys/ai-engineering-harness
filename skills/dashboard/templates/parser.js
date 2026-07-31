@@ -1068,6 +1068,43 @@ function isPlaceholderSecret(line) {
   return false;
 }
 
+// Does a comment line look like commented-out code rather than prose?
+//
+// Used by the commented-out-code detector, which previously required `///` to
+// even look -- so it missed ordinary `// const x = 1` entirely -- and counted any
+// 3-line comment run, so a wrapped paragraph read as residue.
+//
+// Tuned against 282 MB of third-party JS/TS, because the first version of this
+// function was far too loose: prose full of backtick-quoted identifiers
+// (`shift()`, `flip()`) matched the "a call" and "an assignment" rules, so every
+// well-commented library flagged. Sentence structure is the discriminator, not
+// the presence of code-ish tokens.
+function looksLikeCode(line) {
+  const raw = line.replace(/^[\s]*(\/\/+|\*|\/\*+)[\s]?/, '');
+  // Strip inline-code spans and URLs first: prose *about* code quotes identifiers
+  // in backticks, and a bare link is never a statement.
+  const body = raw.replace(/`[^`]*`/g, '').replace(/https?:\/\/\S+/g, '').trim();
+  if (!body) return false;
+
+  // Prose signals -- checked before code signals, because a sentence mentioning
+  // `return` is still a sentence.
+  if (/[.!?:,]$/.test(body) && !/[;{}]$/.test(body)) return false;
+  const words = body.split(/\s+/);
+  // Real code lines are short and dense. A long run of words with no terminator
+  // is a wrapped paragraph.
+  if (words.length > 12 && !/[;{}]$/.test(body)) return false;
+  // Sentence-initial capital followed by lowercase words, no terminator: prose.
+  if (/^[A-Z][a-z]+\s+[a-z]/.test(body) && !/[;{}=]$/.test(body) && !/[;{]/.test(body)) return false;
+
+  return (
+    /[;{]$/.test(body) ||                                     // statement / block open
+    /^[}\])]/.test(body) ||                                   // closing delimiter
+    /^\s*(function|const|let|var|return|if|else|for|while|switch|case|class|import|export|def|elif)\b/.test(body) ||
+    /^[a-zA-Z_$][\w$.]*\s*\([^)]*\)\s*[;{]?$/.test(body) ||    // a bare call statement
+    /^[a-zA-Z_$][\w$.]*\s*[:=]\s*\S/.test(body)               // an assignment
+  );
+}
+
 function detectVibeSigns() {
   const issues = [];
   const byCategory = {};
@@ -1178,18 +1215,49 @@ function detectVibeSigns() {
       }
 
       // 4. Commented-out code (LOW)
-      if (/^[\s]*\/{3,}/.test(line) || /^[\s]*\/\*[\s]*[\*]/.test(line)) {
+      //
+      // Two defects, in opposite directions, found by testing the detector
+      // against its own claim rather than by reading it.
+      //
+      // False positives: `/^\s*\/\*\s*\*/` matches `/**`, the JSDoc opener, so
+      // every documented function was reported as commented-out code. The
+      // multi-line branch below already excluded `/**` for exactly this reason,
+      // so the detector contradicted itself, and the noise landed hardest on the
+      // best-documented files. Measured on 282 MB of third-party JS/TS (70,731
+      // files): 153,554 findings before excluding doc comments, 1,331 after --
+      // 99.1% of this detector's output was documentation.
+      //
+      // False negatives: it required `///` (3+ slashes) to enter the check, so
+      // ordinary `// const x = 1` -- the overwhelmingly common form of
+      // commented-out code, and the one issue #9 actually asks for -- was never
+      // detected at all. The `utils.ts` fixture plants exactly that shape and the
+      // suite passed anyway, because its code-hygiene category was satisfied by
+      // the TODO and placeholder-name rules instead. A detector that fires on the
+      // wrong rule still looks green.
+      //
+      // So: enter on any comment line, exclude doc comments, and require the run
+      // to look like code rather than prose (see looksLikeCode).
+      const isDocComment = /^[\s]*\/\*\*/.test(line);
+      const isCommentLine = /^[\s]*\/\//.test(line) || /^[\s]*\/\*[\s]*[\*]/.test(line);
+      if (!isDocComment && isCommentLine) {
         // Single-line block comments
         if (i + 1 < lines.length && (lines[i + 1].trim().startsWith('//') || lines[i + 1].trim().startsWith('*'))) {
           // Look ahead for 3+ consecutive comment lines
           let count = 1;
+          let codeish = looksLikeCode(line) ? 1 : 0;
           for (let j = i + 1; j < Math.min(i + 10, lines.length); j++) {
-            if (lines[j].trim().startsWith('//') || lines[j].trim().startsWith('*') || lines[j].trim().startsWith('/*')) {
+            const t = lines[j].trim();
+            if (t.startsWith('//') || t.startsWith('*') || t.startsWith('/*')) {
               count++;
+              if (looksLikeCode(lines[j])) codeish++;
             } else break;
           }
-          if (count >= 3) {
+          // A run of prose comments is documentation. Require at least half the
+          // run to look like code, and at least two such lines -- one stray
+          // semicolon in a paragraph is not a commented-out function.
+          if (count >= 3 && codeish >= 2 && codeish * 2 >= count) {
             addIssue('low', 'code-hygiene', `${count} lines of commented-out code`, relPath, lineNum);
+            i += count - 1; // don't re-report the same run from each of its lines
           }
         }
       }
