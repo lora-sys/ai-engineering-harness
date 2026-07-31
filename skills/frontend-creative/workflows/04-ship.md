@@ -33,7 +33,34 @@ Final checks + hand-off to `$ai-engineering-harness` (if the design needs to bec
 5. Verify content sources: every figure listed in brief §8 is either derived at
    build time or explicitly justified as static. A build that can ship a stale
    number will eventually ship one.
-6. **Commit `final`** with screenshot, design brief, iteration log, review checklist all bundled.
+6. Verify the **deployed** page, and verify it is *this* build. Two separate
+   checks, because either alone passes while the other fails:
+
+   a. **Provenance** — the deployment that is live was produced by this commit.
+      Get the deploy run's head SHA and match it against the merge commit, and
+      confirm a site-build job actually ran on the PR:
+
+      ```bash
+      gh run list --branch main --workflow deploy-<site>.yml \
+        --json headSha,conclusion,createdAt --limit 1
+      git rev-parse HEAD          # must equal headSha above
+      gh pr checks <n>            # a build job must appear, not just lint/test
+      ```
+
+      Without this, a stale deployment satisfies every content check below —
+      it is serving the *previous* build, which was also correct. Four green
+      checks mean nothing if no job touched the site's paths: that is how this
+      repo's own rebuild reached `main` with 1,070 unbuilt lines.
+
+   b. **Content** — read the figures from the **rendered DOM**, not the bundle.
+      A minifier renames your keys, so grepping the shipped JS is unreliable —
+      on this repo's own site that grep matched React's `version:"18.3.1"`
+      instead of the project's. The DOM is what the visitor reads.
+
+   Belt-and-braces if the site can afford it: emit the build SHA into the page
+   (a `<meta>` or footer) so provenance is checkable from the DOM alone, in one
+   step, by anyone.
+7. **Commit `final`** with screenshot, design brief, iteration log, review checklist all bundled.
 
 ## Hand-off (two paths)
 

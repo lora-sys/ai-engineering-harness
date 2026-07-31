@@ -82,7 +82,8 @@ Design approved → hand off to `$ai-engineering-harness` for implementation:
 ## Read on demand
 
 - `references/creative-ui-design-spec.md` — 17-section rulebook (read first)
-- `references/theme-{a,b,c,d}-*.md` — 4 theme variants
+- `references/theme-{a,b,c,d,e}-*.md` — 5 theme variants (`theme-variants.md` indexes them)
+- `../../examples/landing-page/` — theme E shipped end-to-end: derived facts, measured contrast, the working blueprint build
 - `references/prompt-library.md` — per-phase prompts
 - `templates/design-brief.md` — per-project brief
 - `templates/review-checklist.md` — pre-ship gate

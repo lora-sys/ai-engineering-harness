@@ -12,7 +12,11 @@ Reject if total < 42, or if any single category scores 0.
 
 ## Type (10)
 
-- [ ] Giant title (clamp 4-12rem) used as visual subject
+- [ ] Giant title at the selected theme's display scale, used as visual subject
+      (not merely as a heading). The scale is theme-defined — E is deliberately
+      the smallest at `clamp(2.25rem, 5.4vw, 5.5rem)` because it is sized against
+      its column; C is the largest at `18vw`. Judge dominance in the composition,
+      not absolute rem
 - [ ] Variable / display font, not system default
 - [ ] At least one experimental layout (staggered, masked, vertical)
 
@@ -20,7 +24,9 @@ Reject if total < 42, or if any single category scores 0.
 
 - [ ] Cohesive palette, not random Tailwind colors
 - [ ] At least one gradient / texture / noise
-- [ ] Sufficient contrast for a11y
+- [ ] Sufficient contrast for a11y — computed, and computed on the **rendered**
+      colour. A token that passes at full strength can fail at
+      `text-<token>/60`; the opacity modifier is what ships
 
 ## Motion (10)
 
@@ -60,6 +66,11 @@ tolerant desktop visitor is not finished.
       the clipboard API is blocked
 - [ ] Every CTA has a real destination, and they are distinguishable in analytics
       /logs (no two unlabelled "learn more" links)
+- [ ] Giant type measured against its column with a `Range`, at every claimed
+      breakpoint — `scrollWidth` reports the container and will pass a clipped
+      wordmark
+- [ ] Any scaled SVG's effective label size ≥ 11px on the narrowest supported
+      screen (`fontSize × renderedWidth / viewBoxWidth`)
 
 ## Verdict questions
 

@@ -9,7 +9,7 @@ Generate creative, Awwwards-grade web UIs that break out of the "Tailwind Dashbo
 ## Read first (in order)
 
 1. `references/creative-ui-design-spec.md` — the rulebook. Internalize it before writing a line of code.
-2. `references/theme-variants.md` — pick one of the four themes before macro design.
+2. `references/theme-variants.md` — pick one of the five themes before macro design.
 3. `references/prompt-library.md` — the prompts per phase.
 
 ## Inputs
@@ -31,7 +31,7 @@ Generate creative, Awwwards-grade web UIs that break out of the "Tailwind Dashbo
 These override generic LLM defaults. Repeat them before each round.
 
 1. **No Dashboard layout.** If the page could be confused with a SaaS template, redo it.
-2. **Type is the hero.** Type at clamp(4rem, 12vw, 12rem) or larger. Treat it as a visual subject.
+2. **Type is the hero.** Use the display scale of the selected theme (`references/theme-*.md`) and treat it as a visual subject, not as a heading. Themes range from `clamp(2.25rem, 5.4vw, 5.5rem)` (E, sized against its column) to `clamp(4rem, 18vw, 20rem)` (C). Bigger is not the requirement — dominant within its own composition is.
 3. **Motion is layered.** Heavy on the focal region; light elsewhere. GSAP / ScrollTrigger for scenes; Framer Motion for micro.
 4. **Performance is creative constraint.** 3D scenes must lazy-load. No autoplay video/audio. Hit Lighthouse 90+ on mobile.
 5. **Iterate in rounds, not micro-edits.** Round 1 = macro. Round 2 = local. Round 3 = regression. Don't drift toward generic.
