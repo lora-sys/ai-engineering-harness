@@ -1,0 +1,53 @@
+# AI Engineering Harness
+
+> An engineering organisation of 18 AI agents wired into one closed loop. It does
+> not make AI agents write code faster; it makes their output checkable. Code
+> reaches `main` only when CI is green, at least two cold-start reviewers approve,
+> and the evidence pack is complete.
+
+Installed as a skill into 40 CLI coding agents (Claude Code, Codex, Cursor,
+Gemini, Qwen and others). MIT licensed. Current version 0.2.2.
+
+## What it is
+
+A harness, not a model. It supplies the roles, workflows, templates and gates that
+turn fast AI-generated code into reviewable engineering work: issue intake,
+worktree isolation, planning, implementation, adversarial review, an evidence
+pack, merge, and a memory write-back so the next session starts from a conclusion
+rather than re-deriving it.
+
+## Install
+
+```
+npx -y skills add lora-sys/ai-engineering-harness -g --all --full-depth
+```
+
+Then, in the repository being taken over: "Use $ai-engineering-harness to take
+over this repo." It runs a scan first and names what it found — category and worst
+location — before asking anything.
+
+## Docs
+
+- [Repository](https://github.com/lora-sys/ai-engineering-harness): source, install script, all skills
+- [README](https://github.com/lora-sys/ai-engineering-harness/blob/main/README.md): full documentation (Chinese)
+- [README_EN](https://github.com/lora-sys/ai-engineering-harness/blob/main/README_EN.md): full documentation (English)
+- [QUICKSTART](https://github.com/lora-sys/ai-engineering-harness/blob/main/QUICKSTART.md): nine-section tutorial, first closed loop in five steps
+- [Case studies](https://github.com/lora-sys/ai-engineering-harness/blob/main/docs/case-studies/README.md): before/after takeovers, each labelled evidenced or illustrative
+- [Contributing](https://github.com/lora-sys/ai-engineering-harness/blob/main/CONTRIBUTING.md): working principles, validators, release flow
+- [License](https://github.com/lora-sys/ai-engineering-harness/blob/main/LICENSE): MIT
+
+## Skill family
+
+- `ai-engineering-harness`: the closed loop itself — agents, workflows, gates
+- `build-agent-app`: scaffolding for agent applications
+- `frontend-creative`: Awwwards-grade creative web UI, not dashboards
+- `dashboard`: optional observation panel — Quick Scan and a local board
+
+## Quick Scan
+
+Ten heuristics for inherited "vibe-coded" repositories: hardcoded secrets, missing
+error handling, duplicated logic, style drift, missing test coverage, intent loss
+(code contradicting its own doc comment), commented-out code, orphan TODOs, dead
+code after early return, and absent tests. It reports a chaos score plus the
+specific categories and worst locations, and can group findings into tracked
+issues.

@@ -34,7 +34,7 @@ The skill has **9 workflows** organized by lifecycle stage. Start with the one t
 | --- | --- | --- |
 | Start a **brand-new project** | `workflows/00-bootstrap.md` | → `00-design-brief-collection` → `01-macro-design` → `02-local-refinement` → `03-visual-regression-check` → `04-ship` |
 | **Resume an existing design** that's OK but not great | `workflows/05-takeover.md` | → `01-macro-design` (as a target) → `02-local-refinement` |
-| **Refactor / redo** a design that Awwwards-baseline < 24/60 or is described as "garbage / 狗屎" | `workflows/07-redo.md` | → `00-bootstrap` (with a *different* theme) → 01–04 |
+| **Refactor / redo** a design that Awwwards-baseline < 28/70 or is described as "garbage / 狗屎" | `workflows/07-redo.md` | → `00-bootstrap` (with a *different* theme) → 01–04 |
 | Run a **post-mortem** on a design that's already shipped | `workflows/06-post-mortem.md` | (terminal) |
 | Just need a one-off macro design / local refinement / ship gate | `01` / `02` / `03` / `04` directly | (skip the lifecycle wrapper) |
 
@@ -125,14 +125,14 @@ with the Awwwards self-score. Then run the anti-drift check.
 **You say to the LLM:**
 ```
 $frontend-creative. Run workflows/03-visual-regression-check.md.
-Fill templates/review-checklist.md. 6 categories, 1-10 each. Total ≥ 48 to ship.
+Fill templates/review-checklist.md. 7 categories, 1-10 each (max 70). Total ≥ 56 to ship.
 ```
 
 **The LLM fills the checklist** with: composition / type / color / motion / originality / performance. Lists the top 3 issues. Says PASS / NEEDS-WORK / FAIL.
 
-- **< 36**: Reject. Restart with a different theme.
+- **< 42**: Reject. Restart with a different theme.
 - **36–47**: Back to Step 4, one more round.
-- **≥ 48**: Proceed to Step 6.
+- **≥ 56**: Proceed to Step 6.
 
 ### Step 6 — Ship
 
@@ -172,7 +172,7 @@ The LLM:
 
 ## 5 · End-to-end example: redo a "狗屎" project
 
-`~/projects/garbage-site/` was bootstrap'd at v1.0. Awwwards baseline is 14/60. The user hates it.
+`~/projects/garbage-site/` was bootstrap'd at v1.0. Awwwards baseline is 16/70. The user hates it.
 
 ```
 $frontend-creative. Run workflows/07-redo.md. Target: ~/projects/garbage-site/.
@@ -226,7 +226,7 @@ Commit. Screenshot. Update iteration-log.md. Run the anti-drift check.
 ### Visual regression
 ```
 $frontend-creative. Run workflows/03-visual-regression-check.md.
-Fill templates/review-checklist.md. 6 categories × 1-10. Total < 36 = fail; ≥ 48 = ship-able.
+Fill templates/review-checklist.md. 7 categories × 1-10 (max 70). Total < 42 = fail; ≥ 56 = ship-able.
 ```
 
 ### Ship
@@ -262,7 +262,7 @@ Gather analytics + user feedback, write docs/case-studies/<project>.md.
 - ✅ **Three-round iteration** (macro → local → regression). Not 100 micro-edits.
 - ✅ **One region per round** in Step 4. Never two.
 - ✅ **Screenshot + iteration-log entry per round**. So you can diff between rounds.
-- ✅ **Awwwards review-checklist** at Step 5. Total < 36 = don't ship.
+- ✅ **Awwwards review-checklist** at Step 5. Total < 42 = don't ship.
 - ✅ **Switch theme** if "more generic" fires twice. Same theme = same mistakes.
 - ✅ **Git commit per round**. Don't let the LLM overwrite everything.
 - ✅ **Use the 17-section spec** (`references/creative-ui-design-spec.md`). It's the rulebook.

@@ -4,9 +4,10 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "dev": "bash scripts/site-facts.sh && vite",
+    "build": "bash scripts/site-facts.sh --check && tsc -b && vite build",
+    "preview": "vite preview",
+    "facts": "bash scripts/site-facts.sh"
   },
   "dependencies": {
     "gsap": "^3.12.5",

@@ -17,10 +17,14 @@ Skip if: internal tools, dashboards, admin panels, backend, "clean / minimal / s
 
 1. **No Dashboard layout.** Asymmetric, full-bleed, narrative-driven composition.
 2. **Type is the hero.** Large type as visual subject.
-3. **Motion in layers.** Heavy on focal region; GSAP for scenes, Framer Motion for micro.
+3. **Motion in layers.** Heavy on focal region; GSAP for scenes, Framer Motion for micro. Never both on one element.
 4. **Performance is creative constraint.** Lazy-load 3D, GPU transforms, Lighthouse 90+.
 5. **Iterate 3 rounds.** Macro → local → regression. No drift to generic.
 6. **Awwwards self-review** before ship (see `templates/review-checklist.md`).
+7. **Plan before code.** `workflows/01-macro-design.md` Step 0 — visual concept, wireframe, components, motion, tech, content, performance, a11y. Once code exists the design decisions are already made implicitly.
+8. **Numbers get derived, never typed.** Any figure obtainable from the repo or an API is read at build time and the build fails on drift. Hand-typed counts go stale silently; this repo's own site claimed 9 workflows (10) and 14 CLI agents (40) on its front page for months.
+9. **Reduced motion and keyboard are code paths.** Verified by emulating the query and tabbing the page — not by a CSS block.
+10. **Content never depends on an animation running.** A bare `gsap.from()` on scroll-triggered content leaves the section blank if the trigger never fires.
 
 ## Stack (fixed)
 
@@ -42,6 +46,18 @@ Skip if: internal tools, dashboards, admin panels, backend, "clean / minimal / s
 - "Cool" 3D that's a generic particle sphere.
 - Animations on every scroll (parallax fatigue).
 - AI rewriting the whole page each round → drift.
+
+### Banned clichés (hard reject — full table in spec §5)
+
+Blue-purple gradient SaaS template · full-screen glassmorphism · rows of
+identical rounded cards · bento grid · robot avatars · shield and padlock icons ·
+floating AI chat bubble · decorative grid that nothing aligns to · excess neon or
+universal glow · digital globe with arcs · blockchain hexagons and generic Web3
+iconography · grey body text under 4.5:1 · any motion that costs readability or
+performance.
+
+Glow is allowed only when **semantic** — a state indicator whose job is to emit.
+One accent used with meaning beats four used for decoration.
 
 ## Hand-off
 

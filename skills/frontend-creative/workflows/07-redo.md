@@ -4,7 +4,7 @@ The "狗屎" workflow. Run when the existing design is too far gone to take over
 
 ## Trigger
 
-- Awwwards baseline score < 24/60 (multiple categories = 0).
+- Awwwards baseline score < 28/70 (multiple categories = 0).
 - The user describes the design as "狗屎" / "garbage" / "I hate it" / "it doesn't work".
 - The brief has fundamentally changed (different audience, different product, different message).
 
@@ -42,4 +42,4 @@ The "狗屎" workflow. Run when the existing design is too far gone to take over
 
 - ❌ Don't "fix" by adding more rounds. Two failed anti-drift checks = redo, not round 7.
 - ❌ Don't reuse the old theme. The new theme should be the explicit answer to "what the old theme got wrong".
-- ❌ Don't keep iterating the new design before reaching Awwwards ≥ 48/60. If Round 1 of the redo gets 30, Round 2 of the redo should NOT be more iteration — it should be a *second* redo.
+- ❌ Don't keep iterating the new design before reaching Awwwards ≥ 56/70. If Round 1 of the redo gets 35, Round 2 of the redo should NOT be more iteration — it should be a *second* redo.

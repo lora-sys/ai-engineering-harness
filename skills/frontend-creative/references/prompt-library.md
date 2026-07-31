@@ -112,5 +112,5 @@ Score this page 1-10 on:
 6. Templating risk (lower is better)
 
 For each: 1-line justification + 1 concrete fix.
-Reject if total < 36/60.
+Reject if total < 42/70.
 ```

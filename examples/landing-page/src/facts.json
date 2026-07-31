@@ -1,0 +1,13 @@
+{
+  "agents": 18,
+  "workflows": 10,
+  "templates": 16,
+  "checklists": 6,
+  "references": 11,
+  "examples": 7,
+  "skills": 4,
+  "targets": 40,
+  "detectors": 10,
+  "batsFiles": 19,
+  "version": "0.2.2"
+}
