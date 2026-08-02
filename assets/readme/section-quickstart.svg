@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="140" viewBox="0 0 1200 140" role="img" aria-labelledby="title desc">
+  <title id="title">Quickstart - 5 Steps</title>
+  <desc id="desc">Quickstart section banner: 5 steps to run the first closed loop — install, takeover, scan, drive an issue, collect evidence.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0d1a"/>
+      <stop offset="100%" stop-color="#0f1a2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00d4aa"/><stop offset="100%" stop-color="#00a98a"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="140" rx="12" fill="url(#bg)"/>
+  <rect width="1200" height="140" rx="12" fill="none" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Left: label + title -->
+  <g transform="translate(48, 40)">
+    <text x="0" y="0" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="11" font-weight="600" fill="#00d4aa" letter-spacing="2">QUICKSTART</text>
+    <text x="0" y="36" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="26" font-weight="700" fill="#f4f6ff">5 步跑通第一个闭环</text>
+    <text x="0" y="64" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="13" font-weight="400" fill="#a8b3d6">从安装到证据落盘，平均 15 分钟</text>
+  </g>
+
+  <!-- Right: 5 step boxes -->
+  <g transform="translate(740, 32)">
+    <!-- Step 1 -->
+    <g transform="translate(0, 0)">
+      <rect width="68" height="68" rx="8" fill="url(#accent)" filter="url(#glow)"/>
+      <text x="34" y="30" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="20" font-weight="700" fill="#0d2f29" text-anchor="middle">1</text>
+      <text x="34" y="50" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="10" fill="#0d2f29" text-anchor="middle">安装</text>
+    </g>
+
+    <!-- Arrow -->
+    <g transform="translate(82, 30)">
+      <path d="M0,4 L12,4 M8,0 L12,4 L8,8" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+    </g>
+
+    <!-- Step 2 -->
+    <g transform="translate(100, 0)">
+      <rect width="68" height="68" rx="8" fill="#1e293b" stroke="#3b4a6b" stroke-width="1.5"/>
+      <text x="34" y="30" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="20" font-weight="700" fill="#a8b3d6" text-anchor="middle">2</text>
+      <text x="34" y="50" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="10" fill="#a8b3d6" text-anchor="middle">接管</text>
+    </g>
+
+    <!-- Arrow -->
+    <g transform="translate(182, 30)">
+      <path d="M0,4 L12,4 M8,0 L12,4 L8,8" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+    </g>
+
+    <!-- Step 3 -->
+    <g transform="translate(200, 0)">
+      <rect width="68" height="68" rx="8" fill="#1e293b" stroke="#3b4a6b" stroke-width="1.5"/>
+      <text x="34" y="30" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="20" font-weight="700" fill="#a8b3d6" text-anchor="middle">3</text>
+      <text x="34" y="50" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="10" fill="#a8b3d6" text-anchor="middle">扫描</text>
+    </g>
+
+    <!-- Arrow -->
+    <g transform="translate(282, 30)">
+      <path d="M0,4 L12,4 M8,0 L12,4 L8,8" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+    </g>
+
+    <!-- Step 4 -->
+    <g transform="translate(300, 0)">
+      <rect width="68" height="68" rx="8" fill="#1e293b" stroke="#3b4a6b" stroke-width="1.5"/>
+      <text x="34" y="30" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="20" font-weight="700" fill="#a8b3d6" text-anchor="middle">4</text>
+      <text x="34" y="50" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="10" fill="#a8b3d6" text-anchor="middle">驱动</text>
+    </g>
+
+    <!-- Arrow -->
+    <g transform="translate(382, 30)">
+      <path d="M0,4 L12,4 M8,0 L12,4 L8,8" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+    </g>
+
+    <!-- Step 5 -->
+    <g transform="translate(400, 0)">
+      <rect width="68" height="68" rx="8" fill="#1e293b" stroke="#3b4a6b" stroke-width="1.5"/>
+      <text x="34" y="30" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="20" font-weight="700" fill="#a8b3d6" text-anchor="middle">5</text>
+      <text x="34" y="50" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="10" fill="#a8b3d6" text-anchor="middle">证据</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="160" viewBox="0 0 1200 160" role="img" aria-labelledby="title desc">
+  <title id="title">Real Proof - Case Studies and Evidence</title>
+  <desc id="desc">Proof section header showing real case studies with commit references, e2e outputs, and verified evidence — not marketing claims.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0a0d1a"/>
+      <stop offset="100%" stop-color="#0f1a2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c5cff"/><stop offset="100%" stop-color="#4a3aff"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="160" rx="12" fill="url(#bg)"/>
+  <rect width="1200" height="160" rx="12" fill="none" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Left: label + title -->
+  <g transform="translate(48, 56)">
+    <text x="0" y="0" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="11" font-weight="600" fill="#7c5cff" letter-spacing="2">PROOF</text>
+    <text x="0" y="36" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="28" font-weight="700" fill="#f4f6ff">真实案例 · Real Case Studies</text>
+    <text x="0" y="64" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="14" font-weight="400" fill="#a8b3d6">每个数字都能追到一个 commit · Every metric traces to a commit</text>
+  </g>
+
+  <!-- Right: evidence badges -->
+  <g transform="translate(740, 40)">
+    <!-- Badge 1: chaos score -->
+    <g transform="translate(0, 0)">
+      <rect width="120" height="60" rx="8" fill="#1e293b" stroke="#3b4a6b" stroke-width="1"/>
+      <text x="60" y="22" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#6f78a8" text-anchor="middle">CHAOS SCORE</text>
+      <text x="60" y="48" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="24" font-weight="700" fill="#00d4aa" text-anchor="middle">35→87</text>
+    </g>
+
+    <!-- Badge 2: tests -->
+    <g transform="translate(140, 0)">
+      <rect width="120" height="60" rx="8" fill="#1e293b" stroke="#3b4a6b" stroke-width="1"/>
+      <text x="60" y="22" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#6f78a8" text-anchor="middle">TESTS ADDED</text>
+      <text x="60" y="48" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="24" font-weight="700" fill="#5fb3ff" text-anchor="middle">0→47</text>
+    </g>
+
+    <!-- Badge 3: detectors -->
+    <g transform="translate(280, 0)">
+      <rect width="120" height="60" rx="8" fill="#1e293b" stroke="#3b4a6b" stroke-width="1"/>
+      <text x="60" y="22" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#6f78a8" text-anchor="middle">DETECTORS</text>
+      <text x="60" y="48" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="24" font-weight="700" fill="#ff5e7a" text-anchor="middle">9→10</text>
+    </g>
+
+    <!-- Badge 4: CI -->
+    <g transform="translate(420, 0)">
+      <rect width="120" height="60" rx="8" fill="url(#accent)" filter="url(#glow)"/>
+      <text x="60" y="22" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#d6cbff" text-anchor="middle">CI PASS RATE</text>
+      <text x="60" y="48" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="24" font-weight="700" fill="#ffffff" text-anchor="middle">79%→100%</text>
+    </g>
+  </g>
+</svg>

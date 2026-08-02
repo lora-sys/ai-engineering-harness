@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-labelledby="title desc">
+  <title id="title">Workflow - From PRD to Merge</title>
+  <desc id="desc">9-phase workflow diagram: PRD → Planning → Worktree → Implementation → CI → Review → Evidence → Merge → Memory. Each phase has a specific owner and exit condition.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0d1a"/>
+      <stop offset="100%" stop-color="#0f1a2e"/>
+    </linearGradient>
+    <linearGradient id="phase-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c5cff"/><stop offset="100%" stop-color="#4a3aff"/>
+    </linearGradient>
+    <linearGradient id="phase-2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5fb3ff"/><stop offset="100%" stop-color="#3d8be0"/>
+    </linearGradient>
+    <linearGradient id="phase-3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4aa"/><stop offset="100%" stop-color="#00a98a"/>
+    </linearGradient>
+    <linearGradient id="phase-4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff5e7a"/><stop offset="100%" stop-color="#e0395b"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="200" rx="12" fill="url(#bg)"/>
+  <rect width="1200" height="200" rx="12" fill="none" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Phase 1: PRD -->
+  <g transform="translate(32, 40)">
+    <rect width="100" height="80" rx="8" fill="url(#phase-1)" filter="url(#glow)"/>
+    <text x="50" y="28" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="10" fill="#d6cbff" text-anchor="middle">PHASE 0</text>
+    <text x="50" y="52" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">PRD</text>
+    <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="9" fill="#e0d6ff" text-anchor="middle">Coordinator</text>
+  </g>
+
+  <!-- Arrow -->
+  <g transform="translate(146, 78)">
+    <path d="M0,2 L12,2 M8,-2 L12,2 L8,6" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <!-- Phase 2: Planning -->
+  <g transform="translate(170, 40)">
+    <rect width="100" height="80" rx="8" fill="url(#phase-2)" filter="url(#glow)"/>
+    <text x="50" y="28" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="10" fill="#dbeaff" text-anchor="middle">PHASE 1</text>
+    <text x="50" y="52" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">Planning</text>
+    <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="9" fill="#dbeaff" text-anchor="middle">Coordinator</text>
+  </g>
+
+  <!-- Arrow -->
+  <g transform="translate(284, 78)">
+    <path d="M0,2 L12,2 M8,-2 L12,2 L8,6" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <!-- Phase 3: Worktree -->
+  <g transform="translate(308, 40)">
+    <rect width="100" height="80" rx="8" fill="#1e293b" stroke="#3b4a6b" stroke-width="1.5"/>
+    <text x="50" y="28" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="10" fill="#6f78a8" text-anchor="middle">PHASE 2</text>
+    <text x="50" y="52" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="13" font-weight="600" fill="#f4f6ff" text-anchor="middle">Worktree</text>
+    <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="9" fill="#a8b3d6" text-anchor="middle">Owner Agent</text>
+  </g>
+
+  <!-- Arrow -->
+  <g transform="translate(422, 78)">
+    <path d="M0,2 L12,2 M8,-2 L12,2 L8,6" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <!-- Phase 4: Implementation -->
+  <g transform="translate(446, 40)">
+    <rect width="100" height="80" rx="8" fill="url(#phase-3)" filter="url(#glow)"/>
+    <text x="50" y="28" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="10" fill="#dffbf3" text-anchor="middle">PHASE 3</text>
+    <text x="50" y="52" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="13" font-weight="700" fill="#0d2f29" text-anchor="middle">Implement</text>
+    <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="9" fill="#0d2f29" text-anchor="middle">FE/BE/DB</text>
+  </g>
+
+  <!-- Arrow -->
+  <g transform="translate(560, 78)">
+    <path d="M0,2 L12,2 M8,-2 L12,2 L8,6" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <!-- Phase 5: CI Gate -->
+  <g transform="translate(584, 40)">
+    <rect width="100" height="80" rx="8" fill="url(#phase-4)" filter="url(#glow)"/>
+    <text x="50" y="28" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="10" fill="#ffe2e9" text-anchor="middle">PHASE 4</text>
+    <text x="50" y="52" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">CI Gate</text>
+    <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="9" fill="#ffe2e9" text-anchor="middle">Required Green</text>
+  </g>
+
+  <!-- Arrow -->
+  <g transform="translate(698, 78)">
+    <path d="M0,2 L12,2 M8,-2 L12,2 L8,6" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <!-- Phase 6: Review -->
+  <g transform="translate(722, 40)">
+    <rect width="100" height="80" rx="8" fill="url(#phase-1)" filter="url(#glow)"/>
+    <text x="50" y="28" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="10" fill="#d6cbff" text-anchor="middle">PHASE 5</text>
+    <text x="50" y="52" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">Review</text>
+    <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="9" fill="#d6cbff" text-anchor="middle">Cold-Start</text>
+  </g>
+
+  <!-- Arrow -->
+  <g transform="translate(836, 78)">
+    <path d="M0,2 L12,2 M8,-2 L12,2 L8,6" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <!-- Phase 7: Evidence -->
+  <g transform="translate(860, 40)">
+    <rect width="100" height="80" rx="8" fill="url(#phase-3)" filter="url(#glow)"/>
+    <text x="50" y="28" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="10" fill="#dffbf3" text-anchor="middle">PHASE 6</text>
+    <text x="50" y="52" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="13" font-weight="700" fill="#0d2f29" text-anchor="middle">Evidence</text>
+    <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="9" fill="#0d2f29" text-anchor="middle">Gate</text>
+  </g>
+
+  <!-- Arrow -->
+  <g transform="translate(974, 78)">
+    <path d="M0,2 L12,2 M8,-2 L12,2 L8,6" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <!-- Phase 8: Merge -->
+  <g transform="translate(998, 40)">
+    <rect width="100" height="80" rx="8" fill="url(#phase-2)" filter="url(#glow)"/>
+    <text x="50" y="28" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="10" fill="#dbeaff" text-anchor="middle">PHASE 7</text>
+    <text x="50" y="52" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">Merge</text>
+    <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="9" fill="#dbeaff" text-anchor="middle">→ main</text>
+  </g>
+
+  <!-- Arrow -->
+  <g transform="translate(1112, 78)">
+    <path d="M0,2 L16,2 M12,-2 L16,2 L12,6" stroke="#7c5cff" stroke-width="2" fill="none" marker-end="url(#arr-purple)"/>
+  </g>
+
+  <!-- Phase 9: Memory (centered below) -->
+  <g transform="translate(1010, 148)">
+    <rect width="100" height="40" rx="8" fill="#1e293b" stroke="#3b4a6b" stroke-width="1.5"/>
+    <text x="50" y="27" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="10" fill="#a8b3d6" text-anchor="middle">PHASE 8 · MEMORY</text>
+  </g>
+
+  <!-- Arrow to Memory -->
+  <path d="M1060 120 L1060 148" stroke="#3b4a6b" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+</svg>

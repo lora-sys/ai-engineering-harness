@@ -1,0 +1,201 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">AI Engineering Harness - 让每一行代码，都有证据</title>
+  <desc id="desc">Hero banner: Issue → Worktree → Plan → Implement → Review → Evidence → Merge → Memory. 18 agents, 9 workflows, evidence-gated engineering organization for vibe-coded repos.</desc>
+
+  <defs>
+    <!-- Main palette -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0d1a"/>
+      <stop offset="100%" stop-color="#0f1a2e"/>
+    </linearGradient>
+    <linearGradient id="coord" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c5cff"/><stop offset="100%" stop-color="#4a3aff"/>
+    </linearGradient>
+    <linearGradient id="evid" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4aa"/><stop offset="100%" stop-color="#00a98a"/>
+    </linearGradient>
+    <linearGradient id="impl" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5fb3ff"/><stop offset="100%" stop-color="#3d8be0"/>
+    </linearGradient>
+    <linearGradient id="rev" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff5e7a"/><stop offset="100%" stop-color="#e0395b"/>
+    </linearGradient>
+    <!-- Subtle grid -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <!-- Glow filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="360" fill="url(#bg)"/>
+  <rect width="1200" height="360" fill="url(#grid)" opacity="0.4"/>
+
+  <!-- Left side: title block -->
+  <g id="title-block" transform="translate(64, 48)">
+    <!-- Eyebrow -->
+    <text x="0" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="12" font-weight="700" fill="#6f78a8" letter-spacing="3">AI-NATIVE ENGINEERING ORG</text>
+
+    <!-- Main title (Chinese + English) -->
+    <text x="0" y="42" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif"
+          font-size="36" font-weight="700" fill="#f4f6ff">AI Engineering Harness</text>
+
+    <!-- Tagline -->
+    <text x="0" y="78" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif"
+          font-size="18" font-weight="500" fill="#a8b3d6">让每一行代码，都有证据。</text>
+
+    <!-- Subtext -->
+    <text x="0" y="104" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="14" font-weight="400" fill="#8898c8">从失控的 Vibe Coding → 可验证的工程交付</text>
+
+    <!-- Metadata pills -->
+    <g transform="translate(0, 136)">
+      <rect width="90" height="28" rx="6" fill="#1e293b" stroke="#3b4a6b" stroke-width="1"/>
+      <text x="45" y="19" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="11" font-weight="600" fill="#a8b3d6" text-anchor="middle">18 AGENTS</text>
+
+      <rect x="106" width="90" height="28" rx="6" fill="#1e293b" stroke="#3b4a6b" stroke-width="1"/>
+      <text x="151" y="19" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="11" font-weight="600" fill="#a8b3d6" text-anchor="middle">9 WORKFLOWS</text>
+
+      <rect x="212" width="100" height="28" rx="6" fill="url(#coord)" filter="url(#glow)"/>
+      <text x="262" y="19" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="11" font-weight="700" fill="#e0d6ff" text-anchor="middle">EVIDENCE-GATED</text>
+    </g>
+
+    <!-- Install hint -->
+    <text x="0" y="196" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="11" fill="#6f78a8">npx -y skills add lora-sys/ai-engineering-harness -g --all</text>
+  </g>
+
+  <!-- Right side: proof board (workflow visualization) -->
+  <g id="proof" transform="translate(680, 32)">
+    <!-- Stage boxes -->
+    <g transform="translate(0, 40)">
+      <!-- 1. Issue -->
+      <rect width="70" height="50" rx="6" fill="#1e293b" stroke="#3b4a6b" stroke-width="1.5"/>
+      <text x="35" y="20" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#6f78a8" text-anchor="middle">01</text>
+      <text x="35" y="36" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="11" font-weight="600" fill="#f4f6ff" text-anchor="middle">Issue</text>
+    </g>
+
+    <!-- Arrow 1 -->
+    <g transform="translate(80, 62)">
+      <path d="M0,3 L16,3 M12,-3 L16,3 L12,9" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+    </g>
+
+    <!-- 2. Plan -->
+    <g transform="translate(104, 40)">
+      <rect width="70" height="50" rx="6" fill="#1e293b" stroke="#3b4a6b" stroke-width="1.5"/>
+      <text x="35" y="20" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#6f78a8" text-anchor="middle">02</text>
+      <text x="35" y="36" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="11" font-weight="600" fill="#f4f6ff" text-anchor="middle">Plan</text>
+    </g>
+
+    <!-- Arrow 2 -->
+    <g transform="translate(184, 62)">
+      <path d="M0,3 L16,3 M12,-3 L16,3 L12,9" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+    </g>
+
+    <!-- 3. Worktree -->
+    <g transform="translate(208, 40)">
+      <rect width="70" height="50" rx="6" fill="#1e293b" stroke="#3b4a6b" stroke-width="1.5"/>
+      <text x="35" y="20" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#6f78a8" text-anchor="middle">03</text>
+      <text x="35" y="36" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="11" font-weight="600" fill="#f4f6ff" text-anchor="middle">Worktree</text>
+    </g>
+
+    <!-- Arrow 3 -->
+    <g transform="translate(288, 62)">
+      <path d="M0,3 L16,3 M12,-3 L16,3 L12,9" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+    </g>
+
+    <!-- 4. Implement -->
+    <g transform="translate(312, 40)">
+      <rect width="70" height="50" rx="6" fill="url(#impl)" filter="url(#glow)"/>
+      <text x="35" y="20" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#dbeaff" text-anchor="middle">04</text>
+      <text x="35" y="36" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">Implement</text>
+    </g>
+
+    <!-- Row 2 -->
+    <g transform="translate(0, 124)">
+      <!-- 5. CI -->
+      <rect width="70" height="50" rx="6" fill="#1e293b" stroke="#3b4a6b" stroke-width="1.5"/>
+      <text x="35" y="20" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#6f78a8" text-anchor="middle">05</text>
+      <text x="35" y="36" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="11" font-weight="600" fill="#f4f6ff" text-anchor="middle">CI Gate</text>
+    </g>
+
+    <!-- Arrow row 2 -->
+    <g transform="translate(80, 146)">
+      <path d="M0,3 L16,3 M12,-3 L16,3 L12,9" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+    </g>
+
+    <!-- 6. Review -->
+    <g transform="translate(104, 124)">
+      <rect width="70" height="50" rx="6" fill="url(#rev)" filter="url(#glow)"/>
+      <text x="35" y="20" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#ffe2e9" text-anchor="middle">06</text>
+      <text x="35" y="36" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">Review</text>
+    </g>
+
+    <!-- Arrow row 2 -->
+    <g transform="translate(184, 146)">
+      <path d="M0,3 L16,3 M12,-3 L16,3 L12,9" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+    </g>
+
+    <!-- 7. Evidence -->
+    <g transform="translate(208, 124)">
+      <rect width="70" height="50" rx="6" fill="url(#evid)" filter="url(#glow)"/>
+      <text x="35" y="20" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#dffbf3" text-anchor="middle">07</text>
+      <text x="35" y="36" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="11" font-weight="700" fill="#0d2f29" text-anchor="middle">Evidence</text>
+    </g>
+
+    <!-- Arrow row 2 -->
+    <g transform="translate(288, 146)">
+      <path d="M0,3 L16,3 M12,-3 L16,3 L12,9" stroke="#3b4a6b" stroke-width="1.5" fill="none"/>
+    </g>
+
+    <!-- 8. Merge -->
+    <g transform="translate(312, 124)">
+      <rect width="70" height="50" rx="6" fill="url(#coord)" filter="url(#glow)"/>
+      <text x="35" y="20" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#d6cbff" text-anchor="middle">08</text>
+      <text x="35" y="36" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">Merge</text>
+    </g>
+
+    <!-- Row 3: Memory centered -->
+    <g transform="translate(208, 208)">
+      <rect width="70" height="50" rx="6" fill="url(#rev)" filter="url(#glow)"/>
+      <text x="35" y="20" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+            font-size="9" fill="#ffe2e9" text-anchor="middle">09</text>
+      <text x="35" y="36" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">Memory</text>
+    </g>
+
+    <!-- Arrows to Memory -->
+    <path d="M246 174 L246 208" stroke="#3b4a6b" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+    <!-- Coordinator badge -->
+    <g transform="translate(104, 288)">
+      <rect width="180" height="40" rx="8" fill="url(#coord)" opacity="0.3" stroke="#7c5cff" stroke-width="1"/>
+      <text x="90" y="25" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+            font-size="11" font-weight="600" fill="#a8b3d6" text-anchor="middle">Coordinator · 18 Agents</text>
+    </g>
+  </g>
+</svg>

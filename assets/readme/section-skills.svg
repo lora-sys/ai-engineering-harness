@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="220" viewBox="0 0 1200 220" role="img" aria-labelledby="title desc">
+  <title id="title">Skill Family - 4 Skills</title>
+  <desc id="desc">Four skill cards in the AI Engineering Harness family: ai-engineering-harness, build-agent-app, frontend-creative, and dashboard. Each has a distinct role in the engineering workflow.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0d1a"/>
+      <stop offset="100%" stop-color="#0f1a2e"/>
+    </linearGradient>
+    <linearGradient id="harness" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c5cff"/><stop offset="100%" stop-color="#4a3aff"/>
+    </linearGradient>
+    <linearGradient id="build" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5fb3ff"/><stop offset="100%" stop-color="#3d8be0"/>
+    </linearGradient>
+    <linearGradient id="creative" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff5e7a"/><stop offset="100%" stop-color="#e0395b"/>
+    </linearGradient>
+    <linearGradient id="dashboard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4aa"/><stop offset="100%" stop-color="#00a98a"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="220" rx="12" fill="url(#bg)"/>
+  <rect width="1200" height="220" rx="12" fill="none" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Header -->
+  <g transform="translate(48, 36)">
+    <text x="0" y="0" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="11" font-weight="600" fill="#7c5cff" letter-spacing="2">SKILL FAMILY</text>
+    <text x="0" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="24" font-weight="700" fill="#f4f6ff">4 种能力，1 个观测面板</text>
+  </g>
+
+  <!-- Skill 1: ai-engineering-harness -->
+  <g transform="translate(48, 88)">
+    <rect width="240" height="100" rx="10" fill="url(#harness)" filter="url(#glow)"/>
+    <text x="20" y="26" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="16" font-weight="700" fill="#e0d6ff">ai-engineering-harness</text>
+    <text x="20" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="11" fill="#d6cbff">工程接管与闭环交付</text>
+    <text x="20" y="66" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="10" fill="#a8b3d6">从 Issue 到 Merge 的全流程</text>
+    <text x="20" y="84" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="9" fill="#a8b3d6">$ai-engineering-harness</text>
+  </g>
+
+  <!-- Skill 2: build-agent-app -->
+  <g transform="translate(316, 88)">
+    <rect width="240" height="100" rx="10" fill="url(#build)" filter="url(#glow)"/>
+    <text x="20" y="26" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="16" font-weight="700" fill="#dbeaff">build-agent-app</text>
+    <text x="20" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="11" fill="#dbeaff">Agent App 设计与合约</text>
+    <text x="20" y="66" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="10" fill="#a8b3d6">设计 AI Agent 应用，交给 harness 实现</text>
+    <text x="20" y="84" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="9" fill="#a8b3d6">$build-agent-app</text>
+  </g>
+
+  <!-- Skill 3: frontend-creative -->
+  <g transform="translate(584, 88)">
+    <rect width="240" height="100" rx="10" fill="url(#creative)" filter="url(#glow)"/>
+    <text x="20" y="26" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="16" font-weight="700" fill="#ffe2e9">frontend-creative</text>
+    <text x="20" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="11" fill="#ffe2e9">Awwwards 级创意前端生成</text>
+    <text x="20" y="66" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="10" fill="#a8b3d6">用 AI 生成获奖级别的 Web UI</text>
+    <text x="20" y="84" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="9" fill="#a8b3d6">$frontend-creative</text>
+  </g>
+
+  <!-- Skill 4: dashboard -->
+  <g transform="translate(852, 88)">
+    <rect width="240" height="100" rx="10" fill="#1e293b" stroke="#00d4aa" stroke-width="1.5"/>
+    <text x="20" y="26" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="16" font-weight="700" fill="#00d4aa">dashboard</text>
+    <text x="20" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="11" fill="#a8b3d6">可选 · 观测面板</text>
+    <text x="20" y="66" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="10" fill="#6f78a8">Quick Scan 与看板，scaffold 后自动拉起</text>
+    <text x="20" y="84" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="9" fill="#6f78a8">$dashboard · localhost:4321</text>
+  </g>
+</svg>

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="140" viewBox="0 0 1200 140" role="img" aria-labelledby="title desc">
+  <title id="title">Operating Principles - 9 Core Principles</title>
+  <desc id="desc">9 operating principles banner: evidence-first, cold-start reviews, issue-driven, worktree isolation, context control, human approval gates, memory, CI gates, and local-first.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0d1a"/>
+      <stop offset="100%" stop-color="#0f1a2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff5e7a"/><stop offset="100%" stop-color="#e0395b"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="140" rx="12" fill="url(#bg)"/>
+  <rect width="1200" height="140" rx="12" fill="none" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Left: label + title -->
+  <g transform="translate(48, 40)">
+    <text x="0" y="0" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="11" font-weight="600" fill="#ff5e7a" letter-spacing="2">PRINCIPLES</text>
+    <text x="0" y="36" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="26" font-weight="700" fill="#f4f6ff">9 条运行原则</text>
+    <text x="0" y="64" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="13" font-weight="400" fill="#a8b3d6">不是建议，是强制约束 · Not suggestions — constraints</text>
+  </g>
+
+  <!-- Right: key principles list -->
+  <g transform="translate(740, 32)">
+    <text x="0" y="16" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="12" font-weight="600" fill="#f4f6ff">1. 信任证据，不信任"看起来好了"</text>
+    <text x="0" y="36" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="12" font-weight="600" fill="#f4f6ff">2. 冷启动审查 · Cold-start reviews</text>
+    <text x="0" y="56" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="12" font-weight="600" fill="#f4f6ff">3. Issue 是工作单元</text>
+    <text x="0" y="76" font-family="-apple-system, BlinkMacSystemFont, sans-serif"
+          font-size="12" font-weight="600" fill="#f4f6ff">4. Worktree 隔离</text>
+    <text x="0" y="96" font-family="ui-monospace, 'SFMono-Regular', Menlo, monospace"
+          font-size="12" fill="#6f78a8">+5 more ↓</text>
+  </g>
+</svg>
