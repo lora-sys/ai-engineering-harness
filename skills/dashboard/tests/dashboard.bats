@@ -239,17 +239,35 @@ teardown() {
 
 @test "parser.js starts and serves /api/health" {
   bash "$SCAFFOLD_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
-  ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js >/dev/null 2>&1 ) &
+  ( cd "$PROJECT_DIR/.dashboard" && exec node parser.js > /tmp/parser-$$.log 2>&1 ) &
   local PID=$!
-  sleep 2
 
-  run curl -s http://localhost:4321/api/health
+  # Wait for server to be ready (up to 5 seconds, checking every 0.2s)
+  local ready=0
+  for i in $(seq 1 25); do
+    if curl -s --max-time 0.5 http://localhost:4321/api/health >/dev/null 2>&1; then
+      ready=1
+      break
+    fi
+    sleep 0.2
+  done
+
+  if [ "$ready" -eq 0 ]; then
+    echo "server did not become ready in 5 seconds; parser.js log:" >&2
+    cat /tmp/parser-$$.log >&2 || true
+    kill $PID 2>/dev/null || true
+    wait $PID 2>/dev/null || true
+    return 1
+  fi
+
+  run curl -s --max-time 2 http://localhost:4321/api/health
   [ "$status" -eq 0 ]
   assert_has "$output" "overall"
   assert_has "$output" "evidence"
 
   kill $PID 2>/dev/null || true
   wait $PID 2>/dev/null || true
+  rm -f /tmp/parser-$$.log
 }
 
 @test "parser.js serves dashboard.html on /" {
